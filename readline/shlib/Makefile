@@ -31,7 +31,7 @@ RL_LIBRARY_NAME = readline
 srcdir = .
 VPATH = .:..
 topdir = ..
-BUILD_DIR = /millenia/home/newville/Codes/ifeffit/ifeffit-1.2.9/readline
+BUILD_DIR = /home/newville/Codes/ifeffit/work/readline
 
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}

@@ -14,6 +14,6 @@ WriteMakefile('NAME'   => 'Ifeffit',
               'LDDLFLAGS'     => '-shared',
               'INC'    => '-I../../src/lib -I/usr/local/share/ifeffit/config',
               'LIBS'   =>[' -L../../src/lib '.$Config{ldflags}.
-                    ' -lifeffit -L/usr/local/pgplot -lpgplot -lpng -lz -L/usr/X11R6/lib -lX11 '.
-                    join(" ", (sort(split(" ", "-L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../.. -lfrtbegin -lg2c -lm -lgcc_s" ))))] 
+                    ' -lifeffit -L/usr/local/pgplot -lpgplot -lpng -lz -lX11 '.
+                    join(" ", (sort(split(" ", "-L/usr/lib64 -L/usr/lib/gcc-lib/x86_64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/x86_64-redhat-linux/3.2.3/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -lfrtbegin -lg2c -lm -lgcc_s" ))))] 
          );

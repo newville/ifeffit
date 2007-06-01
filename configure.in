@@ -4,9 +4,9 @@
 # to copy and/or distribute it, with or without modifications, as 
 # long as this notice is preserved.
 #
-AC_INIT(ifeffit, 1.2.8, newville@cars.uchicago.edu)
+AC_INIT(ifeffit, 1.2.10, newville@cars.uchicago.edu)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(ifeffit,1.2.8)
+AM_INIT_AUTOMAKE(ifeffit,1.2.10)
 AC_PROG_CC(gcc cc )
 AC_PROG_CPP(gcc cc)
 AC_PROG_F77(g77 f77 f90)

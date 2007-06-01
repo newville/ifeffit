@@ -27,7 +27,7 @@ c
 c  read a feffnnnn.dat file
        implicit none
        integer  i, ier1, ier2, ier3, ier4, ix, ileg, nwords
-       integer      mtitle, mleg, mpts, ntitle, nleg, npts
+       integer      mtitle, mleg, mpts, ntitle, nleg, npts, istrln
        character*(*) ffname, title(mtitle), filnam*128
        integer       ipot(0:mleg), iz(0:mleg)
        double precision  reff, rwignr, degen, xyz(3,0:mleg)
@@ -35,10 +35,11 @@ c  read a feffnnnn.dat file
        double precision  cphase(*), sphase(*)
        double precision  xlamb(*), realp(*), zero, xlmin
 
-       character*40 stat*5, line*90, words(6), messg*80
+       character*40 stat*5, line*90, words(16), messg*80
        integer  iunit, iex, ierr
        parameter (zero = 0, xlmin = 1.d-8)
        double precision cdel, afeff,phfeff, redfac, xk, xlmda,  preal
+       external istrln
        data  stat /'old'/
 
        iunit = 0
@@ -52,6 +53,7 @@ c  read top of feff.dat, keeping first mtitle comment lines
  150   continue
        ntitle = ntitle + 1
        read(iunit,999) line
+       call sclean(line)
        call triml(line)
        if (line(3:6) .eq. '----')  goto 200
        if (ntitle.le.mtitle) title(ntitle) = line
@@ -59,6 +61,7 @@ c  read top of feff.dat, keeping first mtitle comment lines
  200   continue
 c   read and save reff and degen: feff version 5.03 and higher
        read(iunit,999) line
+       call sclean(line)
        nwords = 4
        call bwords(line(2:), nwords, words)
        call str2in(words(1), nleg,   ier1)
@@ -77,10 +80,12 @@ c   read and save reff and degen: feff version 5.03 and higher
        end if
 c   skip label and read and save path coordinates information
        read(iunit,999) line
+       call sclean(line)
        nwords = 5
        do 300  ileg = 0, nleg - 1
           read(iunit,999) line
-          call bwords ( line(2:), nwords, words)
+          call sclean(line)
+          call bwords(line(2:), nwords, words)
           do 270 ix = 1, 3
              call str2dp( words(ix), xyz(ix,ileg),ierr )
  270      continue
@@ -97,21 +102,36 @@ c
 c  skip one line then
 c  read in q, amplit, phase, and real and imag parts of p
        read(iunit,999) line
+       call sclean(line)
+       nwords  = 7
        do 500 i = 1, mpts + 1
-          read(iunit,*, end = 505) xk, cdel, afeff, phfeff,
-     $        redfac, xlmda, preal
           if (i.gt.mpts) then
-             call echo('  not enough memory for fefff file: '//filnam)
+             call echo('  not enough memory for feff file: '//filnam)
              write(messg,'(2x,a,i3,a)') 'results above k = ',
      $            int(xk), ' will not be reliable'
              call warn(3, messg)
           end if
-          qf(i)     = xk
-          amplit(i) = afeff * redfac
-          cphase(i) = cdel
-          sphase(i) = phfeff
-          xlamb(i)  = max(xlmin, xlmda)
-          realp(i)  = preal
+
+          read(iunit,999,end=505) line
+          call sclean(line)
+          if (istrln(line).ge.1)  then 
+             call bwords(line, nwords, words)
+ccc             print*, i, istrln(line), nwords
+             if (nwords .lt. 7) then
+                call echo(' invalid feff file: '//filnam)
+                go to 505
+             end if
+             call str2dp(words(1), qf(i),     ier1)
+             call str2dp(words(2), cphase(i), ier1)
+             call str2dp(words(3), amplit(i), ier1)
+             call str2dp(words(4), sphase(i), ier1)
+             call str2dp(words(5), redfac,    ier1)
+             call str2dp(words(6), xlmda,     ier1)
+             call str2dp(words(7), realp(i),  ier1)
+             
+             amplit(i) = amplit(i) * redfac
+             xlamb(i)  = max(xlmin, xlmda)
+          end if
  500   continue
  505   continue
        npts = i - 1

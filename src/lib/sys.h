@@ -4,6 +4,6 @@ c to be included in iff_config.f
        sysdir = '/usr/local/share/ifeffit'
        pgdev  = '/xserve'
        inifile= 'startup.iff  .ifeffit'
-       build = '	1.2.9'//
+       build = '	1.2.10'//
      $   ' Copyright (c) 2005 Matt Newville, Univ of Chicago'
 c}

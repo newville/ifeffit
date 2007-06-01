@@ -10,8 +10,8 @@
 #    LIB_X11 = X Libaries
 #    INC_IFF = location of ifeffit.h
 LIB_IFF  = -L/usr/local/lib -lifeffit
-LIB_PLT  = -L/usr/local/pgplot -lpgplot -lpng -lz -L/usr/X11R6/lib -lX11
-LIB_F77  = -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../.. -lfrtbegin -lg2c -lm -lgcc_s 
+LIB_PLT  = -L/usr/local/pgplot -lpgplot -lpng -lz -lX11
+LIB_F77  = -L/usr/lib64 -L/usr/lib/gcc-lib/x86_64-redhat-linux/3.2.3 -L/usr/lib/gcc-lib/x86_64-redhat-linux/3.2.3/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -lfrtbegin -lg2c -lm -lgcc_s 
 INC_IFF  = -I/usr/local/share/ifeffit/config
 #==  
 LIB_IFF  = -L../../src/lib -lifeffit 

@@ -1,10 +1,22 @@
-2005-09-28  Matt Newville  <newville@cars.uchicago.edu>
+2007-05-31  Matt Newville  <newville@cars.uchicago.edu>
+	* Version 1.2.10:  
+	- fixed rdffdt.f to read feff.dat files without being 
+	  sensitive to unix / dos / mac  line endings
+
+2006-05-26  Matt Newville  <newville@cars.uchicago.edu>
 	* Version 1.2.9:  
 
-	- added warning when a user-defined 'fitting variable' is accessed
-	  as a 'global variable' by an internal command by
-	  getsca('var_name').
+	- added some better memory management for arrays, and
+	  the variable '&heap_used', containing the fraction
+	  of array heap space used. 
+
+	- fixed reset() bug.
 	
+	- added warning when a user-defined 'fitting variable' is 
+	  accessed as a 'global variable' by an internal command by
+	  getsca('var_name').
+
+	- added norm_order argument to spline().
 
 2005-09-14  Matt Newville  <newville@cars.uchicago.edu>
 	* Version 1.2.8:  
