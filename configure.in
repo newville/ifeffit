@@ -1,0 +1,126 @@
+# Copyright (C) 2000 Matt Newville <newville@cars.uchicago.edu>
+#
+# This file is free software; the author gives unlimited permission 
+# to copy and/or distribute it, with or without modifications, as 
+# long as this notice is preserved.
+#
+AC_INIT(ifeffit, 1.2.8, newville@cars.uchicago.edu)
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(ifeffit,1.2.8)
+AC_PROG_CC(gcc cc )
+AC_PROG_CPP(gcc cc)
+AC_PROG_F77(g77 f77 f90)
+AC_F77_LIBRARY_LDFLAGS
+
+AC_ISC_POSIX
+AC_HEADER_STDC
+AC_PROG_RANLIB
+
+AC_PATH_PROGS(PERL,   perl perl5 perl5.8 perl5.6 perl5.005, NO_PERL )
+AC_PATH_PROGS(PYTHON, python python2 python2.3 python2.2 python2.1 python1.5, NO_PYTHON)
+
+AC_CONFIG_SUBDIRS(readline) 
+
+
+################################
+# get terminal capabilities library (typically -L/usr/lib -lncurses)
+
+TERMCAP_LIB=`$SHELL ./iconf_term`
+AC_ARG_WITH(termcap-link, 
+            [  --with-termcap-link=libraries to use for linking terminal capabilities],  
+	    [if test "$withval" ; then TERMCAP_LIB=$withval;  fi])
+
+AC_SUBST(TERMCAP_LIB)
+
+################################
+# test selected memory size
+ARRSIZE=large
+AC_ARG_WITH(arraysize, 
+            [  --with-arraysize=size  specify array size:  tiny,small,medium,large,huge],  
+	    [if test "$withval" = no; then  
+               ARRSIZE=large; 
+            else     
+               ARRSIZE=$withval;
+            fi])
+AC_SUBST(ARRSIZE)
+##
+##
+VERSION=`$SHELL ./iconf_iff $prefix $ARRSIZE $PACKAGE $ac_default_prefix `
+
+## simple script to fix bad ordering of FLIBS with gcc
+
+MN_FLIBS=`$SHELL ./iconf_flib  "$FLIBS"`
+## AC_MSG_RESULT([===  FLIBS: $FLIBS])
+## AC_MSG_RESULT([===  MN_FLIBS: $MN_FLIBS])
+AC_SUBST(MN_FLIBS)
+
+# tests for PGPLOT
+
+pgdir=$PGPLOT_DIR
+use_pgplot=true
+pwd=`pwd`
+PGPLOT_LIBS="$pwd/src/pgstub/libnopgplot.a";
+AC_ARG_WITH(pgplot, [  --with-pgplot=dir       specify directory of libpgplot.a],
+     [if test "$withval" = no; then  
+           use_pgplot=false ; pgdir=''; 
+      else 
+           use_pgplot=true  ; pgdir=$withval ; 
+      fi],  use_pgpglot=true)
+
+# use test_plot script to test PGPLOT install
+if $use_pgplot; then  PGPLOT_LIBS=`$SHELL ./iconf_pgplot $pgdir`; fi
+
+
+# or specify full link argument!!
+AC_ARG_WITH(pgplot-link, 
+            [  --with-pgplot-link=link      specify all libraries for PGPLOT linking],
+            [if test "$withval" ; then 
+                use_pgplot=true; PGPLOT_LIBS=$withval; fi],  use_pgpglot=true)
+
+AC_MSG_RESULT([will link to PGPLOT using $PGPLOT_LIBS])
+AC_SUBST(use_pgplot)
+AC_SUBST(PGPLOT_LIBS)
+AC_SUBST(pgdir)
+################################
+
+
+# AC_CONFIG_SUBDIRS(fortran/f2c fortran/libf2c readline)
+#          fortran/Makefile f2c_comp 
+#          readline/Makefile
+
+AC_OUTPUT([src/Makefile
+	  src/pgstub/Makefile  
+	  src/cldata/Makefile 
+	  src/fefftab/Makefile 
+          src/lib/Makefile 
+ 	  src/cmdline/Makefile 
+          src/autobk/Makefile
+          src/feffit/Makefile
+          src/diffkk/Makefile
+	  src/test/Makefile 
+	  src/feff6/Makefile
+          Makefile ])
+
+# $SHELL ./config.status
+
+AC_MSG_RESULT([===])
+AC_MSG_RESULT([===  $PACKAGE $VERSION Configuration Results:])
+if $use_pgplot ; then
+   AC_MSG_RESULT([===  linking to PGPLOT with: $PGPLOT_LIBS]) ; 
+else
+   AC_MSG_RESULT([===  WARNING: Plotting will not work!]) ;
+fi
+
+if  test "$TERMCAP_LIB" = "-L -l" ;  then
+   AC_MSG_RESULT([===])
+   AC_MSG_RESULT([===  could not find TERMCAP Libraries : 'make' will fail.]) ; 
+   AC_MSG_RESULT([===])
+   AC_MSG_RESULT([===  Please set TERMCAP_LIB in src/cmdline/Makefile or use the])
+   AC_MSG_RESULT([===  --termcap-link argument before running make])
+else
+   AC_MSG_RESULT([===  using TERMCAP_LIB   $TERMCAP_LIB]);
+   AC_MSG_RESULT([===])
+   AC_MSG_RESULT([===  ready for next step: type 'make' then 'make install'])
+fi
+
+

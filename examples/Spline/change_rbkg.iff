@@ -1,0 +1,27 @@
+#
+# simple autobk-like spline with ifeffit
+#
+macro try_rbkg in 1.0 out 
+
+ spline(energy= $1.energy, xmu= $1.xmu, 
+        kweight=1, kmin=0, kmax=18, rbkg=$2, group=$3)
+
+ print rbkg
+
+ set $3.chik = $3.chi * ($3.k)^2
+
+ plot($3.k, $3.chik, key=$3)
+
+end macro
+
+read_data (../data/cu.xmu, group=cu)
+
+try_rbkg  cu  0.5  cu05 
+try_rbkg  cu  0.8  cu08 
+try_rbkg  cu  1.0  cu10 
+try_rbkg  cu  1.2  cu12 
+try_rbkg  cu  2.0  cu20 
+try_rbkg  cu  3.0  cu30 
+
+
+

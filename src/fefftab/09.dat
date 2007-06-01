@@ -1,0 +1,48 @@
+#:IFEFFIT SAVE File: v1.02        npad =  8
+#:build 1.0068  Copyright (c) 2001 Matt Newville, Univ of Chicago
+#:strings
+#:system
+#:scalars (nopad)
+#:arrays
+#% [    59] f.k
+!Q%%%%%%%R.R%%%%%R8%%%%%%R@R%%%%%RJ%%%%%%RRR%%%%%RZ%%%%%RdR%%%%%Rn%%%%%%RvR%%%%%
+!S.R%%%%%S.zR%%%%S0I%%%%%S0qR%%%%S2@%%%%%S2hR%%%%S47%%%%%S4_R%%%%S6.%%%%%S6VR%%%%
+!S8v%%%%%S:m%%%%%S<d%%%%%S>[%%%%%S@R%%%%%SBI%%%%%SD@%%%%%SF7%%%%%SH.%%%%%SJ%%%%%%
+!SJv%%%%%SLm%%%%%SNd%%%%%SP[%%%%%SRR%%%%%STI%%%%%SV@%%%%%SX7%%%%%SZ.%%%%%S\%%%%%%
+!S`;R%%%%SdR%%%%%ShhR%%%%Sn%%%%%%Sr;R%%%%SvR%%%%%SzhR%%%%T.R%%%%%T.f;R%%%T0I%%%%%
+!T0qR%%%%T2@%%%%%T2hR%%%%T47%%%%%T4_R%%%%T6.%%%%%T6VR%%%%T8%%%%%%T8MR%%%%
+#% [    59] f_k.amp
+!Q%%%%%%%QxvP/O'dR65DX+hRR<nAh1[%RB~ZlF@%RHeSQd^.RL~SELWiRPy%8L[%RT\aJ3uVRX,VXNF}
+!RZLtPsKDR\f2uLFiR^xFv86gRb)E.Kt7Rbs+wM%NRrF)GWAeR~2UN>O@S.j:6,z:S0*VWHfzS0?<4p)+
+!S0ahk?%}S0g\>?8yS0dQU95KS0UyY{B/S0>sU2)vS.{-4`@}S.Zyc8rZRz>C:gHFRrbKK7u[RlCzqeii
+!Rf<1t8FyR`ODlJ~oRZx`F/OqRV]eJ.iFRRT\Z;LJRN\B4luqRJtR>r]4RHA8JVu7RDu{Nh?rRB]6XaZ4
+!R<z5=K*MR8schCVOR6=]\m_BR4&eBMxPR2*GvE|(R0AwHkxyR.d3jv%|QxOnS*gkQnz[)S)jQ^4ekF;e
+!QRY-CmUbQNeQ()w<QFZcywwUQBiX/zCaQB%WywyfQ:BrMU:[Q:M)LS\3Q0c@{@J~Q0n7\O)3
+#% [    59] f_k.phase
+!S7+:Bc~~S;=[U[%%S?GhnDR%SCIb2zR%SGCYk_R%SK5V~VR%SMyYk_R%SQ[ZrqR%SU5H%v%%SW`h~VR%
+!S[)4L2R%S]B6:2R%S_QDpk7%SaV)z-VRScJzj?~~Se1;XP7%Sg187z)RSi-3<qR%Si{({mMRSkj&T?VR
+!Sopk,*qRSq{Pg6VRSswy-iU3Suh>Yz^3SwQQE,_RSy7R^wDRSyv<y6VRS{ZxP2zRS}?BcZVRS}|~XT;R
+!T-Wk+4`IT-]Pe}7%T-br)Iv%T-gs`mMRT-lYY&m%T-q)\y2RT-uC~:2RT-yVd]d%T-}hcJDRT/'}Z^[%
+!T/2q5_R%T/=h)vMRT/H'Sl~~T/QjR]d%T/[QaL2RT/dwQrqRT/m@&8DRT/t^PshRT/{xYshRT18.9;R%
+!T1BiZ%v%T1P*:o;RT1YizIv%T1c)h=hRT1mq1[%%T1vJ*4hRT1~}dEI%T3*,;)R%T1_2g*I%
+#% [    59] f_k.caps
+!S4Q>[MR%S4NqvMR%S4GfG_R%S4<1wDR%S4,H%v%%S2rs/m%%S2[}cVR%S2B*uVR%S2%DZ.%%S0_tK;R%
+!S0=d))R%S.r[9;R%R~05oc~~Rt4WuVR%Rf|p[%%%RXUyk7%%RT.eHVR%RPrQ.%%%RNo?zzR%RLF|D)R%
+!R@ij\DR%R86M~VR%Qvxi<qR%Q?Rxp2R%R3,DEqR%R?&GC2R%RK,3DzR%RW69h)R%Rc@1VzR%RoE.ahR%
+!R{A({I%%S-w1NqR%S/Ot_R%%S1&u.%%%S1U~:2R%S3)2Iv%%S3TI=@%%S3}hnDR%S5KT7MR%S5qw`qR%
+!S7tYK;R%S9u5?-~~S;r\q)R%S=jp6VR%S?]8`qR%SAIxp2R%SC1vU[%%SCp:6VR%SEQPoc~~SI;Zvu~~
+!SK=%ahR%SM6iU2R%SO'qEqR%SOl\XhR%SQRIMR%%SS2/XhR%SSh<yZ~~SU@mv%%%SUn}7%%%
+#% [    59] f.rep
+!S.k66.%%S.m-RMR%S.rf3H~~S.{{8l~~S0.VnDR%S0>=+hR%S0Pr0d%%S0f3I%%%S0~&@MR%S2>CVzR%
+!S2[-RMR%S2zI-.%%S4BJu.%%S4gLJm%%S68|lVR%S6jw,6~~S8-Cs?~~S8F_~VR%S8`\L[%%S8|A\l~~
+!S:{}_Q~~S<b?vv%%S>K[v%%%S@7DZ.%%SB%/Td%%SBnN];R%SD_5_Q~~SFP{M)R%SHCYk_R%SJ6yg2R%
+!SL*reDR%SLy9l.%%SNn({H~~SPc1_)R%SRXSq)R%STN1wDR%SVCxWqR%SX9slVR%SZ/}[MR%S\&4dMR%
+!S`;-VQ~~SdPNQ-~~Shf2Z.%%Sl|(wDR%Sr8-nm%%SvN=`I%%SzdTl-~~S~zs7v%%T.eq)R%%T0HVvMR%
+!T0q)vMR%T2?VvMR%T2h-VR%%T46ZVR%%T4_-VQ~~T6-ZVQ~~T6V16VR%T6~^6VR%T8M16VR%
+#% [    59] f.lambda
+!T^UVV)R%T^`756~~T^xJu-~~T`-jD)R%T^nN8m%%T\j1&DR%TXqb[MR%TT<M)Q~~TNFW,_R%THWOP7%%
+!TD+a7u~~T@'SHVR%T<M|/l~~T:E5{qR%T8i([%%%S|kfl-~~Sh`WY7%%SbMKx;R%S^.l>7%%SZr>O@%%
+!SXv*<qR%SZJ~nl~~S\Mgs@%%S^p|7u~~SbS.9;R%SfITG_R%SjQ,G6~~SngdADR%St1fh)R%Sxa}{qR%
+!S~C]Kd%%T.e+lVR%T0%/Td%%T0@0h)R%T0\(2R%%T0xoh)R%T2<STc~~T2[&8DR%T2zEM)R%T4@Oxd%%
+!T6:62)R%T88[57%%T:;VMzR%T<Bw(2R%T>NTC[%%T@^A,6~~TBr5{qR%TF0/DQ~~THKx_zR%TP\QrqR%
+!TV\.]d%%T\j1&DR%Td,;rH~~TjV*eDR%Tr3Adv%%Txwcb_R%U.YJ(2R%U.}k;)R%U0IIMQ~~

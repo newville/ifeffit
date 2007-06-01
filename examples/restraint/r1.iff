@@ -1,0 +1,74 @@
+
+log(restraint.log, screen_echo = 3) 
+
+# macro show_fit
+#   feffit(chi = data.chi, k=data.k,group = fit, 1, 
+# 	restraint = restr,  do_bkg=false)
+#   print 'fit took ', &fit_iteration, ' iterations' 
+#   show  s02, e0, dr, rf, rc, restr, chi_square, r_factor, n_idp
+# end macro
+
+macro setup_fit
+   unguess 
+   guess  s02   = 1.
+   guess  e0    = 1.
+   guess  ss2   = 0.002
+   guess  dr    = 0.001
+   
+   path(index  = 1, 
+        feff   = ../feff/feffcu01.dat, 
+        label  = "Cu metal first neighbor", 
+        s02    = s02, 
+        sigma2 = ss2,
+        delr   = dr, 
+        e0     = e0)
+   
+   kmin = 2, kmax=18, kweight=2, dk1 = 1, dk2=1
+   rmin = 1.5, rmax =3.4
+   
+end macro
+   
+macro show_fit
+   print 'fit took ', &fit_iteration, ' iterations' 
+   show  s02, e0, dr, chi_square, r_factor, n_idp
+   show dr_force, e0_force
+end macro
+
+####
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+dr_force = (dr - 0.01)*1.e5
+e0_force = (e0 - 1.0)*1.e5
+
+# echo '# no restraint '
+# setup_fit
+# dr_force = (dr - 0.01)*1.e5
+# e0_force = (e0 - 1.0)*1.e5
+# feffit(chi = data.chi, k=data.k,group = fit, 1)
+# 
+# show_fit
+
+
+# 
+echo '# r/e0 restraint '
+setup_fit
+def dr_force = (dr - 0.01)*1.e8
+def e0_force = (e0 - 0.8)*(-4.e2)
+feffit(chi = data.chi, 1,
+       restraint = e0_force,
+       restraint = dr_force,
+       kweight=1,  
+       kweight=2,  
+       kweight=3,
+       group=fit
+)
+show_fit
+# 
+
+# echo '# e0/r restraint '
+# setup_fit
+# dr_force = (dr - 0.008)*1.e5
+# e0_force = (e0 - 1.0)*1.e5
+# feffit(chi = data.chi, k=data.k,group = fit, 1,
+#        restraint = e0_force, restraint=dr_force)
+# show_fit

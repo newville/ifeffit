@@ -1,0 +1,17 @@
+&print_level = 10
+
+path(1, ../feff/feff0001.dat, label ='Path 1', degen=7)
+path(2, ../feff/feff0001.dat, label ='Path 2', degen=12)
+path(3, ../feff/feff0001.dat, label ='Path 3')
+
+get_path(1, prefix=p1)
+
+show @path=1
+show p1_reff, p1_degen 
+
+ff2chi(1,group=p1)
+ff2chi(2,group=p2)
+ff2chi(3,group=p3)
+
+
+

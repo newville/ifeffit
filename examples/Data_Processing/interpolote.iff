@@ -1,0 +1,21 @@
+# 
+#  simple example of using interpolation to  a grid of 0.025
+# 
+read_data(file = "../data/cu.xmu", group = my, type = xmu)
+
+spline( energy = my.energy, xmu = my.xmu, kweight = 1,
+        kmin = 0, kmax = 0, rbkg = 1.1   )
+%
+newplot( my.k,  my.chi)
+
+grid_size    = 0.025
+set new.k    = grid_size * (indarr( (ceil(my.k) / grid_size) + 1)  - 1 )
+set new.chi  = splint(my.k, my.chi, new.k)
+set new.lin  = interp(my.k, my.chi, new.k)
+
+# pause -- hit return to overplot chi interpolated onto 0.025 Ang grid --
+
+plot( new.k,  new.chi )
+
+show @arrays
+

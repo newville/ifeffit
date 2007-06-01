@@ -1,0 +1,40 @@
+%%#fixtex% for html/pdf   -*-latex-*-  
+%%
+\documentclass[11pt]{article}
+\usepackage{fancybox,fancyhdr,alltt,times,makeidx,verbatimfiles,graphicx}
+\newcommand{\Vers}{{1.2.7}} 
+\newcommand{\update}{Apr 07, 2005}
+
+%%#Macros%
+\include{ifmacs_pdf}
+\include{ifmacs_com}
+
+% \includeonly{title_pdf,intro,xafsprocess,fitting,minimize,fourier}
+
+% \includeonly{title_pdf,license,intro,basics,structure,plotting,commands}
+
+\makeindex
+\begin{document}
+
+%%#TitlePage%
+\include{title_pdf}
+
+\include{license}
+\include{intro}
+\include{basics}
+\include{structure}
+\include{iofiles}
+\include{plotting}
+\include{xafsprocess}
+\include{fitting}
+\include{minimize}
+\include{commands}
+\include{macros}
+\include{scripting}
+\appendix
+\include{glossary}
+\include{fourier}
+\include{biblio}
+\printindex
+\end{document}
+%%

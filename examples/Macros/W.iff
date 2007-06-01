@@ -1,0 +1,5 @@
+load tmp.iff
+	
+pu089.en = my.1
+pu089.xmu= tmp.xafs
+

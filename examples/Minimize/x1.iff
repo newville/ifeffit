@@ -1,0 +1,15 @@
+read_data file=dat.dat, group = d, label = 'c g err'
+a.c = log10(d.c)
+a.g = log10(d.g)
+set a.err = (log10(d.g + d.err) - log10(d.g - d.err))
+set b.err = a.err * 100.
+
+# g = m*c + b
+guess ( m = 1 , b = 0)
+fit.g = m * a.c + b
+fit.resid = fit.g - a.g
+minimize(fit.resid, uncertainty = a.err)
+show @variables
+
+minimize(fit.resid, uncertainty = b.err)
+show @variables

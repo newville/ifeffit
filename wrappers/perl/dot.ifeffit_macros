@@ -1,0 +1,84 @@
+ macro pf "A.dat", "2"
+   "simple plot of a file"
+   read_data($1, type=raw, group=my)
+   plot(my.1,   my.$2,  $3)
+ end macro
+ 
+ macro bkg "x.xmu", "my", "rbkg=1"
+   "very simple background subtraction"
+    read_data( $1, type=xmu, group=$2)
+    kweight = 1	
+    rbkg    = 1.0
+    spline ($2.energy, $2.xmu, kmin = 0, kmax = 0,$3)
+    newplot($2.energy, $2.xmu, group, color = blue)
+    plot   ($2.energy, $2.bkg, style = dashed, color = tomato )
+ end macro
+
+ macro pre "x.xmu"
+   "quick pre-edge subtraction"
+   read_data( $1, type=xmu,  group=my)
+   pre_edge(energy, xmu)
+ end macro
+
+ macro feff_path "0001"
+   "define a path from a feff file"
+   path ($1,   feff$1.dat, label = $1, $2)
+ end macro
+
+ macro make_ps ifeffit.ps  /cps
+   "dump plot to a postscript file"
+   plot(device=$2,  file= $1)
+   plot(device="/xserve",file= "")
+ end macro
+
+ macro make_gif
+   "dump plot to a gif file"
+   plot(device="/gif",file= $1)
+   plot(device="/xserve",file= "")
+ end macro
+
+ macro testplot
+   "test plot"
+   my.x  = indarr(500)/35.
+   my.y1 = (exp(-my.x / 13) *  2* cos(my.x *2.3 ))
+   my.y2 = (exp(-my.x/ 7.5) * (20/sqrt(my.x))  * sin(my.x/5) * 
+           (cos(my.x*4)) +  cos((my.x+2.50)*2) / 4 )
+   newplot(my.x,my.y1, color=red)
+      plot(my.x,my.y2, color=blue)
+ end macro
+ 
+
+macro srfit 
+   "plot R-space data/fit from Feffit files'
+   read_data($1r.dat, type = rsp, group = dat)
+   read_data($1r.fit, type = rsp, group = fit)
+   newplot(r,chir_mag, group=dat, $2)
+      plot(r,chir_mag, group=fit, $3)
+end macro
+
+macro skfit 
+   "plot k-space data/fit from Feffit files'
+   read_data($1k.dat, type = chi, group = dat)
+   read_data($1k.fit, type = chi, group = fit)
+   newplot(k,chi, group=dat, $2)
+      plot(k,chi, group=fit, $3)
+end macro
+
+macro skwfit 
+   "plot k-weighted k-space data/fit from Feffit files'
+   read_data($1k.dat, type = chi, group = dat)
+   read_data($1k.fit, type = chi, group = fit)
+   dat.chik = dat.chi * dat.k^($2)
+   fit.chik = fit.chi * fit.k^($2)
+   newplot(k,chik, group=dat, $3)
+      plot(k,chik, group=fit, $4)
+end macro
+ 
+macro sqfit 
+   "plot Q-space data/fit from Feffit files'
+   read_data($1q.dat, type = chi, group = qdat)
+   read_data($1q.fit, type = chi, group = qfit)
+   newplot(k,chi, group=qdat, $2)
+      plot(k,chi, group=qfit, $3)
+end macro
+

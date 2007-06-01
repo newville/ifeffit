@@ -1,0 +1,9 @@
+#:IFEFFIT SAVE File: version 1.00
+#: npad   8
+#: scalars
+#:a,  23.000000    ,@variable
+#:&screen_echo,  1.0000000    , 
+#:&echo_lines,  0.0000000    , 
+#:&info_lines,  0.0000000    , 
+#:pi,  3.1415927    , 
+#:&print_level,  0.0000000    , 

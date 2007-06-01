@@ -1,0 +1,61 @@
+#
+# This will generate a set of plot arrows
+# 
+p.x = range(0,100,1)
+p.y = 10*sin(p.x*pi/30)
+
+newplot( p.x, p.y ,color=white,ymin=-10,ymax=11,xmin=0,xmax=100,
+ labelsize=0.01, textsize=1.7, nogrid=1,gridcolor=white)
+
+plot_arrow (x1=1,y1=8,x2=25,y2=8)
+plot_text  (x=2,y=9, text='plain')
+
+
+plot_arrow (x1=30,y1=8,x2=60,y2=8,no_head=1)
+plot_text  (x=35,y=9, text='no_head=1')
+
+plot_arrow (x1=65,y1=8,x2=90,y2=8,outline=1)
+plot_text  (x=70,y=9, text='outline=1')
+
+plot_arrow (x1=1,y1=4,x2=25,y2=4,barb=2)
+plot_text  (x=2,y=5, text='barb=2')
+
+plot_arrow (x1=30,y1=4,x2=60,y2=4,barb=0)
+plot_text  (x=35,y=5, text='barb=0')
+
+plot_arrow (x1=65,y1=4,x2=90,y2=4,barb=0,outline=1)
+plot_text  (x=70,y=5, text='barb=0,outline=1')
+
+plot_arrow (x1=1,y1=0,x2=25,y2=0,angle=20)
+plot_text  (x=2,y=1, text='angle=20')
+
+plot_arrow (x1=30,y1=0,x2=60,y2=0,angle=50)
+plot_text  (x=35,y=1, text='angle=50')
+
+plot_arrow (x1=65,y1=0,x2=90,y2=0,angle=100,barb=0)
+plot_text  (x=70,y=1, text='barb=0,angle=100')
+
+
+plot_arrow (x1=1,y1=-4,x2=25,y2=-4,size=1)
+plot_text  (x=2,y=-3, text='size=1')
+
+plot_arrow (x1=30,y1=-4,x2=60,y2=-4,size=2)
+plot_text  (x=35,y=-3, text='size=2')
+
+plot_arrow (x1=65,y1=-4,x2=90,y2=-4,size=5)
+plot_text  (x=70,y=-3, text='size=5')
+
+
+
+plot_arrow (x1=1,y1=-8,x2=25,y2=-8,size=4,barb=1.5)
+plot_text  (x=2,y=-7, text='size=4,barb=1.5')
+
+plot_arrow (x1=30,y1=-8,x2=60,y2=-8,size=3,angle=70)
+plot_text  (x=35,y=-7, text='size=3,angle=70')
+
+plot_arrow (x1=65,y1=-8,x2=90,y2=-8,size=3,barb=-0.4)
+plot_text  (x=70,y=-7, text='size=3,barb=-0.4')
+
+
+
+plot(file='plot_arrows.ps', device='/ps')

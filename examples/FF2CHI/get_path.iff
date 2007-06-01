@@ -1,0 +1,19 @@
+path(1, ../feff/feff0001.dat, label ='Path 1')
+
+path(2, ../feff/feff0002.dat)
+
+get_path(1, prefix=p1)
+get_path(2, prefix=p2)
+
+
+show @path=1
+show p1_reff, p1_degen, p1_s02, p1_e0, p1_delr, p1_sigma2
+
+
+
+show @path=2
+show p2_reff, p2_degen, p2_s02, p2_e0, p2_delr, p2_sigma2
+
+
+
+

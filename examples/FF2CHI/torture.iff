@@ -1,0 +1,48 @@
+path( 1, file = ../feff/feff0001.dat, delr=0.001, s02=1)
+path( 2, file = ../feff/feff0002.dat, delr=0.001, s02=1)
+path( 3, file = ../feff/feff0003.dat, delr=0.001, s02=1)
+path( 4, file = ../feff/feff0004.dat, delr=0.001, s02=1)
+path( 5, file = ../feff/feff0005.dat, delr=0.001, s02=1)
+path( 6, file = ../feff/feff0006.dat, delr=0.001, s02=1)
+path( 7, file = ../feff/feff0007.dat, delr=0.001, s02=1)
+path( 8, file = ../feff/feff0008.dat, delr=0.001, s02=1)
+path( 9, file = ../feff/feff0009.dat, delr=0.001, s02=1)
+path(10, file = ../feff/feff0010.dat, delr=0.001, s02=1)
+
+ff2chi(1-10,group=all)
+ff2chi(1   ,group=f1)
+show @groups
+show @path=1
+erase @paths
+
+path( 3, file = ../feff/feff0001.dat, delr=0.001, s02=1)
+path( 4, file = ../feff/feff0002.dat, delr=0.001, s02=1)
+path( 5, file = ../feff/feff0003.dat, delr=0.001, s02=1)
+path( 6, file = ../feff/feff0004.dat, delr=0.001, s02=1)
+path( 7, file = ../feff/feff0005.dat, delr=0.001, s02=1)
+path( 8, file = ../feff/feff0006.dat, delr=0.001, s02=1)
+path( 9, file = ../feff/feff0007.dat, delr=0.001, s02=1)
+path(10, file = ../feff/feff0008.dat, delr=0.001, s02=1)
+path(11, file = ../feff/feff0009.dat, delr=0.001, s02=1)
+path(12, file = ../feff/feff0010.dat, delr=0.001, s02=1)
+
+ff2chi(3,group=f2)
+show @groups
+show @path=3
+erase @paths
+
+path( 1, file = ../feff/feff0001.dat, delr=0.001, s02=1)
+path( 2, file = ../feff/feff0002.dat, delr=0.001, s02=1)
+path( 3, file = ../feff/feff0003.dat, delr=0.001, s02=1)
+path( 4, file = ../feff/feff0004.dat, delr=0.001, s02=1)
+path( 5, file = ../feff/feff0005.dat, delr=0.001, s02=1)
+path( 6, file = ../feff/feff0006.dat, delr=0.001, s02=1)
+path( 7, file = ../feff/feff0007.dat, delr=0.001, s02=1)
+path( 8, file = ../feff/feff0008.dat, delr=0.001, s02=1)
+path( 9, file = ../feff/feff0009.dat, delr=0.001, s02=1)
+path(10, file = ../feff/feff0010.dat, delr=0.001, s02=1)
+
+ff2chi(1,group=f2)
+show @groups
+show @path=1
+erase @paths

@@ -1,0 +1,15 @@
+
+  #  program inputs or default values used:
+     title = diffkk: no title lines specified
+       xmu = fe-xafs.xmu  		% file name for xmu data
+       out = fe_xafs_diffkk.out  % output file name
+    isfeff = false           % file is not a feff xmu.dat file
+     encol =    1            % column to read energy from
+     mucol =    2            % column to read mu(E) from
+        iz =   26            % atomic number of core atom
+        e0 =   7112.0000     % edge energy (used as reference)
+     egrid =      1.0000     % energy grid for calculation
+    ewidth =      0.000      % for broadening CL data
+      elow =    500.0000     % how far below data range to calculate
+     ehigh =    1500.0000    % how far above data range to calculate
+   end  % all remaining lines will be ignored on input

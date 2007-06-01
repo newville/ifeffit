@@ -1,0 +1,35 @@
+ #  --  diffkk version 1.20  --
+ #  program inputs or default values used:
+    title = diffkk: no title lines specified
+      xmu = cu_exp.xmu  % file name for xmu data
+      out = test.out     % output file name
+   isfeff = false           % file is not a feff xmu.dat file
+ f2_to_f1 = true           % transform f1-like data to f2
+    encol =    1            % column to read energy from
+    mucol =    2            % column to read mu(E) from
+       iz =   29            % atomic number of core atom
+       e0 =   8977.9700     % edge energy (used as reference)
+    egrid =      1.0000     % energy grid for calculation
+   ewidth =      0.000      % for broadening CL data
+     elow =    200.0000     % how far below data range to calculate
+    ehigh =    500.0000     % how far above data range to calculate
+  end  % all remaining lines will be ignored on input
+  -- diffkk program summary --
+  
+    f''(E) was set to be
+         f''(E)  = f''_CL(E)  for E > e0+ehigh and  E < e0-elow.
+    within the range E = [e0-elow, e0+ehigh], f'' was set to
+         f''(E)  = f''_CL(E) + a0 + a1 *  mu(E') * ( E' /  e0)
+                 + a2 * (E' - e0) + a3 * (E' - e0)**2 
+    where mu(E) was read from t.dat,
+    f''_CL(E) was found for Cu, and E' = E + e0_shift.
+  
+    the values of e0_shift, a0, a1, a2, and a3 were determined to be:
+        e0_shift =   -0.605967    
+              a0 =     1.39921    
+              a1 =     2.51221    
+              a2 =   -0.877579E-03
+              a3 =    0.125303E-05
+    so as to best match f''_CL(E) between E = [e0-elow, e0+ehigh]
+  
+  -- end diffkk log file --

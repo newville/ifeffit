@@ -1,0 +1,111 @@
+IFEFFIT Examples
+
+This directory contains some simple examples of using Ifeffit for
+general data analysis and especially XAFS analysis.  The examples
+are organized by category and complexity, and broken into small
+ifeffit scripts (all with an extension '.iff') each of which can
+be run individually from the system command-line as
+
+  ~> ifeffit help.iff
+
+or from within the Ifeffit environment as
+
+  ~> ifeffit
+
+  Ifeffit> load help.iff
+  
+Each script contains some documentation of its own.  A brief 
+description of the scripts follows:
+ 
+  help.iff  
+     Print information about these examples, test that Ifeffit
+     loads, runs, and can print to the screen.
+
+  Anomalous/calc_f1f2.iff
+     calculate f' and f'' for Cu, using energy points from an
+     external data file 
+
+  Lytle/Lytle.iff
+     read datafile downloaded from Farrel Lytle database, convert 
+     motor steps to energy, and plot XAFS.
+
+  Plotting/text-strings.iff
+     use of text strings in plotting, especially commonly used
+     greek-character constructs for XAFS spectra.
+
+  Pre_Edge/pre.iff
+     simple example of pre-edge subtraction of XAFS spectra
+ 
+  Spline/autobk.iff
+    simple example of autobk-like background subtraction of XAFS spectra
+
+  Macros
+    This directory contains several useful little macros
+
+     Macros.iff  collection of generally useful macros, most of 
+                 them reasonably well annotated
+     quit.iff    simple little macro to allow 'q' to mean 'quit'
+  
+
+DO.iff
+M1.if
+
+W.iff
+ave.xmu
+iff.out
+tmp.iff
+xafs.dat
+
+
+  Data_Processing
+GG.xmu
+a.dat
+a.xmu
+b.chi
+cu.chi
+cu10k.dat
+ifeffit.sav
+interpolote.iff
+sro.chi
+tmp.dat
+write_exa.iff
+x.sav
+xmu.dat
+y.sav
+
+   FF2CHI/
+A-ff2chi.iff
+B-x.inp
+B-x.log
+B-x.prm
+B.iff
+Debye.iff
+F-fit.inp
+Feffit.iff
+G.iff
+H.iff
+a.inp
+cu_chi.dat
+feffcu03.dat
+my_feffit.log
+save_reff.iff
+test.iff
+test2.iff
+test_terp.iff
+tmp_out.log
+
+
+Minimize:
+Do_fits.pl
+amps.dat
+centers.dat
+fit_xrd.iff
+noise.dat
+sigmas.dat
+test.dat
+xrd.dat
+xrd.dat.fit
+
+
+
+

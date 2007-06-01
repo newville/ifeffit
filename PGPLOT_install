@@ -1,0 +1,330 @@
+#!/bin/sh
+#
+#  This file will attempt to download the PGPLOT library
+#  and then build it for a linux system.
+#
+#  syntax:    PGPLOT_install --system=system_os --prefix=PREFIX
+#
+#  where system_os is linux, irix, sun4, etc
+#
+#  This may need customization for some systems
+#
+#  verified on: linux
+#
+prefix='/usr/local/'
+system='linux'
+dir=`pwd`
+logfile=$dir/PGPLOT_install.log
+wget=/usr/bin/wget
+ncftp=/usr/bin/ncftp
+ftp=/usr/bin/ftp
+
+# set pgplot file locales
+#
+pgp_ftpsite='ftp.astro.caltech.edu'
+pgp_ftpdir='pub/pgplot/'
+pgp_file='pgplot5.2.tar.gz'
+
+#
+# default is to build with gif and without png support
+#
+with_gif=1
+with_png=1
+do_clean=1
+do_log=1
+use_64=0
+
+# get command line options
+for opt
+do
+  option=''
+  case "$opt" in
+    -*=*) 
+         optarg=`echo "$opt" | sed 's/[-_a-zA-Z0-9]*=//'` 
+         option=`echo "$opt" | sed 's/=.*//' | sed 's/-*//'`  
+         ;;
+    *) 
+         option=`echo "$opt" | sed 's/^-*//'` 
+         optarg= 
+         ;;
+  esac
+  case "$option" in
+    prefix)    prefix=$optarg ;;
+    system)    system=$optarg ;;
+    with-64bit)    use_64=1 ;;
+    no-clean)  do_clean=0 ;;
+    no-log)    do_log=0 ;;
+    with-png)  with_png=1 ;;
+    with-gif)  with_gif=1 ;;
+    no-png)    with_png=0 ;;
+    no-gif)    with_gif=0 ;;
+    -help | --help | help) cat<<EOF
+Usage: PGPLOT_install [options] 
+Options: 
+  --prefix=PREFIX   base directory for installation [$prefix]
+  --system=SYSTEM   operating system type for PGPLOT drivers [$system]
+                    typical values would be   linux irix sun4 
+
+  --with-png  / --no-png   add/remove PNG driver
+  --with-gif  / --no-gif   add/remove GIF driver
+
+  --with-64bit      use for 64bit linux machines (links to X libs in /usr/X11R6/lib64)
+  --no-log          do NOT generate PGPLOT_install.log
+  --no-clean        do not remove any files created during build
+
+EOF
+    exit 0
+    ;;
+
+   *) 
+       echo " unknown option "  $opt
+       exit 1
+        ;; 
+  esac
+done
+
+
+
+echo " = = = = = = = = = = = = = = = = = = = = = = = = = = "
+echo " = PGPLOT installation script"
+echo " ="
+#
+# place to put pgplot  and the final libraries
+#
+pgp_dir=$prefix/pgplot/
+
+pgp_sys=$system
+
+if test $system = linux ;  then 
+    pgp_sys="linux g77_gcc"
+fi 
+
+if test $system = sol2 ;  then 
+    pgp_sys="sol2 f90_cc"
+fi
+
+echo " system = " $system " == "  $pgp_sys
+echo " prefix = " $prefix
+
+
+if test $do_log = 1 ;  then 
+  echo "# PGPLOT install log " >  $logfile
+  echo "# system = " $system " == "  $pgp_sys >> $logfile
+  echo "# prefix = " $prefix    >> $logfile
+fi
+
+#
+#-----------------------------------------
+##
+## try wget, ncftp, and then ftp to get file
+
+echo " = Looking for PGPLOT file: $pgp_file"
+if [ -f $pgp_file ] ; then
+   x=1
+else
+  echo " = PGPLOT file not found "
+  echo " = I'll try to download it for you..."
+  if [ -f $wget  ] ; then
+     echo " trying with wget"
+     tmp="ftp://$pgp_ftpsite/$pgp_ftpdir$pgp_file"
+     echo "getting $tmp"
+     wget --tries=2 $tmp 
+  fi
+fi
+
+if [ -f $pgp_file ]; then 
+    x=1
+else
+  if [ -f $ncftp ] ; then
+     echo " trying with ncftp"
+     $ncftp $pgp_ftpsite<<EOF
+     set confirm-exit  no
+     set confirm-close no
+     cd  $pgp_ftpdir
+     get $pgp_file
+     exit
+EOF
+  fi
+fi
+if [ -f $pgp_file ]; then
+   x=1
+else
+   if [ -f $ftp ] ; then
+     echo "  trying with regular old ftp "
+     echo "  you may have to hit return here for this to work --  "
+     echo "  Really, you won't need to enter 'anonymous' or a valid"
+     echo "  username --- just hit return"
+     $ftp $pgp_ftpsite<<EOF
+anonymous
+ifeffit@cars.uchicago.edu
+cd  $pgp_ftpdir
+hash
+get $pgp_file
+exit
+EOF
+   fi
+fi
+
+##
+## if we still don't have the file, croak
+if [ -f $pgp_file ]; then
+   echo " = I see the PGPLOT tar file.  Good."
+else
+   echo " = Sorry, I couldn't download the PGPLOT tar file."
+   echo " = You'll have to download it yourself. Try this: "
+   echo " =   ftp $pgp_ftpsite"
+   echo " =   cd  $pgp_ftpdir"
+   echo " =   get $pgp_file"
+   echo " = then run this script again"    
+ 
+   if test $do_log = 1 ;  then 
+      echo "# pgplot tar file not found " >>  $logfile
+   fi
+   exit 1
+fi
+
+
+##
+echo " = Preparing PGPLOT Installation: "
+echo " = Looking for X libraries "
+x11_loc=''
+if [ -d /usr/X11 ] ; then
+     echo " =   X libraries found at /usr/X11 "
+     x11_loc='/usr/X11'
+else
+  if [ -d /usr/X11R6 ] ; then
+     echo " =   X libraries found at /usr/X11R6 "
+     x11_loc='/usr/X11R6'
+  else
+     echo " =   X libraries not found: could be serious! = "
+  fi
+fi
+
+## unpack kit
+
+echo " = Unpacking PGPLOT: "
+gzip -dc  $pgp_file | tar xf -
+
+echo " = Creating $pgp_dir and drivers.list "
+mkdir -p $pgp_dir
+
+##
+## create drivers.list
+
+echo '! PGPLOT drivers created by PGPLOT_install for ifeffit: ' > $pgp_dir/drivers.list
+if test $with_gif = 1 ; then
+  echo ' GIDRIV 1 /GIF      '>>$pgp_dir/drivers.list
+  echo ' GIDRIV 2 /VGIF     '>>$pgp_dir/drivers.list
+fi
+if test $with_png = 1 ; then
+  echo ' PNDRIV 1 /PNG      '>>$pgp_dir/drivers.list
+  echo ' PNDRIV 2 /TPNG     '>>$pgp_dir/drivers.list
+fi
+
+echo ' NUDRIV 0 /NULL     '>>$pgp_dir/drivers.list
+echo ' PSDRIV 1 /PS       '>>$pgp_dir/drivers.list
+echo ' PSDRIV 2 /VPS      '>>$pgp_dir/drivers.list
+echo ' PSDRIV 3 /CPS      '>>$pgp_dir/drivers.list
+echo ' PSDRIV 4 /VCPS     '>>$pgp_dir/drivers.list
+echo ' XWDRIV 1 /XWINDOW  '>>$pgp_dir/drivers.list
+echo ' XWDRIV 2 /XSERVE   '>>$pgp_dir/drivers.list
+
+if test $do_log = 1 ;  then 
+   echo "# driver.list written to  " $pgp_dir/drivers.list  >>  $logfile
+   echo "# starting build"  >>  $logfile
+   echo " "  >>  $logfile
+fi
+
+echo  " = Running the PGPGLOT makemake script "
+cd $pgp_dir/
+rm -f grfont.dat pgplot.doc pgxwin_server lib*pgplot* pgdemo*
+$dir/pgplot/makemake $dir/pgplot $pgp_sys
+
+if test $do_log = 1 ;  then 
+   echo "cd  $pgp_dir/"  >>  $logfile
+   echo 'rm -f grfont.dat pgplot.doc pgxwin_server lib*pgplot* pgdemo* '>> $logfile
+   echo $dir/pgplot/makemake $dir/pgplot $pgp_sys   >>  $logfile
+fi
+
+
+if test  $use_64 = 1; then
+  sed 's|/usr/X11R6/lib|/usr/X11R6/lib64|g' makefile > Tmp
+  sed 's|/usr/X11/lib|/usr/X11/lib64|g'     Tmp > makefile
+fi
+
+
+if test $with_png = 1 ; then
+  sed 's|pndriv.o : ./png.h|#### pndriv.o : ./png.h|g' makefile > Tmp
+  mv Tmp makefile
+
+ if test $do_log = 1 ;  then 
+    echo "# this is a kludge to fix png driver"  >>  $logfile
+    echo "sed 's|pndriv.o : ./png.h|#### pndriv.o : ./png.h|g' makefile > Tmp "  >>  $logfile
+    echo "mv Tmp makefile " >> $logfile
+    echo "# end kludge"     >> $logfile
+ fi
+fi
+
+echo  " = Running make for PGPLOT "
+make FFLAGC='-O2 -fPIC' libpgplot.a 
+make grfont.dat prog pgplot.doc pgxwin_server cpg
+
+ if test $do_log = 1 ;  then 
+    echo "make FFLAGC=-O1 libpgplot.a  " >> $logfile
+    echo "make grfont.dat prog pgplot.doc pgxwin_server cpg" >> $logfile
+ fi
+
+
+if test $do_clean = 1 ; then
+  echo " = Cleaning up and preparing for test"
+  make clean
+fi
+
+cd  $dir
+ls  $pgp_dir/ > Tmp_file.lis
+
+echo " = = = = = = = = = = = = = = = = = = = = = = = = = = "
+if ((grep "pgxwin_server" Tmp_file.lis >/dev/null)  && 
+    (grep "rgb.txt"       Tmp_file.lis >/dev/null)  &&
+    (grep "libpgplot.a"   Tmp_file.lis >/dev/null)  &&
+    (grep "pgdemo1"       Tmp_file.lis >/dev/null)  &&
+    (grep "grfont.dat"    Tmp_file.lis >/dev/null)) ; then
+ if test $do_clean = 1 ; then
+   rm -rf pgplot/
+ fi
+ echo " = PGPLOT appears to be correctly installed.  Good!"
+ echo " ="
+ echo " = Please read README.PGPLOT for more on setting up " 
+ echo " = PGPLOT for your system and try running the demo"
+ echo " = programs in  $pgp_dir "
+
+else
+ echo " = Uh-oh.  PGPLOT is missing some important files!"
+ echo " = It looks like PGPLOT failed during building, or"
+ echo " = is only partially installed."
+ echo " = "
+ echo " = Please consult the PGPLOT installation instructions"
+ echo " = in the subdirectory  pgplot/."
+ echo " = "
+ echo " = After creating a drivers.list file in $pgp_dir"
+ echo " = this script did the following commands:"
+ echo "    cd $pgp_dir"
+ echo "    $dir/pgplot/makemake $dir/pgplot $pgp_sys"
+ echo "    make FFLAGC=-O1 libpgplot.a "
+ echo "    make grfont.dat prog pgplot.doc pgxwin_server cpg"
+ echo "    make clean"
+ echo " ="
+ echo " = You may want to repeat these steps by hand or "
+ echo " = consult the PGPLOT installations instructions "
+ echo " = in install-unix.txt"
+fi
+
+if test $do_clean = 1 ; then
+ rm -f Tmp_file.lis
+fi
+
+
+echo " = = = = = = = = = = = = = = = = = = = = = = = = = = "
+echo " "
+
+# done

@@ -1,0 +1,8 @@
+gcc -framework Python \
+ build/temp.darwin-7.3.0-Power_Macintosh-2.3/ifeffit_wrap.o \
+-L/Applications/Ifeffit/lib -L/Applications/Ifeffit/pgplot \
+-lifeffit -lpgplot_iff -lpng_iff -lz_iff -laquaterm \
+-L/usr/X11R6/lib -lX11 -lfrtbegin -lSystem \
+-L/sw/lib -lg2c -L/usr/lib -lgcc \
+-o build/lib.darwin-7.3.0-Power_Macintosh-2.3/_ifeffit.so
+

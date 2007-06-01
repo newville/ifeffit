@@ -1,0 +1,58 @@
+%%  macros for ifeffit        -*-latex-*-
+
+%%  determine if this is pdflatex or latex
+ \newif\ifpdf
+ \ifx\pdfoutput\undefined{\pdffalse}\else{\pdfoutput=1 \pdftrue}\fi
+% %%% 
+% 
+ \ifpdf
+   \usepackage[pdftex]{color}
+   \definecolor{color0}{rgb}{0.00,0.00,0.70}
+   \definecolor{color1}{rgb}{0.90,0.00,0.00}
+   \definecolor{color2}{rgb}{0.00,0.00,0.70}
+   \usepackage[pdftex,colorlinks,hyperindex,urlcolor=color0,%
+              linkcolor=color1,citecolor=color2]{hyperref}
+ \else
+   \usepackage{color}
+   \definecolor{color0}{rgb}{0.00,0.00,0.70}
+   \definecolor{color1}{rgb}{0.90,0.00,0.00}
+   \definecolor{color2}{rgb}{0.00,0.00,0.70}
+   \usepackage[colorlinks,hyperindex,urlcolor=color0,%
+                  linkcolor=color1,citecolor=color2]{hyperref}
+ \fi
+% %%
+
+\newcommand{\Newvemail}{newville@cars.uchicago.edu}
+\newcommand{\mailto}[1]{{\href{mailto:#1}{#1}}}
+\newcommand{\mailNewv}{\mailto{\Newvemail}}
+
+\newcommand{\IFFURL}{http://cars9.uchicago.edu/ifeffit/}
+\newcommand{\FEFFURL}{http://leonardo.phys.washington.edu/~feff/}
+\newcommand{\PERLURL}{http://www.perl.com/}
+\newcommand{\TCLURL}{http://www.scriptics.com/}
+\newcommand{\PYTHONURL}{http://www.python.org/}
+\newcommand{\PGPLOTURL}{http://www.astro.caltech.edu/~tjp/pgplot/}
+
+\newcommand{\WWWiff}{\href{\IFFURL}{\IFFURL}}
+\newcommand{\WWWperl}{\href{\PERLURL}{\PERLURL}}
+\newcommand{\WWWtcl}{\href{\TCLURL}{\TCLURL}}
+\newcommand{\WWWpython}{\href{\PYTHONURL}{\PYTHONURL}}
+
+\newcommand{\WWWpgplot}{\href{\PGPLOTURL}{http://www.astro.caltech.edu/\~{}tjp/pgplot/}}
+
+%%
+
+
+\ifpdf{\pdfinfo{/Author   (Matthew Newville)
+    /Title    (The IFEFFIT Reference Guide)
+    /Subject  (Program Document for IFEFFIT)
+    /Keywords (XAFS, FEFF) }
+  }\fi
+
+
+\newenvironment{VerbSBox}%
+{\VerbatimEnvironment\begin{Sbox}%
+\begin{minipage}{5.00truein}\begin{Verbatim}}%
+{\end{Verbatim}\end{minipage}\end{Sbox}\setlength{\fboxsep}{2mm}{%
+\begin{flushright}\shadowbox{\TheSbox}\end{flushright}}}
+%%

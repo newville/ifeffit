@@ -1,0 +1,9 @@
+#
+# This shows a simple example of running the diffkk program.
+# 
+# The input file is diffkk.inp.
+# Outputs are written to  
+#    test.out     ascii column
+#    diffkk.log   summary
+#    diffkk.sav   ifeffit save file of all input, output, work arrays
+#

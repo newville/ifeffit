@@ -1,0 +1,31 @@
+
+dat.x = range(0,100,0.5)
+
+random(npts=200, output=dat.noise, dist=normal,sigma=0.001)
+
+dat.g1 =  5*gauss(dat.x, 40, 5.5)
+dat.g2 = 18*gauss(dat.x, 59, 7.5)
+dat.y = dat.g1 + dat.g2 + dat.noise
+
+
+guess (g1_amp = 10, g1_sig = 4, g1_cen  = 50)
+guess (g2_amp = 10, g2_sig = 4, g2_cen  = 60)
+
+## fit.gauss  = (abs(g1_amp)/g1_sig) * exp(-((dat.x -g1_cen)/g1_sig)^2/2)
+
+fit.gauss  = (g1_amp * gauss(dat.x,g1_cen,g1_sig) + 
+              g2_amp * gauss(dat.x,g2_cen,g2_sig) )
+
+
+plot dat.x, fit.gauss
+
+
+fit.resid = fit.gauss - dat.y
+
+minimize(fit.resid)
+
+show @variables
+newplot dat.x, dat.y
+plot dat.x, fit.gauss
+
+

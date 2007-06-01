@@ -1,0 +1,153 @@
+#!/usr/bin/perl -w
+# tweak tex source for reference manual to be
+#  html, pdf, or ps  specific
+#  '\\begin{VerbSBox} ' construct for html files
+
+use Getopt::Std;
+getopts('ft:');
+$dir = ($opt_t) ? ($opt_t) : "ps";
+$force = 0;
+if  ($opt_f) { $force = 1;}
+
+$header         = "%%#fixtex%";
+$mark{'sverb'}  = "%%#VerbSBox%";
+$mark{'title'}  = "%%#TitlePage%";
+$mark{'macros'} = "%%#Macros%";
+$mark{'index'}  = "%%#Index%";
+$mark{'graph'}  = "%%#GraphicsFile%";
+$mark{'endgraph'}  = "%%#EndGraphics%";
+
+$imgdir = "http://cars9.uchicago.edu/ifeffit/images/refman/";
+$gx = $opt_f; 
+if ($force eq 0) { 
+    $markfile = ".latex_type";
+    $i = open(TST, "<$markfile");
+    $x = ' ';
+    if ($i) { $x = <TST>;    chomp $x;    close(TST);}
+    if ($x eq $opt_t) {
+	exit; 
+    } else {
+	open(TST,  ">$markfile")  or warn "couldn't open $markfile\n";
+	print TST "$opt_t\n";
+	close(TST);
+    }
+}
+
+# print " FILES : @ARGV \n";
+foreach $file (@ARGV) {
+    $savefile = $file.".bak"; 
+    open(TST,  "<$file")  or die "couldn't open $file\n";
+    $x = <TST>;
+    close(TST);
+    next unless $x =~ /$header/o;
+#     print " $file\n";
+    rename ($file,$savefile) or die "couldn't rename $file\n";
+    open(IN,  "<$savefile")  or die "couldn't open $savefile\n";
+    open(OUT, ">$file")      or die "couldn't open $file\n";
+    my ($x, $mode) = (0,0);
+    my @vtext; 
+    my $ln = 0;
+    $graphmode = 0;
+    while (<IN>) {
+	chomp;
+## shadow/verb box
+#	print "$_\n";
+	if (/$mark{'sverb'}/)  {
+	    $inp_tag = "\\begin{VerbSBox}";
+	    $out_tag = "\\end{VerbSBox}";
+	    if ($dir eq "html") { 
+		$inp_tag =  "\\begin{Verbatim}" ;
+		$out_tag =  "\\end{Verbatim}" ;
+	    };
+	    print OUT "$_\n$inp_tag\n";
+	    $x = <IN>; # skip next line;
+	    while (<IN>) {
+		chomp;
+		if (/$mark{'sverb'}/) {  last; }
+		push @vtext, $_;
+	    }
+	    pop @vtext;
+	    foreach $i (@vtext) {  print OUT "$i\n";}
+	    @vtext = ();
+	    print OUT "$out_tag\n$mark{'sverb'}\n";
+## graphics file
+	} elsif (/$mark{'endgraph'}/) {
+	    chomp $gc;
+	    $graphmode = 0;
+	    if (($dir eq "ps")) {
+		print OUT "\\begin{figure}[tb] \\begin{center}\n";
+		print OUT "  \\includegraphics[width=2.75in,angle=-90]{figs/$gf.$dir}\n";
+		print OUT "  \\caption{$gc}\\label{Fig:$gl}\n";
+		print OUT "\\end{center} \\end{figure}\n";
+	    } elsif (($dir eq "pdf")) {
+		print OUT "\\begin{figure}[tb] \\begin{center}\n";
+		print OUT "  \\includegraphics[width=4.0in]{figs/$gf.png}\n";
+		print OUT "  \\caption{$gc}\\label{Fig:$gl}\n";
+		print OUT "\\end{center} \\end{figure}\n";
+	    } elsif ($dir eq "html") {
+		print OUT "\\begin{rawhtml}<p align=center>\n";
+		print OUT "<a href=\"$imgdir/$gf.png\">\n";
+		print OUT "<img align=\"center\"\n  src=\"$imgdir/$gf.png\"\n";
+		print OUT "   alt=\"$gf.png\"></a></p>\n";
+		print OUT "\\end{rawhtml}\n";
+		print OUT "\\begin{figure} \\rule{4in}{1mm} \n";
+		print OUT "   \\caption{$gc}\n";
+		print OUT " \\label{Fig:$gl}\\end{figure}\n";
+	    }
+	    print OUT "%%#EndGraphics%\n";
+	} elsif (/$mark{'graph'}/) {
+	    ($gx,$gf,$gl) = split(/\s+/, $_);
+	    $gc   = "";
+	    $graphmode = 1;
+	    print OUT "$_\n";
+	} elsif ($graphmode == 1) { 
+	    if (/^%.*/o) {
+		print OUT "$_\n";
+		s/^%[ ]*/ /o;
+		$gc = $gc.$_."\n";
+	    }
+
+# 	    print OUT "$_\n";
+# 	    $x = <IN>; # read next line
+# 	    chomp $x;
+# 	    @parts = split('\.', $x);
+# 	    $ext = "ps}";
+# 	    if ($dir eq "pdf") { $ext = "pdf}"; }
+# 	    $parts[$#parts] = $ext;
+# 	    print OUT join('.',@parts), "\n";
+## title page include 
+	} elsif (/$mark{'title'}/) {
+	    $inp_tag =  "\\include{title_pdf}" ;
+	    if ($dir eq "html") {
+		$inp_tag =  "\\include{title_html}";
+	    }
+	    print OUT "$_\n$inp_tag\n";
+	    $x = <IN>; # skip next line;
+## index include 
+# 	} elsif (/$mark{'index'}/) {
+# 	    $inp_tag =  "\\include{index}" ;
+# 	    if ($dir eq "html") {
+# 		$inp_tag =  "\\include{index}";
+# 	    }
+# 	    print OUT "$_\n$inp_tag\n";
+# 	    $x = <IN>; # skip next line;
+
+## macros include
+	} elsif (/$mark{'macros'}/) {
+	    $inp_tag =  "\\include{ifmacs_pdf}" ;
+	    if ($dir eq "html") {
+		$inp_tag =  "\\include{ifmacs_html}";
+	    }
+	    print OUT "$_\n$inp_tag\n";
+	    $x = <IN>; # skip next line;
+	} else {
+	    print OUT "$_\n";
+	}
+    }
+}
+
+
+
+
+
+

@@ -1,0 +1,12 @@
+I altered the standard distribution of readline 5.0 in the following ways:
+
+  == removed examples, documentation
+  == modified configure.in to not build Makefile for doc, examples
+  == modified Makefile.in to build only the static library 
+     and to not install anything
+
+GNU Readline 5.0 is distributed under the GPL.  
+
+The full kit of readline 5.0 is available from the FSF/GNU.
+
+--Matt Newville

@@ -1,0 +1,175 @@
+# Makefile.in for ifeffit wrappers
+#  
+SHELL = @SHELL@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+AUTOCONF = @AUTOCONF@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+CC = @CC@
+CPP = @CPP@
+F77 = @F77@
+FFLAGS = @FFLAGS@
+FLIBS = @FLIBS@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+VERSION = @VERSION@
+canonical_host_type = @canonical_host_type@
+
+PYTHON= @PYTHON@
+PERL= @PERL@
+TCL= @TCL@
+USE_PYTHON= @USE_PYTHON@
+USE_PERL= @USE_PERL@
+USE_TCL= @USE_TCL@
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../config.h
+DIST_COMMON =  Makefile.in
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) 
+
+# all: ext-python ext-perl
+all: 
+.SUFFIXES:
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+@SET_MAKE@
+
+IFF_LIB  = $(top_builddir)/src/lib/libifeffit.a
+PY_DIR   = python
+PY_SO    = iff_py_made
+PY_CONF  = site_install.py
+PL_DIR   = perl
+PL_SO    = blib/arch/auto/Ifeffit/Ifeffit.so
+PL_CONF  = Makefile.PL
+TL_DIR   = tcl
+TL_SO    = ifeffit_tcl.so
+TL_CONF  = TclSetup.in
+PL_VERS  = perlversion
+
+
+ext-python: $(PY_DIR)/$(PY_SO)
+
+$(PY_DIR)/$(PY_SO): $(PY_DIR)/$(PY_CONF)  $(IFF_LIB)
+	@if test "$(USE_PYTHON)" = "1"; then \
+	    (echo "Building python extension"; \
+	     cd $(top_builddir)/wrappers/$(PY_DIR);\
+	     $(PYTHON) setup.py build ; cd ..;)\
+	fi;
+
+ext-perl: $(PL_DIR)/$(PL_SO)
+
+$(PL_DIR)/$(PL_SO): $(PL_DIR)/$(PL_CONF)  $(IFF_LIB)
+	@if test "$(USE_PERL)" = "1"; then \
+	    (echo "Building perl extension";\
+	     cd $(top_builddir)/wrappers/$(PL_DIR);\
+	     $(PERL) $(PL_CONF) ; make ;\
+	     cd ..;)\
+	fi;
+
+ext-tcl: $(TL_DIR)/$(TL_SO)
+
+$(TL_DIR)/$(TL_SO): $(TL_DIR)/$(TL_CONF)  $(IFF_LIB)
+	@if test "$(USE_TCL)" = "1"; then \
+	    (echo "Building tcl extension"; \
+	     cd $(top_builddir)/wrappers/$(TL_DIR);\
+	     cat $(TL_CONF) Makefile.in > Makefile; make; \
+	     cd ..;)\
+	fi;
+
+install:  all
+# 		
+# 
+# #install:  all
+# 	@if test "$(USE_PYTHON)" = "1"; then \
+# 	   (echo "Installing python extension"; \
+# 	     cd $(top_builddir)/wrappers/$(PY_DIR);\
+# 	    $(PYTHON) setup.py install; cd ..;)\
+# 	fi;
+# 	@if test "$(USE_PERL)" = "1"; then \
+# 	   (echo "Installing perl extension";\
+# 	     cd $(top_builddir)/wrappers/$(PL_DIR);\
+# 	     make install;  cd ..;)\
+# 	fi;
+# 
+# 	@if test "$(USE_TCL)" = "1"; then \
+# 	   (cd $(top_builddir)/wrappers/$(TL_DIR);\
+# 	   echo "==="; \
+# 	   echo "NOT INSTALLING tcl extension"; \
+# 	   echo "See README in wrappers/tcl";\
+# 	   echo "==="; \
+# 	   cd ..;)\
+# 	fi;
+
+clean: 
+	@if test "$(USE_PYTHON)" = "1"; then \
+	    (echo "cleaning python extension"; \
+	     cd $(PY_DIR);\
+	     rm -rf $(PY_SO) *.pyc build/* ;\
+	     cd ..;)\
+	fi;
+	@if test "$(USE_PERL)" = "1"; then \
+	   (echo "cleaning perl extension";\
+	    cd $(PL_DIR); \
+	    if test -f Makefile; then make clean; fi;\
+            cd ..;)\
+	fi;
+	@if test "$(USE_TCL)" = "1"; then \
+	   (echo "cleaning tcl extension";\
+	    cd $(TL_DIR);\
+	    rm -f ifeffit_wrap.o ifeffit_tcl.so;\
+	    cd ..;)\
+	fi;
+
+distclean: 
+	make clean
+	-rm -f Makefile
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+check: all 
+
+uninstall: 
+
+installdirs: 
+
+.PHONY: distdir check install uninstall all installdirs  clean 
+
+.NOEXPORT:

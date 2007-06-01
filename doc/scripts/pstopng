@@ -1,0 +1,14 @@
+#!/usr/bin/python
+import os,sys,string
+for i in sys.argv[1:]:
+    j = string.find(i,'.')
+    o = i[:j] + '.png'
+    print "converting %s to %s " % (i, o)
+    # text="""pstoimg -type png -antialias -density 144 -crop tblrs -white -quiet -out _tmp_x.png %s
+    text="""pstoimg -type png -antialias -density 144 -crop tblrs -white -quiet -out _tmp_x.png %s
+pngtopnm _tmp_x.png > _tmp_x.pnm
+pnmrotate -90 _tmp_x.pnm  > _tmp_y.pnm
+pnmtopng _tmp_y.pnm > %s
+rm -f _tmp_*
+""" % (i, o)
+    os.system(text)

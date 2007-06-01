@@ -1,0 +1,26 @@
+.SUFFIXES:
+.SUFFIXES: .o .f
+
+.f.o:
+	f77 -c $*.f
+
+OBJ =	feffbd.o atom.o besjn.o bjnser.o ccrit.o cdsld.o \
+	chopen.o cpl0.o cright.o csomm.o cubic.o dalp.o \
+	diff.o dirac.o dist.o edp.o exchan.o exchee.o \
+	exjlnl.o fermi.o ff2chi.o ffq.o fixvar.o fmtrxi.o \
+	fovrg.o fpot.o frnrm.o genfmt.o getorb.o getxk.o \
+	head.o heap.o imhl.o indata.o inouh.o inth.o \
+	intpol.o ipack.o istprm.o istval.o mcrith.o mcritk.o \
+	mkptz.o mmtr.o mmtrxi.o mpprmd.o mpprmp.o mrb.o \
+	outcrt.o ovrlp.o paths.o pathsd.o pertab.o phase.o \
+	phash.o phmesh.o pijump.o potph.o potsl.o potslw.o \
+	prcrit.o quinn.o rdhead.o rdinp.o rdpath.o renorm.o \
+	rhl.o rot3i.o rphbin.o rpotph.o sclmz.o sdist.o \
+	setgam.o setlam.o sidx.o sigms.o snlm.o somm.o \
+	sortix.o str.o strap.o sumax.o terp.o timrep.o \
+	totale.o trap.o wphase.o wpot.o xcpot.o \
+	xx.o ykdir.o
+
+feff:	feff.o $(OBJ)
+	f77 feff.o $(OBJ) -o feff
+

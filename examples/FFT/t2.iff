@@ -1,0 +1,19 @@
+
+read_data(../data/cu150k.chi , group=a, type=chi)
+
+set( b.chi = a.chi)
+
+set( kweight=2, kmin=2, kmax=18, dk=2 )
+
+fftf(b.chi)
+
+
+fftf(a.chi,  pc_edge='Cu k',pc_caps=1)
+
+# fftf(a.chi,  k=a.k, pc_edge='Cu k',pc_caps=1)
+fftf(a.chi,   pc_edge='Cu k',pc_caps=1)
+
+newplot(a.r, a.chir_re)
+plot(b.r, b.chir_re,color='black', key='no pc')
+
+

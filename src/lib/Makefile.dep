@@ -1,0 +1,128 @@
+# Scanning files ...  
+# Finding routines needed to make ifeffit.f ...
+# Finding routines needed to make cifeffit.f ...
+IFF_SRC = ifeffit.f cifeffit.f str.f misc_vars.f isamac.f \
+	iff_load.f iread.f echo_stub.f misc_io.f iff_save.f \
+	iff_eval.f misc_arr.f iff_erase.f iff_sync.f \
+	decod.f misc_num.f enlib.f sigms.f atomic.f u2ipth.f \
+	kkmclr.f fftpack.f conv_lor.f specfun.f encod.f \
+	padlib.f iff_set.f sum_paths.f chipth.f echo.f \
+	iff_init.f iff_plot_init.f iff_config.f iff_get_line.f \
+	iff_macro.f iff_done.f iff_history.f iff_test.f \
+	sort2.f iff_rddata.f iff_wrdata.f iff_log.f iff_show.f \
+	iff_color.f iff_correl.f fefinp.f rdffdt.f iff_print.f \
+	iff_echo.f iff_unguess.f iff_rename.f iff_pre_edge.f \
+	preedg.f iff_bkg_cl.f clcalc.f clbfun.f minpack.f \
+	iff_spline.f spline.f splfun.f bvalue.f fitfft.f \
+	xafsft.f window.f iff_random.f iff_fft.f feff_tables.f \
+	iff_window.f iff_path.f iff_getpath.f iff_ff2chi.f \
+	iff_feffit.f fitfun.f iff_chieps.f fiterr.f iff_f1f2.f \
+	iff_diffkk.f iff_minimize.f genfun.f iff_uncert.f \
+	iff_plot.f iff_cursor.f 
+
+IFF_OBJ = ifeffit.o cifeffit.o str.o misc_vars.o isamac.o \
+	iff_load.o iread.o echo_stub.o misc_io.o iff_save.o \
+	iff_eval.o misc_arr.o iff_erase.o iff_sync.o \
+	decod.o misc_num.o enlib.o sigms.o atomic.o u2ipth.o \
+	kkmclr.o fftpack.o conv_lor.o specfun.o encod.o \
+	padlib.o iff_set.o sum_paths.o chipth.o echo.o \
+	iff_init.o iff_plot_init.o iff_config.o iff_get_line.o \
+	iff_macro.o iff_done.o iff_history.o iff_test.o \
+	sort2.o iff_rddata.o iff_wrdata.o iff_log.o iff_show.o \
+	iff_color.o iff_correl.o fefinp.o rdffdt.o iff_print.o \
+	iff_echo.o iff_unguess.o iff_rename.o iff_pre_edge.o \
+	preedg.o iff_bkg_cl.o clcalc.o clbfun.o minpack.o \
+	iff_spline.o spline.o splfun.o bvalue.o fitfft.o \
+	xafsft.o window.o iff_random.o iff_fft.o feff_tables.o \
+	iff_window.o iff_path.o iff_getpath.o iff_ff2chi.o \
+	iff_feffit.o fitfun.o iff_chieps.o fiterr.o iff_f1f2.o \
+	iff_diffkk.o iff_minimize.o genfun.o iff_uncert.o \
+	iff_plot.o iff_cursor.o 
+
+# dependencies:
+ifeffit.o:  consts.h maxpts.h keywrd.h echo.h
+cifeffit.o:  consts.h maxpts.h echo.h
+misc_vars.o:  consts.h maxpts.h arrays.h encod.h keywrd.h
+isamac.o:  consts.h maxpts.h keywrd.h
+iff_load.o:  consts.h maxpts.h keywrd.h echo.h
+iff_save.o:  consts.h maxpts.h keywrd.h arrays.h encod.h
+iff_eval.o:  consts.h maxpts.h keywrd.h arrays.h encod.h
+misc_arr.o:  consts.h maxpts.h arrays.h encod.h keywrd.h
+iff_erase.o:  consts.h maxpts.h keywrd.h arrays.h encod.h feffit.h\
+	 fefdat.h pthpar.h
+iff_sync.o:  consts.h maxpts.h keywrd.h arrays.h encod.h pthpar.h\
+	 feffit.h
+decod.o:  maxpts.h encod.h
+misc_num.o:  maxpts.h consts.h
+enlib.o:  encod.h consts.h maxpts.h arrays.h
+sigms.o:  consts.h maxpts.h arrays.h feffit.h fefdat.h pthpar.h
+u2ipth.o:  consts.h maxpts.h pthpar.h
+kkmclr.o:  consts.h maxpts.h fft.h
+conv_lor.o:  maxpts.h
+encod.o:  consts.h maxpts.h encod.h arrays.h
+padlib.o:  padlib.h
+iff_set.o:  consts.h maxpts.h keywrd.h arrays.h encod.h echo.h
+sum_paths.o:  consts.h maxpts.h keywrd.h arrays.h fefdat.h feffit.h\
+	 pthpar.h
+chipth.o:  consts.h maxpts.h pthpar.h
+echo.o:  echo.h
+iff_init.o:  consts.h maxpts.h arrays.h encod.h fefdat.h fft.h\
+	 keywrd.h pthpar.h spline.h echo.h feffit.h
+iff_plot_init.o:  consts.h maxpts.h ifplot.h
+iff_config.o:  consts.h maxpts.h arrays.h encod.h fefdat.h fft.h\
+	 keywrd.h pthpar.h spline.h echo.h feffit.h com.h\
+	 sys.h
+iff_get_line.o:  consts.h maxpts.h keywrd.h
+iff_macro.o:  consts.h maxpts.h keywrd.h
+iff_history.o:  consts.h maxpts.h keywrd.h
+iff_test.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+iff_rddata.o:  consts.h maxpts.h keywrd.h arrays.h
+iff_wrdata.o:  consts.h maxpts.h keywrd.h arrays.h
+iff_log.o:  consts.h maxpts.h keywrd.h echo.h
+iff_show.o:  consts.h maxpts.h keywrd.h arrays.h encod.h echo.h\
+	 feffit.h fefdat.h pthpar.h
+iff_color.o:  consts.h maxpts.h keywrd.h ifplot.h
+iff_correl.o:  consts.h maxpts.h keywrd.h arrays.h feffit.h
+fefinp.o:  consts.h maxpts.h fefdat.h
+iff_print.o:  consts.h maxpts.h keywrd.h arrays.h encod.h
+iff_unguess.o:  consts.h maxpts.h arrays.h encod.h
+iff_rename.o:  consts.h maxpts.h keywrd.h arrays.h
+iff_pre_edge.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+iff_bkg_cl.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+clbfun.o:  consts.h maxpts.h spline.h
+iff_spline.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+spline.o:  consts.h maxpts.h spline.h fft.h
+splfun.o:  consts.h maxpts.h spline.h fft.h
+iff_random.o:  consts.h maxpts.h keywrd.h arrays.h
+iff_fft.o:  consts.h maxpts.h keywrd.h arrays.h fft.h pthpar.h\
+	 fefdat.h
+feff_tables.o:  consts.h maxpts.h
+iff_window.o:  consts.h maxpts.h keywrd.h arrays.h fft.h
+iff_path.o:  consts.h maxpts.h keywrd.h arrays.h fefdat.h pthpar.h
+iff_getpath.o:  consts.h maxpts.h keywrd.h arrays.h fefdat.h feffit.h\
+	 pthpar.h
+iff_ff2chi.o:  consts.h maxpts.h keywrd.h arrays.h fefdat.h feffit.h\
+	 pthpar.h
+iff_feffit.o:  consts.h maxpts.h keywrd.h arrays.h fft.h fefdat.h\
+	 pthpar.h feffit.h
+fitfun.o:  consts.h maxpts.h arrays.h keywrd.h fft.h fefdat.h\
+	 pthpar.h feffit.h
+iff_chieps.o:  consts.h maxpts.h keywrd.h arrays.h fft.h
+iff_f1f2.o:  consts.h maxpts.h keywrd.h arrays.h spline.h atomic.h
+iff_diffkk.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+iff_minimize.o:  consts.h maxpts.h keywrd.h arrays.h feffit.h
+genfun.o:  consts.h maxpts.h arrays.h feffit.h keywrd.h
+iff_uncert.o:  consts.h maxpts.h keywrd.h arrays.h feffit.h
+iff_plot.o:  consts.h maxpts.h keywrd.h ifplot.h
+iff_cursor.o:  consts.h maxpts.h keywrd.h ifplot.h
+
+IFF_INC = consts.h maxpts.h keywrd.h echo.h arrays.h encod.h \
+	feffit.h fefdat.h pthpar.h fft.h padlib.h spline.h \
+	ifplot.h com.h sys.h atomic.h 
+
+# WARNING: these subprograms seem to be needed but weren't found
+IFF_MISSING= pgqndt pgqdt pgopen pgclos pgqinf getenv pgscrn \
+	pgscr sigma fcn pgeras pgslct pgpage pgbbuf pgask \
+	pgsci pgsls pgsch pgscf pgslw pgvstd pgrnge pgswin \
+	pgbox pgmtxt pgline pgpt pgerry pgerrx pgtext pgpt1 \
+	pgsah pgarro pgebuf pgband 

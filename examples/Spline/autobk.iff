@@ -1,0 +1,13 @@
+#
+# simple autobk-like spline with ifeffit
+#
+ read_data(file = ../data/cu.xmu, label = 'energy xmu', group = cu)
+ spline(energy= cu.energy, xmu= cu.xmu, kweight=1,rbkg=1.1)
+
+ newplot(cu.energy, cu.xmu, xlabel = 'E (eV)')
+    plot(cu.energy, cu.bkg)
+
+ pause == hit any key to see k-weighted chi(k) ==
+ cu.chik = cu.chi * cu.k
+ newplot(cu.k, cu.chik , xlabel = 'k (\A\u-1\d)', ylabel = 'k\gx(k)(\A\u-1\d)')
+

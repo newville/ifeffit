@@ -1,0 +1,14 @@
+data.x =  range(1,10,0.1)
+
+data.y = 4.5 + 32 * data.x + 2 * sin(data.x * pi/2)
+
+plot data.x, data.y
+
+
+guess a = 2, b =10
+
+fit.line = a + b * data.x
+
+fit.diff = fit.line - data.y
+
+minimize(fit.diff)

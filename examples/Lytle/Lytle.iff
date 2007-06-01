@@ -1,0 +1,10 @@
+#
+# read data file from Farrel Lytle database, convert to mu(E)
+
+read_data( calco.dat, group=calco, label='steps i0 i1 i2')
+
+set (dspace  = 1.92017,     stpdeg  = 4000)
+set (r2d     = 57.29577951, hc      = 12398.61)
+set calco.en =  hc / (2 * dspace) / sin(calco.steps / (r2d * stpdeg))
+
+plot calco.en, {calco.i2/calco.i0}

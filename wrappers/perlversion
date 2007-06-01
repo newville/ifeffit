@@ -1,0 +1,11 @@
+#!/bin/sh
+p=$1
+test=tmp.dat
+$p -v | grep "5.6" > $test
+if test -s $test; then 
+   echo 'using wrapper for perl 5.6 and higher'
+else 
+   echo 'using wrapper for perl 5.005 or earlier'
+fi;
+
+rm -f $test

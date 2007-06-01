@@ -1,0 +1,50 @@
+#!/usr/bin/python 
+#
+#  build ifeffit's build.h file
+#  copyright (c) 2002  matt newville
+#
+import string, sys
+
+try:
+    keywords = sys.argv[1]
+except:
+    keywords = "Keywords.dat"
+    
+comfile  = 'com.h'
+cright   = "Copyright (c) 2005 Matt Newville, Univ of Chicago"
+indent   = " " * 5
+
+def readfile(file):
+    print " Reading %s " % file
+    f = open(file,'r')
+    l = f.readlines()
+    f.close()
+    return l
+
+# convert keyword list to com.h
+kw = readfile(keywords)
+coms = {}
+for i in kw:
+    j = i.strip()
+    if ((len(j) > 5) and (j[0] != '#')):
+        (x, y) = string.split(i,'::')
+        coms[x] = y.strip()
+
+k  = coms.keys()
+k.sort()
+
+file = comfile
+f = open(file,'w')
+f.write("c{%s -*-fortran-*-\n" % file)
+j = 0
+for i in k:
+    j = j+1
+    f.write("%s  ckeys(%i) = '%s'\n" % (indent,j,i))
+    f.write("%s  chint(%i) = '%s'\n" % (indent,j,coms[i]))
+
+f.write("c}\n")
+f.close()
+print " Wrote %s " % file
+
+
+

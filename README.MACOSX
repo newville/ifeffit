@@ -1,0 +1,85 @@
+
+These instructions describe how to build ifeffit for MacOS X.
+
+At this point, 'configure ; make ; make install' should work as
+long the prerequisites are installed.  This has worked for me on
+10.2 and 10.3.
+
+
+Currently, the ifeffit command-line interface can be built and
+run on Mac OS X (10.1 or higher) using XDarwin (or, I believe,
+the new Apple X-Windows distribution) and the Unix-like 'Fink
+Project'.
+
+Prerequisites:
+==============
+First, you need Mac OS 10.1 or higher. 
+
+Second, you need to install the 'Developer Tools' that come
+with Mac OS 10.
+
+Third, you need to download and install the Fink system,
+from the Fink Project web-site:
+   http://fink.sourceforge.net/
+
+You will need to download the Fink base system and some of its
+Unix-like extensions.  Fink is fairly easy to use.  In addition
+to the base system, the following 'Fink packages' are needed by 
+ifeffit:
+
+  pgplot g77 xfree86-base xfree86-rootless
+
+I think this is a complete list, but please let me know if I'm
+missing any.  The 'readline' may be needed.
+
+At this time, there are still some problems getting Fink to
+work well on OS 10.2 (Jaguar).  It seems that several of the
+PGPLOT package is in the 'unstable' part of Fink, which makes 
+it more challenging to install.   I'm sorry that I can't 
+provide many more details yet -- check the web pages and
+mailing lists. 
+
+Getting the Ifeffit applications Athena and Artemis to work, 
+you'll also need to get Perl and Perl/Tk to work on Mac OS X. 
+Again, check the web pages and mailing lists.
+
+
+Installation Instructions:
+==========================
+By default, Fink puts its files under the '/sw' directory.
+
+Assuming that is the case, the following commands in a
+Terminal will install the command-line version of ifeffit:
+
+ wget http://cars.uchicago.edu/ifeffit/src/ifeffit.tar.gz
+ tar xvzf ifeffit.tar.gz
+
+The 'standard unix build process' should now work:
+
+  sh configure --prefix=/sw
+  make
+  sudo make install
+
+
+If this does not work, you may be able to build everything 
+without using configure at all, by doing
+  cd ifeffit-1.2.0/src/macosx
+  sh configure
+  make
+  sudo make install
+
+Both of these will build the libraries and C and fortran apps
+(ifeffit, feffit, autobk, diffkk), and install them into the /sw
+tree.  If you've install Fink in a different location, you'll
+have to specify a different prefix to configure or edit the first
+few lines of the Makefile in the src/macosx directory.
+
+The extension wrappers need to be built after installation, but
+the configuration files for these will be generated.
+See src/macosx/README for more details.
+
+--Matt Newville <newville@cars.uchicago.edu>
+
+Last update Aug-25-2003
+
+

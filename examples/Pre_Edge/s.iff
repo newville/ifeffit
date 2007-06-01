@@ -1,0 +1,20 @@
+#
+# pre-edge subtraction and normalization 
+# using Cromer-Libermann data
+#
+ read_data(file = ../data/cu.xmu, prefix = dat, type = xmu)
+
+ spline(energy=dat.energy, xmu = dat.xmu, rbkg=1,kweight=1,interp='line')  
+ set d1.chi = dat.chi
+
+ spline(energy=dat.energy, xmu = dat.xmu, rbkg=1,kweight=1,interp='quad')  
+ set d2.chi = dat.chi
+
+ spline(energy=dat.energy, xmu = dat.xmu, rbkg=1,kweight=1,interp='cubic')  
+ set d3.chi = dat.chi
+
+xmin= 2
+xmax=10
+ newplot (dat.k, d1.chi, xmin=xmin, xmax=xmax,style=solid,color=blue)
+    plot (dat.k, d2.chi, style=linespoints3,color=red)
+    plot (dat.k, d3.chi, style=linespoints3,color=black)

@@ -1,0 +1,5 @@
+These files are needed to create a Win32 dll of the ifeffit library
+that can be easily called from C.
+
+The files here should be used to replace the 'normal' unix versions.
+

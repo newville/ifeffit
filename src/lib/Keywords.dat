@@ -1,0 +1,53 @@
+# names and brief description of ifeffit commands:
+
+bkg_cl::     remove pre_edge from xmu(E) data with CL data
+color::      update the plotting color table
+correl::     set two-variable correlation to a Program Variable
+chi_noise::  calculate noise in a chi(k) spectrum
+comment::    write a comment into the history buffer
+cursor::     get the coordinates of the cursor
+def::        define the expression and value for a variable
+diffkk::     differential Kramers-Kronig transform
+echo::       write a message to the screen
+erase::      erase a variable
+error::      generate the uncertainty in a Program Variable
+exit::       exit the program
+feffit::     execute a feff-based fit to chi(k) data
+f1f2::       calculate f1 and f2 from Cromer-Libermann tables
+ff2chi::     convert list of feff paths to chi(k)
+fftf::       forward fast fourier transform
+fftr::       reverse fast fourier transform
+get_path::   convert path to Program Variables
+guess::      define a variable as a fitting parameter
+history::    set up history buffer and file
+linestyle::  update an index in the plotting style table
+load::       load a file of commands and execute them
+log::        write screen messages to an output file
+macro::      define a macro
+minimize::   general fitting
+newplot::    start a new plot
+path::       define a feff scattering path
+pause::      wait for user input
+plot::       general 2-d plot command
+plot_marker::  put a single marker on the plot
+plot_text::  put a line of text on the plot
+plot_arrow:: put an arrow or line on the plot
+pre_edge::   remove pre_edge from xmu(E) data
+print::      print command
+quit::       quit program
+random::     generate arrays of random numbers
+read_data::  read a data file
+rename::     rename a variable
+reset::      re-initialize program
+restore::    restore session from save file
+save::       save session (all program variables and macros)
+set::        set the constant value for a variable
+show::       show the value of a variable or expression
+spline::     determine background spline (autobk algorithm)
+sync::       synchronize expressions for arrays
+unguess::    convert all *guess* to *set*
+window::     create FT window (k->R) without doing FT
+write_data:: write a data file
+zoom::       choose plotting window with cursor
+__test::     test function : do not use!
+

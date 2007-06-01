@@ -1,0 +1,8 @@
+   PATH   1
+     feff  = ../feff/feffcu01.dat
+     id    = Cu metal first neighbor
+     reff  =    2.547800, degen  =   12.000000
+     s02   =    0.937476, e0     =   -0.867040
+     dr    =    0.007575, ss2    =    0.003522
+     3rd   =    0.000000, 4th    =    0.000000
+     ei    =    0.000000, dphase =    0.000000

@@ -1,0 +1,83 @@
+Welcome to IFEFFIT:  Interactive XAFS Analysis Library
+Copyright (c) 2000-2003 Matt Newville, The University of Chicago
+
+Ifeffit is free software. The majority of the software here is
+distributed under a BSD-like license. Some of the code in this
+distribution is distributed under the GNU Public License (GPL).  
+See the file COPYING for details.
+
+Overview
+--------
+Ifeffit provides a nearly-complete library of algorithms for XAFS
+Analysis, and a simple-to-use interface to that library.  The library
+builds on the Autobk and Feffit programs from the UWXAFS Package, and
+adds considerable flexibility, graphics, and a command-based interface.
+The library is designed to work inside other programming and scripting
+languages, so that more complex programs (including GUIs) can be built
+with the library.
+
+More information about Ifeffit can be found at:
+  http://cars9.uchicago.edu/ifeffit/
+
+Installation
+------------
+Complete installation instructions are in the INSTALL file.
+
+Ifeffit requires a working Fortran77 compiler.  If you're using a very old
+linux system, there is a chance that the fortran compiler supplied with
+your system is broken and needs to be re-installed.  I recommend using
+gcc with the built-in g77 compiler or later.
+
+Documentation
+-------------
+The documentation should be taken from the Ifeffit web site.  The latex
+source for the Ifeffit reference manual and tutorial are included under 
+the doc/ directory tree, but it is not expected that these source files 
+can be converted into usable forms on all systems. 
+
+If you're interested in contributing to the Ifeffit documentation,
+contact the authors.
+
+Contributing
+------------
+Ifeffit works well, but may have some bugs.  There is still plenty of work
+to be done on improving the algorithms, fixing the documentation, and
+making the system as user-friendly as possible.
+
+Please keep these thoughts in mind when using Ifeffit, and let us know
+what you think should be added, what is broken, and what is unclear.
+Chances are if you can think of an improvement, it would help other
+people too.
+
+If you are interested in contributing, please let us know. There's a lot of
+work that can be done on the core algorithms, the documentation, wrappers,
+and examples.  If you know Perl or Python (or are willing to learn), there
+is a wide range of work to do in implementing GUIs and other wrappers in
+these languages.   If you know VisualBasic, AppleScript, or any other
+language and are interested in building extensions for these languages, 
+please let us know how we can help you do this. 
+
+If you prefer to contribute in some other way contact us.
+
+Additional Information
+----------------------
+More information can be found at the ifeffit web site
+ http://cars9.uchicago.edu/ifeffit/
+
+Thanks,
+
+Matt Newville <newville@cars.uchicago.edu>
+Consortium for Advanced Radiation Sources
+University of Chicago
+Chicago, IL
+
+Last update Aug-25-2003
+
+
+
+
+
+
+
+
+

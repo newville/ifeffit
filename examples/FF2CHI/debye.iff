@@ -1,0 +1,36 @@
+deb = debye(50,315)
+ein = eins(50,315)
+
+path(index  = 001,
+     feff   = ../feff/feffcu01.dat,
+     label  = "Cu metal first neighbor",
+     s02    = 1.0,
+     sigma2 = deb,
+     e0     = 0.01      )
+
+ path(index=002, feff=../feff/feffcu02.dat, s02 =1.0)
+ path(index=006, feff=../feff/feffcu03.dat, s02 =0.8)
+
+ path(index=101, feff=../feff/feffcu01.dat, s02 =1.0, sigma2=0.001, e0=3)
+
+ ff2chi(1,   group=f1)
+ ff2chi(1,2,6,group=feff)
+
+print '# Path Index   sigma2 (Debye)   sigma2 (Einstein)'
+
+ path_index = 1
+ print path_index, deb, ein
+
+ path_index = 2
+ print path_index, deb, ein
+
+ path_index = 6
+ sync
+ print path_index, deb, ein
+
+## results:
+## path index   sigma2 (debye)   sigma2 (einstein)
+#  1.00000000   0.329157621E-02   0.243212810E-02
+#  2.00000000   0.384092281E-02   0.243212810E-02
+#  6.00000000   0.370302324E-02   0.364819216E-02
+

@@ -1,0 +1,49 @@
+
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+guess  s02   = 1.
+guess  e0    = 1.
+guess  ss2   = 0.002
+guess  dr    = 0.001
+
+path(index  = 1,  feff   = ../feff/feffcu01.dat, 
+     s02    = s02, 
+     sigma2 = ss2,
+     delr   = dr, 
+     e0     = e0 )
+
+kmin = 2, kmax=25., kweight=2
+dk1  = 1, dk2=1
+
+rmin = 1.5, rmax =4.4
+
+feffit(chi = data.chi, k=data.k,group = fit, 1, fit_space=k)
+
+show @variables
+print 'fit took ', &fit_iteration, ' iterations'
+
+set data.chik = data.chi* data.k^kweight * data.win
+set  fit.chik = fit.chi* fit.k^kweight * data.win
+
+newplot( data.k, data.chik)
+  plot(  fit.k, fit.chik)
+
+# test r-factor and chi-square calculations
+
+set fit.resid = data.chik-fit.chik
+set fitfun.k  = range(kmin,kmax,0.025)-2*0.025
+nkmin  = nofx(data.k,kmin)
+nkmax  = nofx(data.k,kmax)
+set my.dat   = slice(data.chik, nkmin,nkmax)
+set my.fit   = slice( fit.chik, nkmin,nkmax)
+
+set my.resid = (my.dat - my.fit)
+
+set my_varia = vsum(my.resid**2)
+set my_data2 = vsum(my.dat**2)
+set my_chi2  = my_varia / (epsilon_k*epsilon_k) 
+
+set my_rfact = my_varia / my_data2
+
+show  epsilon_k, my_varia, my_data2, my_chi2, my_rfact, chi_square, r_factor
+show my_varia, my_data2

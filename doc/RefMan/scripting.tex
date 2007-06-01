@@ -1,0 +1,726 @@
+%%#fixtex% for html/pdf   -*-latex-*-  
+\section{Scripting and Programming with  {\ifeffit}} \label{Ch:Scripting}
+
+The macro system in {\ifeffit} described in the previous chapter only goes
+so far, and sometimes it's just not enough.  There are several limitations
+to the `{\ifeffit} language' and to the macro mechanism that make complex
+data processing difficult.  The lack of conditional (if-then-else)
+statements and loops (for or do) are the most notable missing features.
+
+All of the programming capabilities missing from {\ifeffit} and more are
+available in essentially every programming and scripting language.  Modern
+scripting languages (which are roughly distinguished from programming
+languages by not having a compilation to machine code separate from
+execution but rather being run directly from the text of the code) are
+especially attractive for such applications, as they allow quick
+development and execution and a wide range of programming capabilities.
+Scripting languages are generally simpler to learn than full-blown
+programming languages, and more flexible and forgiving of errors to boot.
+Scripting languages have a proven track record as being useful for creating
+``wrappers'' around low-lying libraries such as the {\ifeffit} library.
+
+There are several possible general-purpose scripting languages and a few
+``scientific visualization languages'' that could, in principle, be used to
+extend {\ifeffit}'s capabilities.  Tcl/Tk, Perl, Python, IDL, Java,
+VisualBasic, LabView, Matlab, and Mathematica all come to mind.  At this
+time, {\ifeffit} works well with Perl, Python, and Tcl as well as with C
+and Fortran.  If you have a favorite language that is not on this list and
+would like to use {\ifeffit} with it, please let me know.
+
+The interface between {\ifeffit} and the various programming and scripting
+languages are all quite similar.  The interfaces allow you to send commands
+from the language just as you would type commands at the command-line
+program, and also provide ways to move Program Variables back and forth
+between the underlying engine and the calling program.  This chapter
+describes using {\ifeffit} from Fortran and C, as well as Perl, Python, and
+Tcl.  Though the basic concepts are the same for all the languages, there
+are some slight differences in implementation so as to be able to best
+exploit the features of the different languages.  Even if you're only
+planning on using one of the scripting languages, I recommend that you read
+the Fortran and C sections since it has the most complete description of
+the interface.
+
+\subsection{Which language to use?}\label{Ch:Scripting-langchoice}
+{\index{Programming!Fortran}}
+
+If you're unfamiliar with the world of scripting languages and are
+interested in getting more out of {\ifeffit}, you're probably wondering at
+this point which of the scripting language to use.  Allow me to give some
+brief recommendations.  These should be immediately be seen as the free
+advice of a highly opinionated person.  Oddly, I believe they are in fairly
+close agreement with most others familiar with these languages.
+
+If you already know C or Fortran, those are fine languages to use.  If you
+don't know either C or Fortran it is difficult to recommend learning them
+just so you can write complex {\ifeffit} scripts.  Both languages are
+fairly intolerant of mistakes and have fewer features than the modern
+scripting languages.  Once mastered, however, Fortran and C give very fast
+and efficient programs.
+{\index{Programming!C}}
+
+Whether or not you know C or Fortran, if you're interested in writing
+complex {\ifeffit} scripts or programming in general, I recommend learning
+one of Perl, Python, or Tcl.  These scripting languages are remarkably
+similar in that they all work well on every major platform, are free, and
+well-supported via the internet.  They are all fairly easy to learn, and
+make it easy to write and debug simple scripts.  They also hide the really
+ugly parts of C from you, and provide `high-level' data structures which
+lets you do some fairly sophisticated things that would be more painful in
+C or Fortran.  They all have their quirks, too, which can be both maddening
+and charming.  Learning any of them will greatly improve your computer
+skills, as well as making complex {\ifeffit} scripts possible.
+
+
+{\index{Programming!Tcl}}
+Of the three, Tcl\cite{TclBook} is probably the oldest, simplest and least
+powerful language.  That's not to say it's bad -- it's power is certainly
+good enough for most things.  It may even be the most popular of the three
+languages. Its syntax is very simple, and yet a lot of amazing things have
+been done in Tcl/Tk.  These days Tcl is essentially synonymous with the
+truly wonderful and portable Tk GUI toolkit, and is often just referred to
+as Tcl/Tk.  It is hard to over-emphasize the ability to write GUIs that
+work on Unix, Mac, and Win32 machines.  Still, in my opinion Tcl/Tk is the
+least interesting scripting language.
+
+{\index{Programming!Perl}}
+Perl\cite{LearningPerl,CamelBook} is probably best known as a Unix
+system-administration and Web-scripting language.  In some sense, Perl is
+Unix distilled into a single language, for both good and bad.  It excels at
+string and text processing (parsing, pattern matching, and formatting of
+text output).  If you're interested in learning web-scripting or Unix,
+learning Perl is a good choice.  Perl attempts to be a `natural language'
+and so provides several syntax options and some truly breathtaking
+constructs.  All this can lead to programs that intermix punctuation-laden
+lines and near-English text.  The Tk GUI toolkit works with Perl on Windows
+and Unix, but not on Macintoshes.  Several {\ifeffit} scripts have been
+written in Perl, and Bruce Ravel (who rewrote the {\atoms} program in
+Perl), has some advanced Perl modules for using {\ifeffit}.
+
+{\index{Programming!Python}}
+If you don't already know Tcl or Perl, learning Python\cite{LearningPython}
+may be your best bet.  Though probably the least popular of the three
+languages, Python is growing in popularity and is especially good for
+scientific programming (complex math is supported!).  Python has a very
+nice implementation of object-orientation and is generally hailed for its
+readability and ``cleanliness''.  That's not to say that Python is without
+its own quirks, but it is almost certainly the most elegant and easiest to
+learn of the three scripting languages mentioned.  As a bonus, the Tk GUI
+toolkit works with Python on Mac, Windows, and Unix.  As an additional
+incentive, {\gifeffit} is written in python.
+
+
+\subsection{Controlling screen outputs: The echo buffer}\label{Ch:Scripting-echo}
+
+{\index{Programming!echo buffer}}
+An important consideration for either scripting or programming with
+{\ifeffit} is how to handle the text messages that are written to the
+screen during an interactive session.  These messages include unprompted
+warnings and error messages as well as information that you explicitly
+asked to be shown, say through a {\cmnd{show}} command.  The variable
+{\tt{\&screen\_echo}}, first mentioned in
+section~\ref{Ch:Structure-Logging}, can be used to control whether this
+output is actually written to the screen (technically speaking,
+{\emph{standard output}}, which may not even be visably available from your
+program) or saved to an {\emph{echo buffer}} that you can access from your
+program.  {\indexvar{\&screen\_echo}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                Fortran                               %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Fortran interface to {\ifeffit}}\label{Ch:Scripting-f77}
+
+{\index{Programming!Fortran}}
+{\ifeffit} is written primarily in Fortran, so using it from within Fortran
+programs is quite easy.  The basic use of {\ifeffit} is to send command
+strings to an ``{\ifeffit} engine'' which acts just like an interactive
+{\ifeffit} session run at the command prompt.  The underlying engine has
+its own set of Program Variables that are kept in its own memory space,
+separate from the calling program.  The session ``stays alive'' until the
+calling program ends.
+
+Though you could directly call any of the subroutines or functions in the
+{\ifeffit} library, it is highly recommended that you {\bf{not}} make such
+direct calls.  Instead, you should use the functions provided in the
+application programming interface (API), as described here and encapsulated
+in the Fortran include file {\file{ifeffit.inc}} that can be found with the
+configuration files in the {\ifeffit} distribution (typically in the
+{\file{/usr/local/share/ifeffit/config/}} directory).
+{\indexfil{ifeffit.inc}}
+
+The {\ifeffit} Fortran API defines eight external functions, all of which
+are integer functions.  To use these functions, you can simply put a
+fortran {\tt{include}} statement at the top of your program, so that
+instead of explicitly declaring the integer function {\tt{ifeffit}}, you
+could say 
+
+{\small{
+%%#VerbSBox%
+\begin{VerbSBox}
+       program use_if
+       integer i
+       include '/usr/local/share/ifeffit/config/ifeffit.inc'
+c
+       i = ifeffit(' ')
+       i = ifeffit('read_data(cu.xmu, group=cu, type=xmu)')
+       i = ifeffit('spline(cu.energy, cu.xmu, rbkg = 1.2)')
+       i = ifeffit('plot(cu.k, cu.chi)')
+       end    
+\end{VerbSBox}
+%%#VerbSBox%
+}}\noindent
+This shows a very simple {\ifeffit} session converted into a Fortran
+program, using only the function {\tt{ifeffit()}}.  This function is the 
+main interface to the underlying {\ifeffit} engine.
+
+As this example shows, it is recommended that you first call
+{\tt{ifeffit()}} with an ``initialization string'', typically a blank line,
+but optionally setting system configuration variables.
+
+How do you actually build an executable out of this program file?  That, of
+course, depends on details of your system.  Most of the settings needed are
+put in the file {\file{Config.mak}} in the same location as
+{\file{ifeffit.inc}}.  This file contains Makefile instructions needed for
+linking your {\ifeffit} application with the {\ifeffit} library and all the
+other libraries needed to make an executable.  An example Makefile (using
+the above code and the settings of Config.mak from a fairly normal linux
+system) is included in the {\file{examples/scripting}} section of the
+source distribution.  {\indexfil{Config.mak}}
+
+\subsubsection{integer function {\tt{ifeffit()}}}\label{Ch:Script-f77:ifeffit}
+
+{\index{Programming!execution}}
+{\index{Programming!{{\tt{ifeffit()}}}}}
+The {\tt{ifeffit()}} function takes a string as an argument (up to 1024
+characters), and returns an integer, which will have one of the following
+values given in  Table~{\ref{Table:iff-ret}}
+
+\begin{table}[tb]
+  \caption[a]{Integer return values from {\tt{ifeffit()}}, a function to
+    execute {\ifeffit} commands  in an ``{\ifeffit} engine''.  The
+    function is accessible from Fortran, C, C++, Perl, Python, and Tcl.}
+  {\label{Table:iff-ret}}
+  \begin{tabular}{cl}
+    \noalign{\smallskip}
+    Return value & Meaning \\
+ \noalign{\smallskip}    \hline    \noalign{\smallskip}    
+    0         & normal, successful execution \\
+    -2         & in the middle of a macro definition\\
+    -1         & in the middle of an incomplete command line\\
+    1         & normal exit \\
+    $>1$      & abnormal exit \\
+    \noalign{\smallskip}  \hline
+  \end{tabular}
+\end{table}
+
+You should be somewhat careful about the characters you actually send to
+{\tt{ifeffit()}}, especially with respect to non-printable characters and
+line-ending issues.  Though it tries to remove non-printing characters, it
+may not be wise to simply open a file and send its contents to
+{\tt{ifeffit()}} without checking that the file does not contain binary
+data.
+
+\subsubsection{integer function {\tt{iffputsca()}}}\label{Ch:Script-f77:putscalar}
+
+{\index{Programming!put scalar}}
+The {\tt{iffputsca()}} function takes two arguments: the first is a
+character string (up to 128 characters) that names an {\ifeffit} scalar
+(following the naming rules outlined in chapter~\ref{Ch:Structure}), and
+the second is a double precision value.  The effect is to set the named
+scalar with the given value.  If the scalar already exists, it will be
+overwritten.  Note that this is equivalent to a {\cmnd{set()}} command, not
+a {\cmnd{def()}} command: for that, you should use the {\tt{ifeffit()}}
+function.
+
+
+{\tt{iffputsca()}} always returns 0.
+
+\begin{verbatim}
+       i = iffputsca('kmin', 3.d0)
+       x = sqrt(100.)
+       i = iffputsca('kmax', x)
+       i = ifeffit(' show kmin, kmax')
+\end{verbatim}
+\noindent
+would show the values to be 3.0 and 10.0, respectively.
+
+\subsubsection{integer function {\tt{iffgetsca()}}}\label{Ch:Script-f77:getscalar}
+
+{\index{Programming!get scalar}}
+The {\tt{iffgetsca()}} function takes two arguments: the first is a
+character string (up to 128 characters) that names an existing {\ifeffit}
+scalar (following the naming rules outlined in chapter~\ref{Ch:Structure}),
+and the second is a double precision variable.  The effect is to retrieve
+the value of the named {\ifeffit} scalar and put it into the provided
+Fortran variable.  If the scalar does not exist in the {\ifeffit} session,
+the value will be set to 0.
+
+{\tt{iffgetsca()}} always returns 0.
+
+
+\begin{verbatim}
+       i = ifeffit(' set var = sqrt(100.0)')
+       i = iffgetsca('var', x)
+       print*, ' x = ', x
+\end{verbatim}
+\noindent
+would show the value 10.0.
+
+\subsubsection{integer function {\tt{iffputarr()}}}\label{Ch:Script-f77:putarr}
+
+{\index{Programming!put array}}
+The {\tt{iffputarr()}} function takes three arguments: the first is a
+character string (up to 128 characters) that names an {\ifeffit} array
+(following the naming rules outlined in chapter~\ref{Ch:Structure}), the
+second is an integer giving the length of the array, and the third is a
+double precision array.  The effect is to set the named {\ifeffit}
+array with the provided array.   If the array already exists, it will be
+overwritten. 
+
+{\tt{iffputarr()}} always returns 0.
+
+\begin{verbatim}
+       double precision x(200),y(200)
+       do i = 1, 200
+         x(i) = i * 4.0
+         y(i) = sin(x(i) / 100.) 
+       end do
+       i = iffputarr('my.x', 100, x)
+       i = iffputarr('my.y', 100, y)
+       i = ifeffit(' show @arrays')
+       i = ifeffit(' plot my.x, my.y, color=red')
+\end{verbatim}
+\noindent
+would show the arrays {\tt{my.x}} and {\tt{my.y}} to have 100 elements.
+
+\subsubsection{integer function {\tt{iffgetarr()}}}\label{Ch:Script-f77:getarr}
+
+{\index{Programming!get array}} 
+The {\tt{iffgetarr()}} function takes two arguments: the first is a
+character string (up to 128 characters) that names an existing {\ifeffit}
+array (following the naming rules outlined in chapter~\ref{Ch:Structure}),
+the second is a double precision array to store the output result.  The
+effect is to retrieve the value of the named {\ifeffit} array and store it
+into the provided Fortran array.  
+
+{\tt{iffgetarr()}} will return the length of the output array.  It is an
+error for the array to not contain enough elements to be filled. 
+
+\begin{verbatim}
+       double precision x(200)
+       i = ifeffit('my.x  = range(0,100,1)')
+       n = iffgetarr('my.x', x)
+       print*, 'x has ', n, ' elements:'
+       print* , x(1), x(2), ' ... ', x(n)
+\end{verbatim}
+\noindent
+would show the array {\tt{x}} to have 100 elements: 1, 2, \ldots, 100.
+
+\subsubsection{integer function {\tt{iffputstr()}}}\label{Ch:Script-f77:putstr}
+ 
+{\index{Programming!put string}}
+The {\tt{iffputstr()}} function takes two arguments: the first is a
+character string (up to 128 characters) that names an {\ifeffit} string
+(following the naming rules outlined in chapter~\ref{Ch:Structure}, but
+with the leading '\$' optional), and the second is a character string for
+the value.  The effect is to set the named string with the given value
+(only the first 128 characters will be used -- any remaining characters
+will be ignored).  If the string already exists, it will be overwritten.
+
+{\tt{iffputstr()}} always returns 0.
+
+\begin{verbatim}
+       character*128  txt
+       txt = 'Here is a string'
+       i = iffputstr('text1', txt)
+       i = ifeffit(' show @strings')
+\end{verbatim}
+\noindent
+would show the string {\tt{\$text1}} to be 'Here is a string'.
+
+
+\subsubsection{integer function {\tt{iffgetstr()}}}\label{Ch:Script-f77:getstr}
+
+{\index{Programming!get string}}
+The {\tt{iffgetstr()}} function takes two arguments: the first is a
+character string (up to 128 characters) that names an existing {\ifeffit}
+string (following the naming rules outlined in chapter~\ref{Ch:Structure},
+but with the leading '\$' optional), and the second is a character string
+variable to hole the value.  The effect is to retrieve the named string
+with the given value.  The string variable provided should be large enough
+to hold the result (128 characters is a safe value, as the returned value
+will never be larger than that).
+
+{\tt{iffgetstr()}} will return the real, useful length of the string.
+
+\begin{verbatim}
+       character*128  txt
+       i = ifeffit(' set $text1 = "string test 1"')
+       n = iffgetstr('text1', txt)
+       print*, ' txt = ', txt(1:n)
+\end{verbatim} %% $
+\noindent
+
+\subsubsection{integer function {\tt{iffgetecho()}}}\label{Ch:Script-f77:getecho}
+
+{\index{Programming!get echo buffer}} The {\tt{iffgetecho()}} function
+takes one argument: a character string variable to hold the value returned.
+The effect is to retrieve the next element in the ``echo buffer''.  Any
+remaining lines in the echo buffer will be shifted down (or popped, as it
+is often called), and the value of {\tt{\&echo\_lines}} will be decreased
+by one.  The echo buffer will only be filled if the variable
+{\tt{\&screen\_echo}} is set to 0, which indicates that you intend to
+handle all text that would be sent to the screen yourself.  Since any
+command may write to the echo buffer, it is recommended that you check the
+value of {\tt{\&echo\_lines}} and retrieve all ``echo''ed lines after each
+command. \indexvar{\&echo\_lines} \indexvar{\&screen\_echo}
+
+{\tt{iffgetecho()}} will return the real, useful length of the echo string.
+
+\begin{verbatim}
+       character*128  txt(32)
+       double precision xnbuff
+       integer nbuff, j
+       i = iffgetsca('&echo_lines', xnbuff)
+       nbuff = min(32,int(xnbuff))
+       do 10 j = 1, nbuff
+          il = iffgetecho(txt(j)) 
+          print*, ' echo line ', j , ' = ', txt(j)(1:il)
+  10   continue
+\end{verbatim} %
+\noindent
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                C                                     %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The C interface to {\ifeffit}}\label{Ch:Scripting-cc}
+
+{\index{Programming!C}}
+Accessing {\ifeffit} from a C program is very easy.  The basic concepts and
+many of the details of the {\ifeffit} application interface (or API for the
+programmers out there) given here also apply to using {\ifeffit} from
+within scripting languages, as described later in this chapter.  C++, by
+the way, is similar enough to C that calling {\ifeffit} from it should be
+straightforward once the C interface is described.  If you've read the
+previous section, you'll find that the C interface is also very similar to
+the Fortran interface.
+
+The basic use of the {\ifeffit} C interface is to send command strings to
+an ``{\ifeffit} engine'' which acts just like an interactive {\ifeffit}
+session run at the command prompt.  The underlying engine has its own set
+of Program Variables that are kept in its own memory space, separate from
+the calling program.  The session ``stays alive'' until the calling program
+ends.  Though you could directly call any of the subroutines or functions
+in the {\ifeffit} library, it is highly recommended that you {\bf{not}}
+make such direct calls.  Instead, you should use the functions provided in
+the application programming interface (API), as described here and
+encapsulated in the C include file {\file{ifeffit.h}} that can be found
+with the configuration files in the {\ifeffit} distribution (typically in
+the {\file{/usr/local/share/ifeffit/config/}} directory).
+{\indexfil{ifeffit.h}}
+
+The {\ifeffit} C API defines eight external functions, all of which are
+integer functions.  To use these functions, you can simply put an
+{\tt{include}} directive at the top of your program:
+
+{\small{
+%%#VerbSBox%
+\begin{VerbSBox}
+#!include "ifeffit.h"
+int main() {
+  int i; 
+  i = ifeffit(" ");
+  i = ifeffit("read_data(cu.xmu, group=cu, type=xmu)");
+  i = ifeffit("spline(cu.energy, cu.xmu, rbkg = 1.2)");
+  i = ifeffit("plot(cu.k, cu.chi)");
+}
+\end{VerbSBox}
+%%#VerbSBox%
+}}\noindent
+This shows a very simple {\ifeffit} session converted into a C program,
+using only the function {\tt{ifeffit()}}, the main interface to the
+underlying {\ifeffit} engine.
+
+As this example shows, it is recommended that you first call
+{\tt{ifeffit()}} with an ``initialization string'', typically a blank line,
+but optionally setting system configuration variables.
+
+How do you actually build an executable out of this program file?  That, of
+course, depends on details of your system.  Most of the settings needed are
+put in the file {\file{Config.mak}} in the same location as
+{\file{ifeffit.h}}.  This file contains Makefile instructions needed for
+linking your {\ifeffit} application with the {\ifeffit} library and all the
+other libraries needed to make an executable.  An example Makefile (using
+the above code and the settings of Config.mak from a fairly normal linux
+system) is included in the {\file{examples/scripting}} section of the
+source distribution.  {\indexfil{Config.mak}}
+
+\subsubsection{function {\tt{ifeffit()}}}\label{Ch:Scripting-cc:ifeffit}
+  
+{\index{Programming!execution}}
+{\index{Programming!{{\tt{ifeffit()}}}}}
+{\index{Programming!{{\tt{iff\_exec()}}}}}
+The {\tt{ifeffit()}} function takes 1 argument that is a character string
+up to 1024 characters long (including any newline characters and the like)
+and returns an integer.  The string {\bf{up to the first newline
+    character}} is interpreted and run as a command by the {\ifeffit}
+engine.  After the command has been fully processed, an integer is
+returned, indicating a return status according to
+Table~{\ref{Table:iff-ret}}.  For backwards compatibility, the function
+{\tt{iff\_exec()}} has identical behavior to {\tt{ifeffit()}}.
+
+\subsubsection{function {\tt{iff\_put\_scalar()}}}\label{Ch:Scripting-cc:putscalar}
+
+{\index{Programming!put scalar}} The {\tt{iff\_put\_scalar()}} function
+takes two arguments: the first is a pointer to a character string (up to
+128 characters) that names an {\ifeffit} scalar (following the naming rules
+outlined in chapter~\ref{Ch:Structure}), and the second is a pointer to a
+double.  The effect is to set the named scalar with the given double
+precision value.  If the scalar already exists in the {\ifeffit} engine, it
+will be overwritten.  Note that this is equivalent to a {\cmnd{set()}}
+command, not a {\cmnd{def()}} command: for that, you should use the
+{\tt{ifeffit()}} function itself.
+
+{\tt{iff\_put\_scalar()}} always returns 0.
+
+\begin{verbatim}
+  double x, *px;
+  int i;
+  x = 3.00;
+  i = iff_put_scalar("kmin", &x);
+  x = sqrt(100.0);
+  i = iff_put_scalar("kmax", &x);
+  i = ifeffit(" show kmin, kmax");
+\end{verbatim}
+\noindent
+would show the values to be 3.0 and 10.0, respectively.
+
+\subsubsection{function {\tt{iff\_get\_scalar()}} and {\tt{iff\_scaval()}}
+}\label{Ch:Scripting-cc:getscalar}
+
+{\index{Programming!get scalar}}
+The {\tt{iff\_get\_scalar()}} function takes two arguments: the first is a
+pointer to a character string (up to 128 characters) that names an existing
+{\ifeffit} scalar (following the naming rules outlined in
+chapter~\ref{Ch:Structure}), and the second is a pointer to a double.
+The effect is to retrieve the value of the named {\ifeffit} scalar and put
+it into the provided C pointer.  If the scalar does not exist in the
+{\ifeffit} session, the value will be set to 0.
+
+{\tt{iff\_get\_scalar()}} always returns 0.
+
+\begin{verbatim}
+    double *x;
+    x = calloc(1,sizeof(double)); 
+    i = ifeffit(' set var = sqrt(100.0)');
+    i = iff_get_scalar('var', x);
+    printf(" x = %g \n", *x);
+\end{verbatim}
+\noindent
+would show {\tt{x}} to have the value 10.0.
+
+A more convenient version of this function is also available: The
+{\tt{iff\_scaval()}} function takes one arguments: the name of an existing
+{\ifeffit} scalar, and returns a pointer to its double value.  The above
+code could thus be rewritten as
+\begin{verbatim}
+    double *x;
+    i = ifeffit(' set var = sqrt(100.0)');
+    x = iff_scaval('var');
+    printf(" x = %g \n", *x);
+\end{verbatim}
+\noindent
+would show {\tt{x}} to have the value 10.0.
+
+
+
+\subsubsection{function {\tt{put\_string()}}}\label{Ch:Scripting-cc:putstring}
+
+The {\tt{put\_string()}} function takes 2 arguments to set the value of a
+text string Program Variable.  The first argument is the {\emph{name}} of
+the variable in the {\ifeffit} name space, and the second is the value for
+the variable.  Both the name and the variable itself are text strings (up
+to 128 characters long).  To comply with the {\ifeffit} naming rules, the
+variable name needs to begin with a \$.
+ 
+\subsubsection{function {\tt{get\_string()}}}\label{Ch:Scripting-cc:getstring}
+
+The {\tt{get\_string()}} function takes 1 arguments that is the name of a
+text string Program Variable in the {\ifeffit} name space, and returns its
+value, which will be a text string up to 128 characters long (make sure to
+allocate enough memory!).  To comply with the {\ifeffit} naming rules, the
+variable name must begin with a \$.
+
+\subsubsection{function {\tt{put\_array()}}}\label{Ch:Scripting-cc:putarray}
+
+The {\tt{put\_array()}} function takes 3 arguments to set the value of an
+array Program Variable.  The first argument is the {\emph{name}} of the
+variable in the {\ifeffit} name space.  The second is the number of points
+(type {\tt{int*}}) in the array, and the third is the array itself (type
+{\tt{double*}}).  To comply with the {\ifeffit} naming rules, the variable
+name needs to contain a dot `.'.
+
+\subsubsection{function {\tt{get\_array()}}}\label{Ch:Scripting-cc:getarray}
+
+The {\tt{get\_array()}} function takes 2 arguments to retrieve an
+{\ifeffit} array Program Variable into an array (some languages call these
+lists) in the calling language.  The first argument is the name of the
+variable in the {\ifeffit} name space, and the second is the array itself
+(type {\tt{double*}}).  To comply with the {\ifeffit} naming rules, the
+variable name needs to contain a dot `.'.  The value returned by
+{\tt{get\_array()}} will be the number of points in the array.
+
+\subsubsection{function {\tt{get\_echo()}}}\label{Ch:Scripting-cc:getecho}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                Perl                                  %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The {\ifeffit} Perl Module}\label{Ch:Scripting-perl}
+
+Perl is an Open-Source scripting language, available for free at
+{\WWWperl}.
+It runs on every
+significant operating system.  For those with programming (especially C) or
+Unix experience, Perl is an easy language to learn, and is especially good
+for processing text files and controlling processes.  For those without
+much programming experience, Perl is still fairly easy to learn.  Many
+excellent books{\cite{LearningPerl,CamelBook}} are available, and the
+support available on the web is excellent.  Perl's flexibility and
+text-processing capabilities makes it very useful for many projects,
+including web-scripting.
+
+To use {\ifeffit} from within a perl program, you need the {\ifeffit} Perl
+Module, which is a pluggable extension to perl included in the {\ifeffit}
+distribution.  Using the {\ifeffit} module is fairly easy.  Somewhere near
+the top of your perl script you put `{\texttt{use Ifeffit;}}' to tell perl
+that you want to use the {\ifeffit} module.  This provides perl with a
+function called {\texttt{ifeffit}} that takes a text string as an argument,
+sends that to the {\ifeffit} engine and returns after the command has
+executed.  Subsequent calls to {\texttt{ifeffit}} continue in the same
+{\ifeffit} session, so that variables (arrays, scalars, strings, etc.)  in
+{\ifeffit}'s memory can be accessed by later {\ifeffit} commands.  A simple
+script might look like this:
+\begin{verbatim}
+  #!/usr/bin/perl -w
+  use Ifeffit;
+  $plot_command = "plot(my.x,my.y,color=blue)";
+  ifeffit(" my.x  = indarr(600) / 300 ");
+  ifeffit(" my.y  = 4 * exp(-my.x/5.) * cos(4*my.x - 70)");
+  ifeffit($plot_command);
+\end{verbatim}
+\noindent   
+The {\texttt{ifeffit}} function returns an integer, which is normally 0 for
+`success'.  If the command appears to be an incomplete line (that is, the
+line is expected to be continued), {\texttt{ifeffit}} returns -1.  If an
+`exit' has been sent to {\texttt{ifeffit}}, it returns 1, and if a serious
+error occurs within {\ifeffit}, a value greater than 1 is returned.
+
+In addition to sending commands as text strings to the {\ifeffit} function,
+you can also directly access the scalars, arrays, and text strings in
+{\ifeffit}'s store.  There are six additional functions -- one for each of
+``set'' and ``get'' of the three data types: {\tt{get\_scalar}},
+{\tt{get\_string}}, {\tt{get\_array}}, {\tt{put\_scalar}},
+{\tt{put\_string}}, and {\tt{put\_array}}.  To use these functions, you'll
+need to tell perl you want to use these functions (in keeping with perl's
+custom, the default behavior is to {\emph{not}} provide loads of function
+names without explicitly asking for them) with
+\begin{verbatim}
+  use Ifeffit ;
+  use Ifeffit qw(get_scalar get_string get_array);
+  use Ifeffit qw(put_scalar put_string put_array);
+\end{verbatim}
+\noindent
+With these declarations,  you can now put something like
+\begin{verbatim}
+ ifeffit(" read_data(my.xmu, type = xmu)");
+ ifeffit(" spline(my.energy, my.xmu, rbkg = 1.0)");
+ $e0   = get_scalar("e0"); 
+ $rbkg = get_scalar("rbkg"); 
+ $perl_string = "Spline  Rbkg = $rbkg    E0 = $e0\n";
+ put_string("title1", $perl_string)
+ ifeffit(" write_data(file=my_out.chi,$title1, my.k, my.chi)");
+\end{verbatim} %%--$
+\noindent
+in your perl script.  After reading $\mu(E)$ data and doing a background
+subtraction, this script got the values of $R_{\rm bkg}$ and $E_0$, wrote
+those values into a perl text string and then passed that string directly
+back into {\ifeffit}.  Since {\ifeffit} has essentially no string
+processing capabilities, this is a good way to write a decent title line
+for an output file.  Finally, this script told {\ifeffit} to write an
+output file for $\chi(k)$ using this newly-formed title line.
+
+If the {\ifeffit} perl module is installed on your
+system, more complete documentation is available by typing
+``{\texttt{perldoc Ifeffit}}'' at a command-line prompt.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                Python                                %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Using {\ifeffit} from Python}\label{Ch:Scripting-python}
+
+Like Perl and Tcl, Python is an Open-Source scripting language that runs on
+every significant operating system and is available for free at
+{\WWWpython}.  Python is easy to learn, and is growing in popularity,
+especially for scientific programming.  It's supports the Tk toolkit on
+Unix, Windows, and Mac, and even has some 2d-plotting capabilities builtin.
+
+To use {\ifeffit} from within Python, you'll need to make the {\ifeffit}
+extension to Python (consult the installation documentation).  Once that's
+done, you can import the Ifeffit module to get the same sort of functions
+described above for Perl and Tcl.  That is, there is an {\tt{ifeffit}}
+function that takes a command string argument and returns an integer.
+There are also functions {\tt{get\_scalar}}, {\tt{get\_string}},
+{\tt{get\_array}}, {\tt{put\_scalar}}, {\tt{put\_string}}, and
+{\tt{put\_array}} for copying each of the three data types back and forth
+between the underlying {\ifeffit} session and the Python script itself.
+
+
+\begin{verbatim}
+ #!/usr/bin/python
+ import Ifeffit
+ iff = Ifeffit.Ifeffit()
+ iff.ifeffit( "read_data(my.xmu, group=my, type = xmu)")
+ iff.ifeffit( "spline(my.energy, xmu = my.xmu, rbkg = 1.0)")
+ e0   = iff.get_scalar("e0")
+ rbkg = iff.get_scalar("rbkg")
+ str  = "Spline  Rbkg = %f8.2  E0 = %f9.2" % (rbkg, e0)
+ iff.put_string("title1", str)
+ iff.ifeffit( "write_data(file = my_out.chi, my.k, my.chi)")
+\end{verbatim} %%-
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                Tcl                                   %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Using {\ifeffit} from Tcl}\label{Ch:Scripting-tcl}
+
+Tcl\cite{TclBook} is an Open-Source scripting language, available for free
+at {\WWWtcl}.  Like Perl, it runs on every significant operating system,
+and is especially popular when used with it's exceptional Tk widget set for
+building cross-platform GUIs.  The Tcl syntax is fairly simple, and many
+books and web-sites are devoted to it.
+
+To get access to the {\ifeffit} functionality from within Tcl, you'll need
+to make the {\ifeffit} extension to Tcl for your system.  Once that's done
+(see the installations instructions for details), you can ``source'' the
+Ifeffit.tcl file to get the same sort of functions described above for
+Perl.  That is, there is an {\tt{ifeffit}} function that takes a command
+string argument and returns an integer.  There are also functions
+{\tt{get\_scalar}}, {\tt{get\_string}}, {\tt{get\_array}},
+{\tt{put\_scalar}}, {\tt{put\_string}}, and {\tt{put\_array}} for copying 
+each of the three data types back and forth between the underlying
+{\ifeffit} session and the Tcl script itself.
+
+A Tcl script using {\ifeffit} might look like this:
+
+\begin{verbatim}
+ source Ifeffit.tcl
+ ifeffit   "read_data(my.xmu, group=my, type = xmu)"
+ ifeffit   "spline(my.energy, xmu = my.xmu, rbkg = 1.0)  "
+ set e0         [ get_scalar "e0" ]
+ set rbkg       [ get_scalar "rbkg" ]
+ set tcl_string  "Spline  Rbkg = $rbkg    E0 = $e0"
+ put_string $title1  $tcl_string
+ ifeffit   "write_data(file = my_out.chi,  my.k, my.chi)"
+
+\end{verbatim} %%--

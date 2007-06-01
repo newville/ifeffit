@@ -1,0 +1,13 @@
+#
+#  some people are just plain lazy and never
+#  satisfied. So this little macro, which 
+#  saves 3 whole keystrokes, is for them.
+#
+#  in keeping of the spirit of laziness, the
+#  documentation is 5 times longer than the
+#  macro itself.
+#
+macro q
+    'typing q will cause ifeffit to exit'
+    exit
+end macro

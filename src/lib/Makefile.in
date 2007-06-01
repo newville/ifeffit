@@ -1,0 +1,568 @@
+# Makefile.in generated automatically by automae 1.4 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+# Copyright (C) 2000 Matt Newville <newville@cars.uchicago.edu>
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+.SUFFIXES:
+.SUFFIXES: .c .f .o
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+# sysconfdir = @sysconfdir@
+# sharedstatedir = @sharedstatedir@
+# localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+CC = @CC@
+CPP = @CPP@
+F2C = @F2C@
+F2CFLAGS = @F2CFLAGS@
+F77 = @F77@
+FFLAGS = @FFLAGS@ -fPIC
+FLIBS = @FLIBS@
+PGPLOT_LIBS = @PGPLOT_LIBS@
+MAKEINFO = @MAKEINFO@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+VERSION = @VERSION@
+
+MN_FLIBS   = @MN_FLIBS@
+PERL       = @PERL@
+PYTHON     = @PYTHON@ 
+COM_H      = com.h
+COM_DEPS   = Keywords.dat
+COM_BUILD  = ./ComBuild
+
+SYS_H      = sys.h
+F77MAKER   = ./F77Maker
+
+# Perl5 specific ??
+LDDLFLAGS_P5=-shared
+
+CONFIG_TEMPLATES = Config.mak Makefile.PL site_install.py TclSetup.in
+MISC_CONFIG      = ifeffit.inc
+MISC_DATA        = startup.iff README
+include_HEADERS  = ifeffit.h
+pkgconfig_DATA   = $(CONFIG_TEMPLATES) $(MISC_CONFIG) $(include_HEADERS)
+pkgdata_DATA     = $(MISC_DATA)
+
+CLEANFILES = $(CONFIG_TEMPLATES) 
+
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../../config.h
+LIBRARIES =  libifeffit.a libxafs.a
+
+DEFS = @DEFS@ -I. -I$(srcdir) -I../..
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+
+AR = ar
+F77COMPILE = $(F77) $(FFLAGS)
+F77LD   = $(F77)
+F77LINK = $(F77LD) $(FFLAGS) $(LDFLAGS) -o $@
+CFLAGS  = @CFLAGS@ -fPIC
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+CCLD    = $(CC)
+LINK    = $(CCLD) $(CFLAGS) $(LDFLAGS) -o $@
+DATA    = $(pkgdata_DATA)
+HEADERS = $(include_HEADERS)
+DIST_COMMON =  ChangeLog Makefile.in
+DISTFILES   = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+
+SOURCES = $(IFF_SRC) $(IFF_INC) ifeffitc.c
+OBJECTS = $(IFF_OBJ) ifeffitc.o
+
+all: Makefile $(COM_H) $(LIBRARIES) $(DATA) $(HEADERS)  $(CONFIG_TEMPLATES)
+
+MAKEDEPEND = Makefile.dep
+
+########
+# Note that XAFS_SRC / _OBJ are for use when you want some of the
+# 'classic autobk/feffit' fortran functionality without all of
+# the ifeffit library.  Mostly for backward compatibility support
+# for autobk and feffit.
+
+XAFS_SRC = str.f kkmclr.f fftpack.f conv_lor.f specfun.f  \
+	padlib.f sort2.f  preedg.f clcalc.f clbfun.f minpack.f  \
+	spline.f splfun.f bvalue.f fitfft.f xafsft.f window.f fitfun.f \
+	genfun.f fiterr.f misc_num.f iread.f misc_io.f compat.f \
+	inpout.f uwxrdf.f chiout.f rdffdt.f get_inpfile.f echo.f
+
+
+XAFS_OBJ = str.o kkmclr.o fftpack.o conv_lor.o specfun.o  \
+	padlib.o sort2.o  preedg.o clcalc.o clbfun.o minpack.o  \
+	spline.o splfun.o bvalue.o fitfft.o xafsft.o window.o fitfun.o \
+	genfun.o fiterr.o misc_num.o iread.o misc_io.o compat.o \
+	inpout.o uwxrdf.o chiout.o rdffdt.o get_inpfile.o echo.o
+
+########
+# Scanning files ...  
+# Finding routines needed to make ifeffit.f ...
+# Finding routines needed to make cifeffit.f ...
+IFF_SRC = ifeffit.f cifeffit.f str.f misc_vars.f isamac.f \
+	iff_load.f iread.f misc_io.f iff_save.f \
+	iff_eval.f misc_arr.f iff_erase.f iff_sync.f \
+	decod.f misc_num.f enlib.f sigms.f atomic.f u2ipth.f \
+	kkmclr.f fftpack.f conv_lor.f specfun.f encod.f \
+	padlib.f iff_set.f sum_paths.f chipth.f echo.f \
+	iff_init.f iff_plot_init.f iff_config.f iff_get_line.f \
+	iff_macro.f iff_done.f iff_history.f iff_test.f \
+	sort2.f iff_rddata.f iff_wrdata.f iff_log.f iff_show.f \
+	iff_color.f iff_correl.f fefinp.f rdffdt.f iff_print.f \
+	iff_echo.f iff_unguess.f iff_rename.f iff_pre_edge.f \
+	preedg.f iff_bkg_cl.f clcalc.f clbfun.f minpack.f \
+	iff_spline.f spline.f splfun.f bvalue.f fitfft.f \
+	xafsft.f window.f iff_random.f iff_fft.f feff_tables.f \
+	iff_window.f iff_path.f iff_getpath.f iff_ff2chi.f \
+	iff_feffit.f fitfun.f iff_chieps.f fiterr.f iff_f1f2.f \
+	iff_diffkk.f iff_minimize.f genfun.f iff_uncert.f \
+	iff_plot.f iff_cursor.f get_inpfile.f misc_rand.f
+
+IFF_OBJ = ifeffit.o cifeffit.o str.o misc_vars.o isamac.o \
+	iff_load.o iread.o misc_io.o iff_save.o \
+	iff_eval.o misc_arr.o iff_erase.o iff_sync.o \
+	decod.o misc_num.o enlib.o sigms.o atomic.o u2ipth.o \
+	kkmclr.o fftpack.o conv_lor.o specfun.o encod.o \
+	padlib.o iff_set.o sum_paths.o chipth.o echo.o \
+	iff_init.o iff_plot_init.o iff_config.o iff_get_line.o \
+	iff_macro.o iff_done.o iff_history.o iff_test.o \
+	sort2.o iff_rddata.o iff_wrdata.o iff_log.o iff_show.o \
+	iff_color.o iff_correl.o fefinp.o rdffdt.o iff_print.o \
+	iff_echo.o iff_unguess.o iff_rename.o iff_pre_edge.o \
+	preedg.o iff_bkg_cl.o clcalc.o clbfun.o minpack.o \
+	iff_spline.o spline.o splfun.o bvalue.o fitfft.o \
+	xafsft.o window.o iff_random.o iff_fft.o feff_tables.o \
+	iff_window.o iff_path.o iff_getpath.o iff_ff2chi.o \
+	iff_feffit.o fitfun.o iff_chieps.o fiterr.o iff_f1f2.o \
+	iff_diffkk.o iff_minimize.o genfun.o iff_uncert.o \
+	iff_plot.o iff_cursor.o get_inpfile.o misc_rand.o
+
+# dependencies:
+ifeffit.o:  consts.h maxpts.h keywrd.h echo.h
+cifeffit.o:  consts.h maxpts.h echo.h
+misc_vars.o:  consts.h maxpts.h arrays.h encod.h keywrd.h
+isamac.o:  consts.h maxpts.h keywrd.h
+iff_load.o:  consts.h maxpts.h keywrd.h echo.h
+iff_save.o:  consts.h maxpts.h keywrd.h arrays.h encod.h
+iff_eval.o:  consts.h maxpts.h keywrd.h arrays.h encod.h
+misc_arr.o:  consts.h maxpts.h arrays.h encod.h keywrd.h
+iff_erase.o:  consts.h maxpts.h keywrd.h arrays.h encod.h feffit.h\
+	 fefdat.h pthpar.h
+iff_sync.o:  consts.h maxpts.h keywrd.h arrays.h encod.h pthpar.h\
+	 feffit.h
+decod.o:  maxpts.h encod.h
+misc_num.o:  maxpts.h consts.h
+enlib.o:  encod.h consts.h maxpts.h arrays.h
+sigms.o:  consts.h maxpts.h arrays.h feffit.h fefdat.h pthpar.h
+u2ipth.o:  consts.h maxpts.h pthpar.h
+kkmclr.o:  consts.h maxpts.h fft.h
+conv_lor.o:  maxpts.h
+encod.o:  consts.h maxpts.h encod.h arrays.h
+padlib.o:  padlib.h
+iff_set.o:  consts.h maxpts.h keywrd.h arrays.h encod.h echo.h
+sum_paths.o:  consts.h maxpts.h keywrd.h arrays.h fefdat.h feffit.h\
+	 pthpar.h
+chipth.o:  consts.h maxpts.h pthpar.h
+echo.o:  echo.h
+iff_init.o:  consts.h maxpts.h arrays.h encod.h fefdat.h fft.h\
+	 keywrd.h pthpar.h spline.h echo.h feffit.h
+iff_plot_init.o:  consts.h maxpts.h ifplot.h
+iff_config.o:  consts.h maxpts.h arrays.h encod.h fefdat.h fft.h\
+	 keywrd.h pthpar.h spline.h echo.h feffit.h com.h\
+	 sys.h
+iff_get_line.o:  consts.h maxpts.h keywrd.h
+iff_macro.o:  consts.h maxpts.h keywrd.h
+iff_history.o:  consts.h maxpts.h keywrd.h
+iff_test.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+iff_rddata.o:  consts.h maxpts.h keywrd.h arrays.h
+iff_wrdata.o:  consts.h maxpts.h keywrd.h arrays.h
+iff_log.o:  consts.h maxpts.h keywrd.h echo.h
+iff_show.o:  consts.h maxpts.h keywrd.h arrays.h encod.h echo.h\
+	 feffit.h fefdat.h pthpar.h
+iff_color.o:  consts.h maxpts.h keywrd.h ifplot.h
+iff_correl.o:  consts.h maxpts.h keywrd.h arrays.h feffit.h
+fefinp.o:  consts.h maxpts.h fefdat.h
+iff_print.o:  consts.h maxpts.h keywrd.h arrays.h encod.h
+iff_unguess.o:  consts.h maxpts.h arrays.h encod.h
+iff_rename.o:  consts.h maxpts.h keywrd.h arrays.h
+iff_pre_edge.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+iff_bkg_cl.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+clbfun.o:  consts.h maxpts.h spline.h
+iff_spline.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+spline.o:  consts.h maxpts.h spline.h fft.h
+splfun.o:  consts.h maxpts.h spline.h fft.h
+iff_random.o:  consts.h maxpts.h keywrd.h arrays.h
+iff_fft.o:  consts.h maxpts.h keywrd.h arrays.h fft.h pthpar.h\
+	 fefdat.h
+feff_tables.o:  consts.h maxpts.h
+iff_window.o:  consts.h maxpts.h keywrd.h arrays.h fft.h
+iff_path.o:  consts.h maxpts.h keywrd.h arrays.h fefdat.h pthpar.h
+iff_getpath.o:  consts.h maxpts.h keywrd.h arrays.h fefdat.h feffit.h\
+	 pthpar.h
+iff_ff2chi.o:  consts.h maxpts.h keywrd.h arrays.h fefdat.h feffit.h\
+	 pthpar.h
+iff_feffit.o:  consts.h maxpts.h keywrd.h arrays.h fft.h fefdat.h\
+	 pthpar.h feffit.h
+fitfun.o:  consts.h maxpts.h arrays.h keywrd.h fft.h fefdat.h\
+	 pthpar.h feffit.h
+iff_chieps.o:  consts.h maxpts.h keywrd.h arrays.h fft.h
+iff_f1f2.o:  consts.h maxpts.h keywrd.h arrays.h spline.h atomic.h
+iff_diffkk.o:  consts.h maxpts.h keywrd.h arrays.h spline.h
+iff_minimize.o:  consts.h maxpts.h keywrd.h arrays.h feffit.h
+genfun.o:  consts.h maxpts.h arrays.h feffit.h keywrd.h
+iff_uncert.o:  consts.h maxpts.h keywrd.h arrays.h feffit.h
+iff_plot.o:  consts.h maxpts.h keywrd.h ifplot.h
+iff_cursor.o:  consts.h maxpts.h keywrd.h ifplot.h
+
+IFF_INC = consts.h maxpts.h keywrd.h echo.h arrays.h encod.h \
+	feffit.h fefdat.h pthpar.h fft.h padlib.h spline.h \
+	ifplot.h com.h sys.h atomic.h 
+
+# WARNING: these subprograms seem to be needed but weren't found
+IFF_MISSING= pgqndt pgqdt pgopen pgclos pgqinf getenv pgscrn \
+	pgscr sigma fcn pgeras pgslct pgpage pgbbuf pgask \
+	pgsci pgsls pgsch pgscf pgslw pgvstd pgrnge pgswin \
+	pgbox pgmtxt pgline pgpt pgerry pgerrx pgtext pgpt1 \
+	pgsah pgarro pgebuf pgband 
+
+########
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+install-LIBRARIES: $(LIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(LIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+	@$(POST_INSTALL)
+	@list='$(LIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
+	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-LIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(IBRARIES)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+
+libifeffit.a: $(OBJECTS)
+	-rm -f libifeffit.a
+	$(AR) cru libifeffit.a $(OBJECTS)
+	$(RANLIB) libifeffit.a
+
+libxafs.a: $(XAFS_OBJ)
+	-rm -f libxafs.a
+	$(AR) cru libxafs.a $(XAFS_OBJ)
+	$(RANLIB) libxafs.a
+
+.f.o:
+	$(F77COMPILE) -c $<
+
+install-pkgdataDATA: $(pkgdata_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgdatadir)
+	@list='$(pkgdata_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkgdatadir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkgdatadir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(pkgdatadir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(pkgdatadir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-pkgdataDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(pkgdata_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(pkgdatadir)/config/$$p; \
+	done
+
+install-configDATA: $(pkgconfig_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgdatadir)/config
+	@list='$(pkgconfig_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkgdatadir)/config/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkgdatadir)/config/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(pkgdatadir)/config/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(pkgdatadir)/config/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-configDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(pkgconfig_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(pkgdatadir)/config/$$p; \
+	done
+
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(includedir)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(include_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(includedir)/$$p; \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = src/lib
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+# DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+# -include $(DEP_FILES)
+
+
+%.o: %.c
+	$(COMPILE) -c $<
+
+check: all
+install-exec: install-LIBRARIES
+
+install-data: install-pkgdataDATA install-configDATA \
+	install-includeHEADERS
+
+install: all
+	@$(MAKE) install-exec install-data
+uninstall: uninstall-LIBRARIES uninstall-pkgdataDATA \
+		uninstall-includeHEADERS
+
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir) \
+	$(DESTDIR)$(pkgdatadir) $(DESTDIR)$(pkgdatadir)/config \
+		$(DESTDIR)$(includedir)
+
+
+clean:
+	rm -f $(CONFIG_TEMPLATES)
+	-test -z "$(LIBRARIES)" || rm -f $(LIBRARIES)
+	-rm -f *.o core *.core
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+
+distclean-generic:
+	-rm -f Makefile config.cache config.log stamp-h stamp-h[0-9]*
+	-rm -f TAGS ID
+
+
+distclean:  clean distclean-generic
+
+
+
+.PHONY: uninstall-LIBRARIES install-LIBRARIES  \
+uninstall-pkgdataDATA install-pkgdataDATA \
+uninstall-configDATA install-configDATA \
+uninstall-includeHEADERS install-includeHEADERS \
+tags distdir check installcheck  install-exec install-data  install  uninstall \
+all installdirs distclean-generic clean distclean
+
+
+$(COM_H):  $(COM_DEPS)
+	$(PYTHON) $(COM_BUILD) $(COM_DEPS)
+
+depend: $(MAKEDEPEND)
+
+$(MAKEDEPEND): $(SOURCES)
+	$(PERL) $(F77MAKER) -o $(MAKEDEPEND) -p IFF_ ifeffit.f cifeffit.f
+
+
+Config.mak: $(OBJECTS)
+	@echo '#==  Ifeffit build configuration:'     > $@
+	@echo '#    LIB_IFF = ifeffit library  '     >> $@
+	@echo '#    LIB_PLT = PGPLOT  libraries'     >> $@
+	@echo '#    LIB_F77 = Fortran libraries'     >> $@
+	@echo '#    LIB_X11 = X Libaries'            >> $@
+	@echo '#    INC_IFF = location of ifeffit.h' >> $@
+	@echo 'LIB_IFF  = -L$(prefix)/lib -lifeffit' >> $@
+	@echo 'LIB_PLT  = $(PGPLOT_LIBS)'            >> $@
+	@echo 'LIB_F77  = $(MN_FLIBS) '              >> $@
+	@echo 'INC_IFF  = -I$(pkgdatadir)/config'    >> $@
+	@echo '#==  ' >> $@
+	@echo 'made $@'
+
+## BR Mar 28 2002: I want to make a few comments on some cryptic crap
+## I added to this target.  The combination of explicitly setting
+## LDDLFLAGS and adding perl's $Config{ldflags} to the value of LIBS
+## is intended to move /usr/local/lib to a position after
+## ../../src/lib in the command line argument to the linker.  In this
+## way the newly compiled libifeffit will be used in place of one that
+## exists in the location of $Config{ldflags}.  By default LDDLFLAGS
+## will be set to $Config{lddlflags} which is "-shared " concatinated
+## with $Config{ldflags}.  The complicated join/sort/split thing is
+## intended to offer a clumsy but servicable to solution to a mistake
+## made by autoconf on many linux systems.  Doing the join/sort/split
+## thing will assure that the -l***'s will be placed after the -L***'s
+## on the command line and the -lm will be placed after either -lg2c
+## or -lf2c.  Note that the join/sort/split could be fragile.
+Makefile.PL: Config.mak
+	@echo '#  -*-perl-*-' > $@
+	@echo '#  Perl Makefile.PL auto-generated during Ifeffit build' >> $@
+	@echo '#  This file may need some modifications, but should give' >> $@
+	@echo '#  a good guess for how to build the Ifeffit extension.' >> $@
+	@echo '#  ' >> $@
+	@echo "use lib '.';" >> $@
+	@echo "use ExtUtils::MakeMaker;" >> $@
+	@echo "use Config;" >> $@
+	@echo "WriteMakefile('NAME'   => 'Ifeffit'," >> $@
+	@echo "              'SKIP'   => ['test_dynamic'],"  >> $@
+	@echo "              'OBJECT' => 'ifeffit_wrap.o',"  >> $@
+	@echo "              'INSTALLBIN'    => '$(bindir)',">> $@
+	@echo "              'INSTALLSCRIPT' => '$(bindir)',">> $@
+	@echo "              'LDDLFLAGS'     => '$(LDDLFLAGS_P5)',"  >> $@
+	@echo "              'INC'    => '-I../../src/lib -I$(pkgdatadir)/config'," >> $@
+	@echo "              'LIBS'   =>[' -L../../src/lib '.\$$Config{ldflags}." >> $@
+	@echo "                    ' -lifeffit $(PGPLOT_LIBS) '." >> $@
+	@echo "                    join(\" \", (sort(split(\" \", \"$(MN_FLIBS)\" ))))] " >> $@
+	@echo "         );" >> $@
+	@echo 'made $@'
+	@cp $@ $(top_srcdir)/wrappers/perl/.
+
+#
+# python setup
+site_install.py: Config.mak
+	@echo '#  -*-python-*-' > $@
+	@echo '#  Python site installation information'                   >> $@
+	@echo '#  This file was auto-generated during the Ifeffit build'  >> $@
+	@echo '#  and may need some modifications.'                       >> $@
+	@echo '#  '                      >> $@
+	@echo 'bin_dir="$(bindir)"' > $@
+	@echo 'lib_iff="-L$(prefix)/lib -lifeffit "' >> $@
+	@echo 'lib_plt="$(PGPLOT_LIBS)"'             >> $@ 
+	@echo 'lib_f77="$(MN_FLIBS) "'               >> $@
+	@echo 'inc_iff="-I../../src/lib -I$(pkgdatadir)/config"' >> $@
+	@echo 'made $@'
+	@cp $@ $(top_srcdir)/wrappers/python/.
+
+
+TclSetup.in: Config.mak
+	@echo '#  ' > $@
+	@echo '#  Tcl Setup.in auto-generated during Ifeffit build' >> $@
+	@echo '#  This file may need some modifications, but should give' >> $@
+	@echo '#  a good guess for how to build the Ifeffit extension.' >> $@
+	@echo '#  ' >> $@
+	@cat Config.mak >> $@
+	@echo 'LIB_IFF  = -L../../src/lib -lifeffit ' >> $@
+	@echo 'INC_IFF  = -I../../src/lib -I$(pkgdatadir)/config' >> $@
+	@echo 'CC       = $(CCLD)'     >> $@
+	@echo 'CFLAGS   = $(CFLAGS)'   >> $@
+	@echo 'LDFLAGS  = $(LDFLAGS)'  >> $@
+	@echo 'made $@'
+	@cp $@ $(top_srcdir)/wrappers/tcl/.
+
+

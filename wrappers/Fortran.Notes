@@ -1,0 +1,49 @@
+Fortran Issues
+--------------
+
+On some systems (notably linux), there are some problems with pre-built
+fortran installations, especially when trying to make shared-objects,
+as needs to be done for the extensions made here.  If you have problems
+building or running the tests for any of the scripting languages, it
+may be a problem with the fortran installation.  I've personally run
+into such problems with a few different versions of gcc/g77 (or egcs,
+or pgcc) on a few different linux installations: The compilers appear
+to work out of the box for simple cases, but fail at making shared
+object libraries from mixed C and Fortran code.
+
+If you suspect a problem, the easiest solution may be to download and
+re-install the gcc and g77 compilers.  This is actually not that hard,
+especially with gcc-2.95.  I've never had or heard of a problem with a
+gcc compiler system built from scratch.  It takes some time to install,
+but is not very difficult.
+
+
+If you're using a gcc compiler system and can build, but not _run_ the
+tests, and get error messages like
+  can't find symbol  s_wsfi
+  can't find symbol  s_copy
+  can't find symbol  r_lg10
+
+Then the problem is almost certainly that the fortran library can't be
+found in the final link.  On many linux systems, the library really is
+around, but simply cannot be found by the linker.  If you can either
+copy the library to where it can be found (say, to /usr/lib), or can
+change where the linker is looking, the linking may very well work.
+Some hints:
+ 
+ 1. find where g77 is hiding it's files. Usually 'g77 -v' will give a
+    good guess.  It's often something like
+       /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.1/
+
+    There is probably a libg2c.a file there somewhere: that's the
+    library.
+
+ 2. The file /etc/ld.so.conf  (it may be in a different location on
+    non-linux systems) contains the list of directories the linker
+    through to find libraries.  You might be able to simply add the
+    directory containing libg2c.a,  and run 'ldconfig'.
+
+
+  
+
+Matt Newville <newville@cars.uchicago.edu>

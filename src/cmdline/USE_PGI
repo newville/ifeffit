@@ -1,0 +1,1 @@
+gcc -g -O2 -o ifeffit iff_shell.o ../lib/libifeffit.a -L/usr/local/pgplot -lpgplot -L/usr/X11R6/lib -lX11 -L../../readline -lreadline -lncurses -L/home/newville/pgi/linux86/lib/ -lpgftnrtl -lpgc -lg2c -lm

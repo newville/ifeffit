@@ -1,0 +1,50 @@
+Wrappers to Ifeffit for Perl, Python, and Tcl
+---------------------------------------------
+
+For each language, the wrapper made here will give you access directly to
+Ifeffit from within the scripting language itself.  This merges the power
+of the scripting language and the functionality of Ifeffit.  From the
+scripting language point-of-view, this is called an _extension_ to the
+language.  From Ifeffit's point-of-view, this is called a _wrapper_. 
+
+Building and Installation instructions are given in the README file
+in each subdirectory. 
+
+To build each wrapper, you will need a working installation of that
+language.  The latest versions of these languages, and a wealth of 
+information about them can be found at:
+  Perl:     http://www.perl.com/
+  Python:   http://www.python.org/
+  Tcl:      http://www.scriptics.com/
+
+For Perl, you'll need version 5.0003 or higher, and version 5.6 or higher
+is recommended.  For Python, you'll need version 1.5.2 or higher, and
+version 2.1 or higher is recommended. For Tcl, you'll need version 8.0 or
+higher.
+
+You will also need a working installation of Ifeffit.  That is, the Ifeffit
+library __Must Be Installed__ before these wrappers can be built.
+
+On some systems (notably linux), there are some problems with pre-built
+fortran installations, especially when trying to make shared-objects, as
+needs to be done for the extensions made here.   If you have problems, 
+please consult the Fortran.Notes file in this directory.
+
+Perl Notes
+----------
+
+Perl 5.6 made a substantial change from Perl 5.5 (aka 5.005) in how
+extensions are made.  Because of this, the internal parts of the Ifeffit
+perl wrapper are different for perl 5.6 (and later) and 5.5 (and earlier).
+
+If you have perl 5.6 or 5.8 (as is recommended), follow the instructions 
+in wrappers/perl.  For perl 5.003 to 5.5, follow the instructions in 
+wrappers/perl_old.  
+
+Note: The way programs USE Ifeffit.pm is not affected by this change!!
+
+If you don't know which version of perl you have, type 'perl -v'.
+
+
+
+Matt Newville <newville@cars.uchicago.edu>

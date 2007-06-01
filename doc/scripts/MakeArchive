@@ -1,0 +1,14 @@
+#!/usr/bin/perl -w
+
+require 'ifeffit.dep';
+
+@files     = ('ifeffit.tex');
+$archivedir= 'doc';
+@tex_files = split(/ /, $includes);
+@bib_files = split(/ /, $bib_files);
+push  @files, @bib_files, @tex_files;
+
+system ("mkdir -p $archivedir");
+foreach  my $i (@files) {  system ("cp $i $archivedir/."); }
+
+

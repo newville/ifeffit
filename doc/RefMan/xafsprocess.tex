@@ -1,0 +1,181 @@
+%%#fixtex% for html/pdf   -*-latex-*-  
+\section{Basic XAFS Data Processing} \label{Ch:XAFSProcess}
+
+{\ifeffit} is designed for processing XAFS data.  Though the physical
+justifications for the analysis procedures are outside the scope of this
+Reference Manual, some details of how the commands for XAFS data processing
+are used will be given here.  This is not meant as an exhaustive or
+introductory treatment -- the reader is expected to know why these
+procedures should be done and, to some extent, what pitfalls to avoid.
+
+Many of the simple processes here are easily incorporated into macros,
+scripts, and other programs.  The GUIs for {\ifeffit} are all able to
+automate, or at least provide forms-based interfaces for, the basic XAFS
+processing described here.  The goal here then is not to give exhaustive
+examples for novice XAFS analysts, but to give the basic ideas of how the
+commands are operated at the command-line level.
+
+\subsection{Data Manipulation and Corrections} \label{Ch:XAFSProcess-manip}
+
+XAFS data is generally collected in a small number of data channels (that
+is, arrays) and either collected at discrete energy values or at least
+binned in someway into discrete energy values.  Typically, there are
+signals from somewhere between 2 and 20 ``detectors'' that are collected at
+discrete energy points.  The XAFS {\muE} can then be determined by simple
+manipulation of these detector signals.
+
+If that all sounds too abstract, here's a more concrete situation. Usually,
+one monitors the intensity of the x-ray beam incident on the sample
+($I_0$), and either the intensity of the x-ray beam trasmitted through
+($I$) or fluoresced by ($I_f$) the sample at several distinct energy
+values.  The XAFS {\muE} that is analyzed is then given either as $ \mu(E)
+= ln(I/I_0)$ or $ \mu(E) = I_f/I_0 $.  Of course, since $I_0$, $I$, and
+$I_f$ are imperfect measures of x-ray intensities, the validity of using
+these expressions is only as good as the measure of intensities themselves.
+
+Since much of this Reference Manual discusses the simple manipulation of
+data, the operations to convert measured intensities to {\muE} should be
+straightforward by now:
+\begin{verbatim}
+  Ifeffit> read_data(file=rb_xafs.dat, group=rb, 
+                     label='energy i0 it if')
+  Ifeffit> set rb.xmu_trans = log(rb.it / rb.i0)
+  Ifeffit> set rb.xmu_fluor =     rb.if / rb.i0
+\end{verbatim}
+\noindent 
+When using multiple-element fluorescence detectors, it is usually necessary
+to add several data channels together to get the total fluorescence
+intensity.  This can be accomplished simply by adding arrays:
+\begin{verbatim}
+  Ifeffit> read_data(file=med_xafs.dat, group=med, 
+             label='energy i0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10')
+  Ifeffit> set med.if = med.f1 + med.f2 + med.f3 + ....
+  Ifeffit> set rb.xmu = med.if / med.i0
+\end{verbatim}
+\noindent 
+When dealing with data files with similar structures, the use of macros (see
+chapter~\ref{Ch:Macros}) can make such processing easier.
+
+
+% \subsubsection{Fluorescence corrections}
+
+% For a substantial fraction of data measured in fluorescence, the measured
+% intensity is severely attenuated either from the sample itself
+% (self-absorption effects) or in detectors that electronically analyze the incoming
+% signal but cannot handle very high intensities (deadtime effects).  In
+% addition to these two effects, sample preparation errors
+
+
+\subsection{De-glitching}
+\label{Ch:XAFSProcess-deglitching} 
+
+It is sometimes necessary to remove data points from the measured {\muE}
+spectra because the measurement is obviously dominated by a systematic
+measurement error.  A typical example of this is a monochromator glitch,
+where a second diffraction condition is met, lowering the intensity of the
+desired beam diffracted by the monochromator.  Though there may be a
+temptation to replace the offending points with ``smoothed values'', it is
+usually best to simply remove these points from the arrays, reflecting the
+fact that though you know the measuements were wrong, you don't know what
+they should have been.
+
+Deglitching by removing a single point is possible with {\ifeffit}'s
+syntax, if somewhat klunky.  It goes something like this:
+\begin{verbatim}
+   Ifeffit> new.x = join(slice(old.x,1,badx-1),
+                         slice(old.x,badx+1,npts(old.x)))
+   Ifeffit> new.y = join(slice(old.y,1,badx-1),
+                         slice(old.y,badx+1,npts(old.y)))
+\end{verbatim}
+\noindent
+where {\tt{badx}} is the x location of the bad point (which could be found
+with the cursor, and then {\tt{ badx = nofx(old.x,cursor\_x)}}).  This is an
+excellent task for a macro or script, and can be done by at least some of
+the data processing programs.
+
+\subsection{Pre-Edge Subtraction, Finding $E_0$, and Normalization}
+\label{Ch:XAFSProcess-preedge} 
+
+The first step in processing XAFS data is typically to remove the base-line
+absorption and to normalize {\muE} so that it has values $\sim 0$ below the
+absorption edge and $\sim 1$ well above the absorption edge.  In addition,
+an estimate of the edge position $E_0$ is often made at this point.
+
+{\ifeffit} has two commands for these steps, both starting with arrays for
+energy values and a calculation of {\muE}. The {\cmnd{pre\_edge}} command
+will perform all the steps of pre-edge subtraction and normalization given
+only the input spectra.  Alternatively, the {\cmnd{bkg\_cl}} command will
+use the Cromer-Libermann calculations for the pre-edge and normalization
+processes, and also give a very bad post-edge background subtraction.
+
+
+The {\cmnd{pre\_edge}} command will find $E_0$ from the maximum of the
+first derivative.  This is usually ends up being a reasonable estimate of
+the threshold energy, which $E_0$ is meant to represent.  The maximum of
+the first derivative is also easy to define and so can easily be compared
+for data from various source.
+
+In many cases, however, you'll want override this default value. This can
+be especially important when trying to compare many data sets, where the
+maximum-of-the-first-derivative may move by a point or two even for fairly
+good data. You can do this by explicitly telling  {\cmnd{pre\_edge}}
+what value of $E_0$ to use, with
+\begin{verbatim}
+  pre_edge(...,e0=7115.0,...)
+\end{verbatim}
+\noindent
+You can also explicitly set the value of $E_0$ in the {\cmnd{spline}}
+command:
+\begin{verbatim}
+  spline(...,e0=7115.0,...)
+\end{verbatim}
+\noindent
+
+The normalization
+
+
+\subsection{Simple XANES spectral analysis}
+\label{Ch:XAFSProcess-xanes} 
+
+
+Though not necessarily giving a complete understanding of the spectral
+features, a common approach to XANES analysis is to describe the edge
+structure as either a sum of pre-defined lineshapes or measured spectra
+from known ``standards''.  Pre-defined lineshapes typically include a
+combination of arc-tangents, Gaussian, Lorentzians, or pseudo-Voight
+functions.
+
+
+\subsection{Post-Edge Background Subtraction: isolating {\chik}}
+\label{Ch:XAFSProcess-postedge} 
+
+To fully analyze the extended fine-structure, it is traditional to isolate
+the fine-structure {\chik} from the slowly-varying ``background'',
+{$\mu_0(E)$}.  This is done
+
+\subsection{XAFS Fourier Transforms} \label{Ch:XAFSProcess-ft} 
+
+The Fourier Transform is essential to the understanding of EXAFS.
+
+\subsubsection{Forward Fourier Transforms with {\cmnd{fftf}}}
+\label{Ch:XAFSProcess-fftf} 
+
+
+\subsubsection{BackTransforms with {\cmnd{fftr}}}
+\label{Ch:XAFSProcess-fftr} 
+
+\subsubsection{Phase-Corrected XAFS Fourier Transforms} \label{Ch:XAFSProcess-pcft} 
+
+The XAFS Fourier transform {\chir} is well-known to have peaks
+at $R$ values considerably lower than the neighbor distances.  The
+difference between the peak in {\chir} and the neighbor distance is
+typically $\sim - 0.5\,\rm\AA$.  This difference is well-understood to be
+due to the scattering {\emph{phase-shift}}, the $\delta(k)$ term in the
+XAFS equation:
+
+\[
+\chi(k)  = 
+\]
+
+
+

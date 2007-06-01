@@ -1,0 +1,21 @@
+#  
+#  Tcl Setup.in auto-generated during Ifeffit build
+#  This file may need some modifications, but should give
+#  a good guess for how to build the Ifeffit extension.
+#  
+#==  Ifeffit build configuration:
+#    LIB_IFF = ifeffit library  
+#    LIB_PLT = PGPLOT  libraries
+#    LIB_F77 = Fortran libraries
+#    LIB_X11 = X Libaries
+#    INC_IFF = location of ifeffit.h
+LIB_IFF  = -L/usr/local/lib -lifeffit
+LIB_PLT  = -L/usr/local/pgplot -lpgplot -lpng -lz -L/usr/X11R6/lib -lX11
+LIB_F77  = -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../.. -lfrtbegin -lg2c -lm -lgcc_s 
+INC_IFF  = -I/usr/local/share/ifeffit/config
+#==  
+LIB_IFF  = -L../../src/lib -lifeffit 
+INC_IFF  = -I../../src/lib -I/usr/local/share/ifeffit/config
+CC       = gcc
+CFLAGS   = -g -O2 -fPIC
+LDFLAGS  = 

@@ -1,0 +1,67 @@
+#
+#  fit MnO, while restraining the bond valence sum to be ~2
+#
+
+      
+read_data(file = "../data/mno.chi", group=mno)
+
+set mno.chik = mno.chi * mno.k^2
+
+macro fitmacro 
+  print  v_exp, v_0, delv, restraint, R, N
+end macro		
+
+guess e0     = 0.0  # e0 shift
+guess sig2   = 0.02 # sigma2
+set   S02    = 0.70 # Amp factor
+
+set   R_0    = 1.79 # B.V. for Mn(II)
+set   V_0    = 2.0  # Formal Valence
+
+guess R      = 2.22
+guess N      = 6.0  # Coord. Number
+
+set   delV   = 1.e-1
+
+def   V_exp  = N * exp( (R_0 - R) /0.37)
+def   res1   = (V_exp - V_0)/delV
+
+path(index  = 1,   degen  = 1,
+     label  = 'Mn-O', 
+     feff   = feff_mno.dat, 
+     delr   = (r-reff), 
+     amp    = S02 * N, 
+     e0     = e0,    sigma2 = sig2 )
+
+ff2chi(1, group=init)
+
+kmin=2.5, kmax=10.5, dk = 3, kweight=2
+$kwindow = hanning
+rmin = 1.15, rmax =2.2
+
+&print_level = 2
+feffit(chi = mno.chi, 1, group=fit,
+       restraint=res1)
+
+
+&print_level = 1
+
+ 
+set fit.chik = fit.chi * fit.k^2
+
+print ' Fit Results: '
+
+
+sync 
+
+show @variables
+show v_exp
+show delv
+show r_factor, chi_square, n_idp
+
+# newplot mno.r, mno.chir_mag, xmax = 7, charfont=2
+#    plot fit.r, fit.chir_mag
+#    plot fit.r, fit.chir_re-1
+#    plot mno.r, mno.chir_re-1
+#    plot xlabel = 'R (\A)', ylabel = '|\gx(R)| (\A\u-3\d)'
+

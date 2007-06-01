@@ -1,0 +1,162 @@
+%%  macros for ifeffit        -*-latex-*-
+
+%%  determine if this is pdflatex or latex
+ \newif\ifpdf
+ \ifx\pdfoutput\undefined{\pdffalse}\else{\pdfoutput=1 \pdftrue}\fi
+% %%% 
+% 
+ \ifpdf
+   \usepackage[pdftex]{color}
+   \definecolor{color0}{rgb}{0.00,0.00,0.00}
+   \definecolor{color1}{rgb}{0.00,0.00,0.00}
+   \definecolor{color2}{rgb}{0.00,0.00,0.00}
+   \usepackage[pdftex,colorlinks,hyperindex,urlcolor=color0,%
+              linkcolor=color1,citecolor=color2]{hyperref}
+ \else
+   \usepackage{color}
+   \definecolor{color0}{rgb}{0.00,0.00,0.00}
+   \definecolor{color1}{rgb}{0.00,0.00,0.00}
+   \definecolor{color2}{rgb}{0.00,0.00,0.00}
+   \usepackage[colorlinks,hyperindex,urlcolor=color0,%
+                  linkcolor=color1,citecolor=color2]{hyperref}
+ \fi
+% %%
+
+ \setlength{\oddsidemargin}{0.25in}
+ \setlength{\evensidemargin}{-0.25in}
+ \setlength{\topmargin}{-0.25in}
+ \setlength{\headsep}{0.375in}
+ \setlength{\textheight}{9.00in}
+ \setlength{\textwidth}{5.875in}
+
+ 
+ \pagestyle{fancy} \fancyhf{}
+ \addtolength{\headwidth}{24pt}
+ \addtolength{\headheight}{2pt}
+ \renewcommand{\headrulewidth}{0.7pt} 
+ \rhead{\slshape\thepage}\lhead{\bfseries\leftmark}
+\cfoot{}
+  
+
+\definecolor{LightGrey}{gray}{0.675}
+\definecolor{HalfGrey}{gray}{0.5}
+\newcommand{\greyline}{{\color{LightGrey}{\rule{\linewidth}{0.75mm}}\par}}
+\newcommand{\ThickGreyLine}{{\color{HalfGrey}{\rule{\linewidth}{5pt}}\par}}
+
+
+\newcommand{\myemail}{newville@cars.uchicago.edu}
+\newcommand{\www}{http://cars9.uchicago.edu/\~{}newville/}
+\newcommand{\WWWiff}{http://cars9.uchicago.edu/ifeffit/}
+\newcommand{\FEFFURL}{http://leonardo.phys.washington.edu/~feff/}
+
+\newcommand{\ShowURL}{\href{\WWWiff}{\WWWiff}}
+\newcommand{\mailto}[1]{{\href{mailto:#1}{#1}}}
+
+\newenvironment{VerbSBox}%
+{\VerbatimEnvironment\begin{Sbox}%
+\begin{minipage}{5.00truein}\begin{Verbatim}}%
+{\end{Verbatim}\end{minipage}\end{Sbox}\setlength{\fboxsep}{2mm}{%
+\begin{flushright}\shadowbox{\TheSbox}\end{flushright}}}
+%%
+
+
+\newenvironment{myquotex}%
+{\VerbatimEnvironment\begin{minipage}{5.00truein}\begin{Verbatim}}%
+{\end{Verbatim}\end{minipage}\noindent}
+%%
+
+
+
+
+%% \font\slanttt=cmsltt10 \font\titlefont=cmr17 scaled\magstep1
+
+\newcommand{\program}[1]{{{\scshape{#1}}}}
+
+ \newcommand{\uwxafs}{\program{uwxafs3.0}}
+ \newcommand{\feff}{\program{feff}}
+ \newcommand{\feffit}{\program{feffit}}
+ \newcommand{\autobk}{\program{autobk}}
+ \newcommand{\atoms}{\program{atoms}}
+ \newcommand{\ifeffit}{\program{ifeffit}}
+ \newcommand{\gifeffit}{\program{g.i.feffit}}
+
+ \newcommand{\XAIBook}{\textsl{XAFS Analysis with {\ifeffit} }}
+
+%external file name
+\newcommand{\file}[1]{{{\slshape\ttfamily{#1}}}}
+  \newcommand{\feffndat}{\file{feffnnnn.dat}}
+  \newcommand{\feffbin}{\file{feff.bin}}
+  \newcommand{\autobkinp}{\file{autobk.inp}}
+  \newcommand{\feffitlog}{\file{feffit.log}}
+%math constructions
+  \newcommand{\Eo}{{\ensuremath{E_0}}}
+  \newcommand{\muE}{{\ensuremath{\mu(E)}}}
+  \newcommand{\Del}{{\ensuremath{\Delta \mu_0(E_0)}}}
+  \newcommand{\bkg}{{\ensuremath{\mu_{0}(E)}}}
+  \newcommand{\bkgk}{{\ensuremath{\mu_{0}(k)}}}
+  \newcommand{\CHI}{{\ensuremath{\chi}}}
+  \newcommand{\chiE}{{\ensuremath{\chi(E)}}}
+  \newcommand{\chik}{{\ensuremath{\chi(k)}}}
+  \newcommand{\chir}{{\ensuremath{\tilde\chi(R)}}}
+  \newcommand{\chiq}{{\ensuremath{\tilde\chi(k)}}}
+  \newcommand{\chisqr}{{\ensuremath{\chi^2}}}
+  \newcommand{\redchi}{{\ensuremath{\chi^2_{\nu}}}}
+
+  \newcommand{\Rmax}{{\ensuremath{R_{\rm max}}}  }
+  \newcommand{\kmin}{{\ensuremath{k_{\rm min}}}  }
+  \newcommand{\kmax}{{\ensuremath{k_{\rm max}}}  }
+  \newcommand{\Rbkg}{{\ensuremath{R_{\rm bkg}}}  }
+  \newcommand{\Nbkg}{{\ensuremath{N_{\rm bkg}}}  }
+  \newcommand{\RIst}{{\ensuremath{R_{\rm 1st}}}  }
+
+  \newcommand{\angst}{\ensuremath{{\rm\,\AA}}}
+  \newcommand{\iangst}{\ensuremath{{\rm\,\AA^{-1}}}}
+  \newcommand{\ie}{{\emph{i.e.}}}
+  \newcommand{\eg}{{\emph{e.g.}}}
+  \newcommand{\etal}{{\emph{et al.}}}
+  \newcommand{\abinitio}{{\emph{ab initio}}}
+%%
+  \def\delim{\ensuremath{\langle {\rm delimiter} \rangle}}
+  \def\rmand{{\rm and\ }}      \def\rmor{{\rm or\ }}
+  \def\caret{{\^\ \kern-0.9em}}
+
+\newcommand{\seealso}[1]{{{\texttt{{#1}}} (Section~\ref{Ch:Command:#1})}}
+\newcommand{\subfunc}[1]{\subsection{{\texttt{{#1}}}}{\label{Ch:Command:#1}\index{{\texttt{{#1}}}}}}
+
+\newcommand{\entrylabel}[1]{\mbox{{\textsf{#1: }}}\hfil}
+\newcommand{\yes}{Y}
+\newenvironment{IFFcom}{\begin{list}{}{\vspace{-0.05truein}
+      \renewcommand{\makelabel}{\entrylabel}\settowidth{\leftmargin}{97pt}
+      \settowidth{\labelwidth}{95pt}\setlength{\rightmargin}{15pt}
+      \setlength{\labelsep}{2pt}\setlength{\listparindent}{0pt}
+      \setlength{\itemindent}{0pt}\setlength{\itemsep}{-1pt}}}
+  {\end{list}}
+% \newenvironment{entry}{\begin{list}{}{\renewcommand{\makelabel}{\entrylabel}
+%       \setlength{\labelwidth}{35pt}\setlength{\labelsep}{2pt}
+%       \setlength{\leftmargin}{37pt}}}
+%   {\end{list}}
+
+
+
+
+
+%%
+\newenvironment{myverb}%
+{\VerbatimEnvironment%
+\small\par\smallskip{\setlength{\parindent}{1.8750truein}}\begin{Verbatim}}%
+{\end{Verbatim}\par\smallskip\noindent}
+
+
+%%
+\newenvironment{myverbxx}%
+{\VerbatimEnvironment%
+\small\par\medskip\begin{minipage}{5.25truein}%
+{\setlength{\parindent}{1.750truein}}\begin{Verbatim}}%
+{\end{Verbatim}\end{minipage}\par\medskip\noindent}
+
+\ifpdf{\pdfinfo{/Author   (Matthew Newville)
+    /Title    (The IFEFFIT Tutorial)
+    /Subject  (Program Document for IFEFFIT)
+    /Keywords (XAFS, Data Analysis, FEFF) }
+ }\fi
+%%

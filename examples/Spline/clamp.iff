@@ -1,0 +1,28 @@
+#
+# end-point clamps in spline()
+#  
+#  these allow you to specify an extra 'penalty' for having 
+#  chi(k) differ from 0 at the endpoints (k=0 and k = kmax)
+#  
+#  to use them, you specify a weighting factor (larger causes
+#  a bigger penalty) and a number of energy points in from the
+#  endpoint to apply this weight for:
+#
+#  keywords:   
+#     clamp1    :  size of low-energy clamp
+#     clamp2    :  size of high-energy clamp
+#     nclamp    :  number of energy points to use for clamp [5]
+
+ read_data(file = ../data/mno.xmu, label = 'energy xmu', group = dat)
+
+ spline(energy= dat.energy, xmu= dat.xmu, rbkg=1.0,  e0 = 6548,
+        kmin= 0.0,   kmax=12, clamp2=2)
+
+ dat.chik = dat.chi * dat.k
+ plot(dat.k, dat.chi, xmax=15 )
+ dat.chie = (dat.xmu-dat.bkg)/edge_step
+ x.chie   = slice(dat.chie,160,170)
+#  print x.chie
+
+
+

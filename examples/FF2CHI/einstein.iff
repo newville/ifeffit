@@ -1,0 +1,24 @@
+path(1, ../feff/feff0001.dat)
+get_path(1, prefix = p1)
+
+set my.temp = (indarr(3) - 1) * 100 + 10
+
+set my.dwf  = eins(my.temp, 200)
+
+set my.d2   = debye(my.temp, 200)
+
+set m1 = eins( 10, 200)
+set m2 = eins(110, 200)
+set m3 = eins(210, 200)
+
+set d1 = debye( 10, 200)
+set d2 = debye(110, 200)
+set d3 = debye(210, 200)
+
+print 'Einstein Model:'
+print my.dwf
+print m1, m2, m3
+
+print 'Debye Model:'
+print my.d2
+print d1, d2, d3

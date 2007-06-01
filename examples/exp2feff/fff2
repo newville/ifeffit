@@ -1,0 +1,65 @@
+From newville@cars1.uchicago.edu Tue Nov 20 15:07:22 2001
+Date: Mon, 19 Jul 1999 10:34:17 -0500 (CDT)
+From: Matt Newville <newville@cars1.uchicago.edu>
+To: Anatoly Frenkel <frenkel@bnl.gov>
+Cc: Alex Ankudinov <alex@leonardo.phys.washington.edu>
+Subject: Re: using FEFFIT to fit experimental standards
+
+Hi Anatoly,
+
+Yes, I have seen cases where including H in Feff calculations screws up the
+fit results.  My recollection was that both the phase and amplitude were
+altered, but that the amplitude change was more significant.  It's possible
+that such problems have been fixed with Feff8, but I haven't tried.
+
+> Since I am analyzing some Cd in solutions data, with a mixture of Cd-O and
+> Cd-S paths in the first shell, it would be odd to use for this purpose the
+> Cd-O path obtained from FEFF for the bulk crystal model. The most
+> appropriate theoretical model, which would better describe Cd-O in a
+> molecule is therefore ambiguous, since depending on whether I include
+> hydrogens in FEFF or not, I am getting the FEFF amplitude differed by ca. a
+> factor of two.  I decided to bypass this ambiguity rather than dealing with
+> it by simply extracting Ampl(k) and Phase(k) for Cd-O path from its
+> experimental solution Chi(k) data, and prepare a feff0001.dat. It then can
+> be used in FEFFIT in the same way as the feff0001.dat calculated with FEFF.
+> 
+> Have you done that before? I tried a simple test, by preparing a
+> theoretical Chi(k) using FEFF and FEFFIT, back fourier transformed it,
+> subtracted the 2kReff from its phase, and compared the result with the
+> Phase(k) produced by FEFF for the same theory. The results were very
+> different. According to your feffit manual, they should be the same. Have
+> you done anything similar to what I am trying to achieve, so that I won't
+> reinvent the wheel?
+
+No, I've never tried that before.  It seems doable, but may not be
+completely straightforward.  You probably got most of this, but I think
+the way I'd do it would be: 
+
+ 1.  Make sure there's no k-weighting in the FT when extracting the
+     amplitude and phase from the data (or, un-k-weight the amplitude).
+ 2.  The columns of feff0001.dat are:
+         k   real[2*phc]   mag[feff]  phase[feff] red factor  lambda   real[p]@#
+     I'd set them up like this:
+         real[2*phc] = 0. 
+         mag[feff]   = extracted amplitude
+         phase[feff] = extracted phase-2kR
+         red factor  = 1.
+         lambda      = 10.e7  (ie, something huge)
+         real[p]     = k
+ 3.  Just to be safe, I'd use the 'normal feff0001.dat' k-grid.
+ 4.  Setting up to 'nleg, deg, reff' line  and the atoms list should be
+     fairly straightforward.   The degeneracy and reff are really used, but
+     the rest of the numbers are only used in the Debye function.  
+
+If you want to send me what you have for the feff->feffit->feff0001.dat,
+I'll try it here and see what happens. 
+
+--Matt
+
+ |= Matthew Newville       email: newville@cars.uchicago.edu          =|
+ |= GSECARS, Bldg 434A     voice: (630) 252-0431                      =|
+ |= Argonne Natl Lab       fax:   (630) 252-0443                      =|
+ |= 9700 South Cass Ave    www:   http://cars.uchicago.edu/~newville/ =|
+ |= Argonne, IL 60439 USA                                             =|
+
+

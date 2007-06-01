@@ -1,0 +1,12 @@
+read_data(../feff/feff0001.dat, group = f, type = feff.dat)
+
+set my.k = (indarr(401) -1 ) /20.
+
+set my.lmag = linterp(f.k,f.mag,my.k)
+
+set my.smag = splint(f.k,f.mag,my.k)
+
+
+
+newplot(my.k, my.lmag, ymin  = 0, ymax = 1)
+plot(my.k, my.smag)

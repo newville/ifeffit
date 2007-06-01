@@ -1,0 +1,163 @@
+\section{Macros in  {\ifeffit}} \label{Ch:Macros}
+
+As described so far in this Guide, {\ifeffit} is definitely not suitable
+for the casual user.  The syntax is a bit fussy and cryptic, and the whole
+notion of a command-based system is not generally considered `user
+friendly'.  Even for the experienced user, typing at a command prompt can
+get pretty tedious for repetitive tasks.
+
+With that in mind, this chapter and the next might be the most important
+chapters in this Guide, because they are all about making {\ifeffit} easier
+to use.  With the macro capability described in this chapter, it is easy to
+write and customize files for ``batch processing'' of data.  The next
+chapter will extend these ideas further, and move beyond the simple macros
+described here, and discusses writing full-blown application programs using
+{\ifeffit} with real programming languages like fortran, C, Perl, Python,
+and Tcl.
+
+Data analysis often involves repetitious processing of data, so {\ifeffit}
+has a simple built-in macro capability that is easy-to-use and reasonably
+flexible.  A macro is a named block of {\ifeffit} lines that can be
+executed as a single unit by typing the name of the macro.  An example:
+\begin{verbatim}
+ macro make_ps
+   plot(device="/ps",file= "ifeffit.ps")
+ end macro
+\end{verbatim}
+\noindent
+With this definition, typing {\texttt{make\_ps}} at the command line would
+execute the two {\texttt{plot}} commands, making a postscript named
+{\file{ifeffit.ps}} showing the current plot, and setting the plotting
+device back to the X-window.  As you can probably tell, macros are defined
+with the command {\texttt{macro} {\textsl{macro\_name}}}.  All lines up to
+{\texttt{end macro}} (which must be on its own line) make up the text of
+the macro, and will be executed in order when the macro is invoked.
+
+To make macros slightly more useful, you can use positional arguments to
+pass information into macros.  The parameters are handled as text strings,
+and simply inserted in the macro text before being executed.  In keeping
+with the {\ifeffit} naming convention, and following many shell and batch
+processing facilities, the parameters are named \$1, \$2, \ldots \$9.  So,
+to make the above macro a little more flexible, we use
+\begin{verbatim}
+ macro make_ps
+   plot(device="/ps",file= $1)
+ end macro
+\end{verbatim} %%--$
+\noindent
+Now, typing {\texttt{make\_ps my\_plot.ps}} at the command line will dump
+the current plot to a file named {\file{my\_plot.ps}}, and you can make
+several different postscript files by changing the argument.
+
+Unfortunately the file name in parameter \$1 is {\emph{required}} by the
+macro, which might not be all that useful unless you always remembered it.
+To help with the problem of required arguments, you can specify default
+values for each argument when defining a macro, like this:
+\begin{verbatim}
+ macro make_ps ifeffit.ps
+   "Make Postscript file of current Plot"
+   plot(device="/ps",file= $1)
+ end macro
+\end{verbatim} %%--$\%
+\noindent
+This version of {\tt{make\_ps}} will use {\file{ifeffit.ps}} as the default
+value of the first argument.  So typing {\texttt{make\_ps my.ps}} will make
+a file called {\file{my.ps}}, and {\texttt{make\_ps}} without any arguments
+will write {\file{ifeffit.ps}}.  
+
+Notice the extra line at the top of this macro: 
+\begin{verbatim}
+   "Make Postscript file of current Plot"
+\end{verbatim} %%--$\%
+\noindent
+This is the optional {\bf{macro description}}, which acts as  built-in
+documentation.  If the first line of a macro is enclosed in single quotes,
+double quotes, or braces, it is used as the macro description.  This line
+is not executed when the macro is run, but is only used to describe the
+macro to the outside world.  Specifically, {\tt{show @macros}} will show
+all macro names, default arguments, and description.
+
+Here's an example macro to automate pre-edge subtraction:
+\begin{verbatim}
+ macro do_pre_edge  a
+   "Read File, Calculate Pre-Edge, Plot, Write File"
+   read_data($1.xmu,  type = xmu,  group = my)
+   pre_edge(my.energy, my.xmu)
+   my.norm = my.pre / edge_step
+   $title1 = 'normalized, pre-edge subtracted data' 
+   write_data(file = $1.pre, $title1,  energy, pre, norm, xmu)
+ end macro
+\end{verbatim}  %%%
+\noindent 
+Now, typing {\texttt{do\_pre\_edge Data\_1}} would read in
+{\file{Data\_1.xmu}}, calculate the normal pre-edge parameters like
+$E_0$, and the edge step, and write out the pre-edge subtracted
+$\mu(E)$ data (in {\texttt{my.pre}}) to {\file{Data\_1.pre}}.  And
+{\texttt{do\_pre\_edge Data\_2}} would repeat these same steps on another
+file.
+
+The variables \$1 through \$9 are special text strings that can only
+be used in macros.  The contents of these strings are destroyed when
+the macro is exited.  Within the macro, these strings are simply
+substituted in place.  This is an admittedly feeble system -- adding
+string manipulation functions and simple control structures would
+enhance the utility of macros, and is planned for future versions.
+
+Macros can be nested. Parameters passed into underlying macros are
+always handled by position number, and the ``argument stack'' is
+automatically managed, which should be what you'd expect.  That is,
+with 
+\begin{verbatim}
+ macro mac1
+   mac2  $3  $2
+   print $1
+ end macro
+ macro mac2
+   print $1
+   print $2
+ end macro
+\end{verbatim}  %%--$
+\noindent   
+typing {\texttt{mac1 A B C}} will print ``C'', then ``B'', and then ``A''.
+As mentioned above, macro arguments are interpreted as strings and are
+substituted in place just before execution.  To specify the argument
+values, then, it will often be helpful to separate them by commas, or to
+enclose them in double quotes (``\ldots'') or braces (\{ \ldots \}).
+Then 
+\begin{verbatim}
+   mac1 ``As usual'', {1}, ``Here is the third argument''
+\end{verbatim}
+\noindent will print 
+\begin{verbatim}
+   Here is the third argument
+   1
+   As usual
+\end{verbatim}
+
+The macro processing does essentially no error checking.  And, again, the
+arguments \$1 to \$9 are simply inserted as text strings.  So if an
+argument \$1 to \$9 is expected and is not explicitly provided and no
+default is given for it in the macro definition, then a null string will be
+used.  If a null string is not a valid argument in some command, the
+command will still be executed, occasionally with non-sensical results or
+error messages.  If you're working on a complex macro, it may be helpful to
+`debug macros' by putting the line
+\begin{verbatim}
+   show @args
+\end{verbatim} 
+\noindent   
+Note that the following
+\begin{verbatim}
+   print $1, $2, $3, $4
+   pause == my_macro:  are these parameters right? ==
+\end{verbatim} 
+\noindent   
+may {\bf{not}} be as helpful, since the arguments will already have been
+substituted in place of \$1, \ldots \$4. 
+
+Of course a key point of having macros is to re-use them.  For that, you'll
+probably want to save your favorite macro definitions to a file and use the
+'{\tt{load}}' command.  
+
+
+

@@ -1,0 +1,361 @@
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % 
+% % % % chapter 5
+% % % % 
+\section{Goodness of Fit and Uncertainties in Variables}\label{ch:uncertain} 
+
+This chapter deals with statistics and error analysis, a field that is
+by its nature uncertain.  The procedures used by \feffit\ are as close
+to the ``standard techniques of data fitting and error analysis'' as
+possible.  See {\sl Data Reduction and Error Analysis for the Physical
+Sciences} by Philip R. Bevington and {\sl Numerical Recipes} by Press,
+{\it {et al.}\/} for good introductions to these topics.  If you think
+that any issues of fitting or error analysis are being overlooked or
+could be improved, please let us know.  The topics in this chapter are
+extremely important to XAFS data analysis and we welcome any
+discussion of them.
+
+\subsection{\chisqr\ as a measure of the Goodness of Fit}
+
+The best set of variables in \feffit\ will minimize the sum of the
+squares of the difference of model and data XAFS.  The statistic
+called chi-square, written \chisqr, is a scaled measure of the sum of
+squares of a function, is generally considered the best figure of
+merit to judge the quality of the fit.  The standard definition of
+\chisqr, 
+\begin{equation}
+ \chi^2 = \sum_{i=1}^N \biggl( { {f_i} \over {\epsilon_i} } \biggr)^2,
+\label{eq:chi2def}
+\end{equation} 
+\noindent requires 3 quantities: (1) $f_i$, the function to minimize; 
+(2) $N$, the number of function evaluations; and (3) $\epsilon_i$, the
+uncertainties in the function to minimize.  \feffit\ allows the fit to
+be done in $R$- or $k$-space, but there is no conceptual difference in
+the way the fit is done.  In either case, the function to minimize
+consists of the real and imaginary parts of the difference between
+data and full model XAFS (either \chir\ or \chiq) over the fit range.
+To be specific, when fitting in $R$-space the function to minimize is
+
+\begin{equation}
+  f(R_i) = \tilde\chi_{\rm data}(R_i) 
+         - \tilde\chi_{\rm model}(R_i),
+                            \qquad R_{\rm min} \le R_i \le R_{\rm max},
+\end{equation}
+and when fitting in $k$-space, the function to minimize is
+\begin{equation}
+  f(k_i) = \tilde\chi_{\rm data}(k_i) 
+         - \tilde\chi_{\rm model}(k_i),\qquad 
+                           k_{\rm min} \le k_i \le k_{\rm max} .
+\end{equation}
+\noindent
+For the rest of this chapter, I'll use $f_i$ as the elements of the
+function to minimize, without specifying which of the two options is used.
+Note that these elements are squared in Eq.~(\ref{}), so that the sign of
+$f_i$ is unimportant.
+
+Since there is one real and one imaginary evaluation for each data
+point, the number of evaluations is $ N = { {2 (R_{\rm max} - R_{\rm
+min})} / { \delta R } } $ when fitting in $R$-space and $ N = { {2
+(k_{\rm max} - k_{\rm min})} / {\delta k } } $ when fitting in
+$k$-space.  Here $\delta R$ and $\delta k$ are the grid spacing in
+$R$- and $k$-space ($\delta k$ is set to $ 0.05\, {\rm \AA}^{-1}$ ).
+$R_{\rm min}$ and $R_{\rm max}$ (or $k_{\rm min}$ and $k_{\rm max}$)
+are the bounds of the fitting range.  Since $\delta R$ and $\delta k$
+are chosen arbitrarily, $N$ has no physical significance and is not
+the right number to use if the scale of \chisqr\ is to be meaningful.
+The best number to use is the number of relevant independent
+measurements, given by the amount of information in the data
+concerning the atomic distribution around the central atom.  Note that
+although the points of $\mu(E)$ are all independent measurements of
+absorption, they are {\it not\/} independent measurements of the
+atomic distribution function, which is what we're interested in when
+analyzing data.  From basic information theory, the number of
+independent measurements in a spectrum is given by 
+\begin{equation}
+ N_{\rm idp} = {{
+2 (k_{\rm max} - k_{\rm min} ) (R_{\rm max} - R_{\rm min} )}
+\over \pi } \quad + \quad 2 .
+\end{equation}
+\noindent 
+The qualitative arguments for this are (1) that the conjugate Fourier
+variables are $k$ and $2R$; (2) that since we're measuring real and
+imaginary parts of \chir, the information must be an even number of
+points; and (3) we must have at least one pair of points, even for an
+infinitesimally small $R$-range.  \chisqr\ is then 
+\begin{equation}
+\chi^2 =
+\sum_{i=1}^{N_{\rm idp} }
+\biggl( { {f_i} \over {\epsilon_i} } \biggr)^2 = { {N_{\rm idp} } \over
+N } \sum_{i=1}^{N} \biggl( { {f_i} \over {\epsilon_i} }
+\biggr)^2. 
+\end{equation}
+\noindent
+We are still left with $\epsilon_i$, the uncertainty in the measurement,
+which we'll return to in the section~{\ref{section:2}.  To simplify
+matters (and because we don't know anything better to do) \feffit\
+uses a single value $\epsilon$ for all values of $\epsilon_i$.  If the
+uncertainties are dominated by random fluctuations in the data, then a
+single value for $\epsilon$ is the best that can be done anyway.
+Assuming for the moment that we have a reasonable estimate for
+$\epsilon$, \chisqr\ is then given by 
+\begin{equation}
+\chi^2 = { {N_{\rm idp} } \over N \epsilon^2}  \sum_{i=1}^{N} 
+  \biggl\{ {\bigl[ {\rm Re} \big( f_i \big) \bigr]^2 + \bigl[ {\rm Im}
+          \big( f_i \big) \bigr]^2 } \biggl\}.
+\end{equation}
+\noindent 
+This is the definition of \chisqr\ used by \feffit, and is the primary
+figure-of-merit to characterize the goodness of the fit.  There is a
+related figure-of-merit, called reduced chi-square, denoted
+$\chi^2_{\nu}$.  This is equal to $ {\chi^2 / \nu}$, where $\nu =
+N_{\rm idp} - N_{\rm varys}$ is the number of degrees of freedom in
+the fit, (where $N_{\rm varys}$ is the number of variables in the
+fit).
+
+\chisqr\ and \redchi\ are useful for comparing the quality of
+different fits.  The basic rule is that the fit with the lowest
+\redchi\ is the best.  This comparison works even if two fits have
+different number of variables.  The criterion for assessing if a
+particular variable is useful in the fit is that \redchi\ will be
+lowered for useful variables.  If adding a variable causes \chisqr\ to
+decrease but \redchi\ to increase, the fit is not improved.
+
+If the errors are dominated by random fluctuations in the data, a good fit
+should have $\chi^2_{\nu} \sim 1$.  If you want to get picky, the expected
+deviation of \redchi\ is roughly $\sqrt{2/\nu}$, so that any $\chi^2_{\nu}
+> 1 + 2\sqrt{2/\nu}$ would clearly indicate a poor fit.  Our experience is
+that \redchi\ is rarely this close to 1 for concentrated samples, even for
+fits that look excellent by eye.  We usually find \redchi\ to be more like
+10 or 100!  This means that the difference between the data and fit is much
+bigger than the estimated uncertainty in the data (again, the pesky
+$\epsilon$).  The most likely reasons for a \redchi\ very different from 1,
+are: (1) the \feff\ model is not a good representation of the data, (2)
+$\epsilon$ is a poor estimate of the measurement uncertainty of the data,
+or (3) the fit $R$-range does not reflect the paths specified in the fit.
+Our current thinking is that, sorry to say, \feff\ is poor enough that it
+will not match the data of concentrated samples to within the measurement
+uncertainty. (In the example in chapter~{\ref{ch:examples}}, a fit to the
+first shell of Cu metal gives $\chi^2_{\nu} \approx 20$.)
+
+A poorly scaled \chisqr\ is not a big deal if it is used only to
+compare the goodness of fit between different models.  And we're
+mostly willing to say that, even though \feff\ doesn't match our data
+to within the measurement uncertainties, we can still rely on the
+structural parameters that a fit to a \feff\ model will give.  But we
+do run into a serious problem when trying to interpret the meaning of
+a $\chi^2_\nu \gg 1$.  Specifically, it is not clear from the value of
+\redchi\ alone if hard-to-estimate systematic errors are drowning out
+the random measurement errors or if the fit is truly bad.  To help
+distinguish these two very different conclusions, it is convenient to
+introduce an $\cal R$-factor, which is scaled to the magnitude of the
+data itself, 
+\begin{equation}
+ {
+\cal R} = { { \displaystyle \sum_{i=1}^{N} 
+   \biggl\{ {\bigl[ {\rm Re} \big( f_i \big) \bigr]^2 +
+             \bigl[ {\rm Im} \big( f_i \big) \bigr]^2 } \biggl\} } 
+\over { \displaystyle \sum_{i=1}^{N} 
+   \biggl\{{\bigl[ {\rm Re} \big(\tilde\chi_{{\rm data}_i} \big)\bigr]^2 +
+            \bigl[ {\rm Im} \big(\tilde\chi_{{\rm data}_i} \big)\bigr]^2} 
+   \biggl\} } } 
+\end{equation}
+\noindent This number is directly
+proportional to \chisqr, and gives a sum-of-squares measure of the
+fractional misfit.  (We should mention that most of the other XAFS
+analysis programs use a number more like this $\cal R$ for their
+definition of \chisqr.)  Since $\cal R$ does not depend on $N$,
+$N_{\rm idp}$, or $\epsilon$, it has a different interpretation than
+\chisqr.  As long as the measurement uncertainty isn't a significant
+fraction of the measurement itself (so that the signal-to-noise ratio
+is much less than 1) we can be confident that any fit with an $\cal
+R$-factor bigger than a few percent is not a very good fit. For good
+fits to carefully measured data on concentrated samples, ${\cal R}
+< 0.02$ and $\chi^2_{\nu} > 10$ are common.  Such fits are
+clearly quite good, as the theory and data agree within a percent.  
+But since the misfit is much larger than the random fluctuations in
+the measured data, we're left with the conclusion that systematic
+errors dominate such fits. 
+
+
+\subsection{The measurement uncertainty problem}
+
+Estimating $\epsilon$, the measurement uncertainty in the data over the
+fit range, is the main difficulty in the error analysis in \feffit.
+$\epsilon$ contains both random fluctuations and systematic errors in
+the data.  The random fluctuations of the data in $R$-space can be
+estimated by evaluating the rms value of the \chir\ between 15 and
+25\AA.  This assumes that the fluctuations are white noise, and that
+they are much bigger than the signal past 15\AA.
+
+Systematic errors in the data are much more difficult to estimate. (If
+you could accurately estimate their size you could probably eliminate
+them).  Some things that may dominate the systematic errors of \chir\
+are (1) leakage of an imperfect background into the first few shells,
+and (2) systematic errors in measurements of $\mu(E)$.  You may be
+able to estimate the size of these systematic errors by trying
+different ``reasonable'' background removals, which, though tedious,
+will give an estimate of the first systematic error.  Analyzing
+different data scans (taken under different experimental conditions)
+may help give an estimate of the second kind of systematic error.
+Though strictly not a systematic error in the data, a third source of
+systematic errors in the fit comes from the \feff\ calculation itself.
+Such errors are important because they do contribute to the small
+amount of misfit expected in a good fit.
+
+The scale of $\epsilon$ depends on the Fourier Transform parameters used
+(such as $k$-weight, ranges, and window functions), which makes
+$\epsilon$ difficult to interpret, and not a very intuitive quantity.
+Assuming that the noise is dominated by random fluctuations $\epsilon_R$
+is linearly related to $\epsilon_k$ (the fluctuations in the unfiltered
+data \chik), the measurement uncertainty in the $k$-space data,
+according to 
+\begin{equation}
+\epsilon_k = \epsilon_R \sqrt{ {\pi \,(2w+1) }\over
+  {\delta k \, (k_{\rm max}^{2w+1} - k_{\rm min}^{2w+1})} },
+\end{equation}
+\noindent where $w$ is the $k$-weighting, and $\delta k$ is the
+spacing between points in $k$-space.  $\epsilon_q$, the random
+fluctuations in filtered $k$-space, are found using the same kind of
+linear relation between $\epsilon_q$ and $\epsilon_R$.
+
+If, for any reason, you have an improved estimate of $\epsilon$, (either
+$\epsilon_R$ or $\epsilon_k$), you should definitely put it into
+\feffitinp\ with either the keyword {\tt epsdat} or {\tt epsr}. Note
+that all contributions to $\epsilon$ should be added in quadrature, and
+that the value used by default is only the random fluctuation
+component.  If you specify $\epsilon_k$,
+Eq.~{} will be used to convert this to
+$\epsilon_R$.
+
+\subsection{Error estimation for the variables}
+ 
+%%%
+\begin{figure}
+\epsffile{Figs/ellipse.ps}
+\caption[chi-square]]{A contour map of \chisqr\ as a function of two
+  variables, $x$ and $y$. The uncertainties in the variables ($\Delta x$
+  and $\Delta y$, respectively) are chosen so as to require that \chisqr\ 
+  is increased by 1 from its best value, $\chi^2_0$.  The correlation
+  between the variables is given by $\cos(\theta_{\rm c})$.}
+\end{figure}
+%%% 
+
+\feffit\ will estimate the uncertainties in the variables immediately
+after the best-fit values of the variables are found.  Occasionally
+the error estimation will fail, which means that at least one of the
+variables does not significantly change the model XAFS.  Such ``null
+variables'' must be taken out of the fit for the uncertainties in the
+rest of the variables to be calculated.  \feffit\ will try to tell you
+which variables are causing the problem if this happens.
+
+The uncertainties in the variables are estimated using a standard
+technique of error analysis.  This is well-explained in the standard
+references, but I'll summarize it here.  The goal of the fit is to
+minimize \chisqr\ in each of its $N_{\rm varys}$ dimensions (where
+$N_{\rm varys}$ is the number of variables in the fit).  Algorithms
+such as the Levenberg-Marquardt method are able to find a minimum for
+multi-dimensional \chisqr\ without too much difficulty.  In order to
+do this, the first and second derivatives of \chisqr\ are found with
+respect to each of the variables (second derivatives are found for
+each pair of variables).  These derivatives are used for finding the
+next estimate of the best variables, and turn out to be useful for
+estimating the uncertainties in the variables after the best fit has
+been found.
+
+At the best-fit solution, \chisqr\ will be roughly parabolic in each
+of its $N_{\rm varys}$ dimensions. The ($N_{\rm varys} \times N_{\rm
+varys}$) matrix of second derivatives of \chisqr\ around the solution
+gives the curvature of the \chisqr\ surface.  Figure~{1??}
+shows a crude rendition of a contour plot of the \chisqr\ surface for
+a two-variable problem.  At the solution, the variables $x$ and $y$
+have values $x_0$ and $y_0$, and $\chi^2 = \chi^2_0$.  As $x$ or $y$
+move away from their best-fit solution, \chisqr\ increases.  For
+``normally distributed'' uncertainties, the contours of constant
+\chisqr\ will be ellipses for two dimensions (and higher order
+ellipsoids for more than two dimensions).  The uncertainty in the
+value of a variable is the amount by which it can be increased and
+still have \chisqr\ below some limit.  For randomly distributed
+errors, $\chi^2_0 + 1$ is a common criterion, and is the one used in
+\feffit.  From Fig.~{2??, the uncertainties in $x$ and
+$y$ are $\Delta x$ and $\Delta y$, and are those values which ensure
+that \chisqr\ is increased by 1 from its best value.  
+
+Note that when evaluating the uncertainty in a variable, all the other
+variables are allowed to vary, so that the correlations between variables
+can be taken into account.  The correlation is a measure of how much
+the best-fit value of one of the variables changes in response to
+changing another variable away from its best-fit value.  In
+Fig.~{2??}, the correlation of the variables $x$ and $y$ is
+something like $\cos(\theta_{\rm c})$, the ``projection'' of $\Delta
+x$ on $\Delta y$.  If the variables were completely uncorrelated, the
+ellipse in Fig.~{2??} would have its major and minor axes
+parallel to the $x$ and $y$ axes.  The point of this discussion is
+that if the correlations were ignored, and $y$ were held constant, the
+uncertainty in $x$ would be estimated to be $\Delta x'$.  This is
+considerably smaller than $\Delta x$, and is a worse estimate of the
+uncertainty in $x$ because a fit with $x$ set to $x_0 +\Delta x$ will
+give a $\chi^2 = \chi^2_0 + 1 $.
+
+%%%
+Algebraically, the uncertainties in the variables are given by the
+inverse of the curvature matrix (the matrix of the second
+derivatives), called the correlation matrix.  The uncertainties in the
+variables are the square roots of the diagonal terms, and the
+correlations between pairs of variables are given by the off-diagonal
+terms of this matrix.  This is very easy and useful to do, and gives a
+good estimate of the uncertainties, as long as the curvature matrix
+can be inverted.  (Matrix inversion will fail if a variable does not
+affect the fit because the second derivative of \chisqr\ will be zero,
+and the curvature matrix will be singular.)  Although it may not be
+obvious, the matrix inversion technique gives values for the
+uncertainties that will increase \chisqr\ by 1, as shown in
+Figure~{1??} (the key is that matrix inversion is division
+by 1). 
+
+Since \chisqr\ increases by 1 to give the uncertainties in the
+variables, the scale of \chisqr\ is very important.  The scale of
+$\epsilon$ is therefore critical in getting good estimates of the
+uncertainties, and we're back where we were at the beginning of the
+chapter.  Unless $\epsilon$ is correctly estimated, \chisqr\ will be
+wrong, and then the estimates for the uncertainties will be wrong.
+But there is away around this problem if we are convinced that a fit
+is good (based on a small $\cal R$) even if \redchi\ is much larger
+than 1.0, so that we assert that $\epsilon$ that is too small (because
+we did not include systematic errors).  The trick is that the value of
+$\epsilon$ can be rescaled by a factor of ($\sqrt{\chi^2_{\nu} }$) so
+that \redchi\ will be forced to be 1.  But we don't need to redo the
+fit or matrix inversion, we can just multiply the uncertainties
+themselves by $\sqrt{\chi^2_{\nu}}$.  The numbers reported by
+\feffit\ for all the uncertainties in \feffitlog\ are rescaled in this
+way by $\sqrt{\chi^2_{\nu}}$.  It is important to remember that this
+trick gives reasonable estimates for the uncertainties at the expense
+of using \redchi\ for measuring the goodness of fit.  It {\it assumes}
+that the fit is good (by forcing \redchi\ to 1), and that significant
+systematic contributions to $\epsilon$ were ignored.
+
+Uncertainties are calculated only for the variables in the fit, not
+for the User-Defined Functions.  Because the User-Defined Functions
+can depend on the variables in fairly complicated ways, the
+uncertainties in them are too hard to work out in general.  You'll
+need to use the standard techniques of partial derivatives (see,
+Bevington's book, for example) to work out the propagation of errors
+in the errors to errors in functions of the errors.  
+ 
+
+All of the error analysis parameters discussed in this chapter will be
+written to \feffitlog.  The values for $N_{\rm idp}$, $N_{\rm varys}$,
+$\nu$, $\epsilon$, $\chi^2$, and $\chi^2_{\nu}$ and ${\cal R}$ will
+all be written to this file.  The uncertainties (already rescaled by
+$\sqrt{\chi^2_{\nu}}$) are listed with the best-fit values.
+Correlations between variables are sorted so that the most highly
+correlated are listed first.  One warning about correlation of two
+variables should be mentioned.  If two variables are completely
+correlated (\ie, the correlation is greater than 0.999 or less than
+-0.999), then these two variables are not really different, and one of
+them can be eliminated.
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+
+
+

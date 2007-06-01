@@ -1,0 +1,17 @@
+Revision history for Perl extension Ifeffit.
+
+0.01  Tue Dec  2 23:02:37 1997
+	- original version; created by h2xs 1.18
+1.0  Fall 1998 -- works well, using array stuff borrowed from PGPLOT
+
+1.1  Feb 1999: removed typemap, array stuff from PGPLOT, and 
+                replaced with straight XS code
+
+1.2  Jun 1999: replace XS code with swig-generated ifeffit_wrap.c, 
+               altered Ifeffit.pm to use the swig pointer mechanism.
+               ifeffit_wrap.c was generated from ifeffit.i by:
+                   swig -perl5 -dnone ifeffit.i 
+               in the swig/ directory.  Note that this overwrites 
+               Ifeffit.pm, so don't try it in the main directory!
+
+1.3  Oct 2002: switched from swig1.1 to swig1.3.

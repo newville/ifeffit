@@ -1,0 +1,14 @@
+
+#
+#  Read chi(k) data
+read_data (file = ../data/cu50k.chi, group=cu, type=chi)
+
+#
+# Fourier filter
+
+fftf(cu.chi, kmin = 1.5, kmax = 18.5, dk = 1.0, kweight = 2)
+fftr(real=cu.chir_re, imag=cu.chir_im, rmin = 1.3, rmax = 3.0)
+
+newplot cu.q, cu.chiq_im
+write_data(file=filter.chi, cu.q, cu.chiq_mag, cu.chiq_pha)
+

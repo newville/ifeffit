@@ -1,0 +1,9 @@
+#
+# add writing of output chi(k) to autobk-like spline
+#
+ read_data(file = ../data/cu.xmu, label = 'energy xmu', group = cu)
+ spline(energy= cu.energy, xmu= cu.xmu, kweight=1)
+
+ $xtitle = "Cu 10K chi(k) from ifeffit's spline"
+ write_data(file = "../data/cu.chi", cu.k, cu.chi, $xtitle,
+           $cu_title*)

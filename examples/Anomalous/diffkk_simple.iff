@@ -1,0 +1,20 @@
+#
+# generate  f' and f'' from Cromer-Libermann calculations.
+
+#--Step 1:
+#   read in absorption data, and looking up f' and f'' 
+#   for each energy point of the absorption data
+# read absorption data
+read_data(../data/cu.xmu , group=cu, type=xmu)
+
+# use f1f2() command giving the energy array and atomic number
+f1f2(z=29, energy=cu.energy)
+
+# look at results
+show @arrays
+newplot cu.energy, cu.f1
+   plot cu.energy, cu.f2
+
+cu.diff = cu.f2 -cu.xmu
+diffkk(z=29, energy=cu.energy, f2 = cu.diff)
+

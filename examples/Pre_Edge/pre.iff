@@ -1,0 +1,17 @@
+#
+#  simple pre-edge subtraction
+#  this sort of begs for a Macro (see ../Macro directory)
+
+ read_data(file = ../data/cu.xmu, prefix = dat, type = xmu)
+
+ pre_edge(energy = dat.energy, xmu = dat.xmu )
+
+ show pre_slope, pre_offset, edge_step
+# calculate pre-edge line
+ dat.pre_line = pre_offset + pre_slope * dat.energy
+
+ newplot ( dat.energy, dat.xmu)
+ plot    ( dat.energy, dat.pre_line)
+
+ pause == hit return for normalized, pre-edge subtracted data ==
+ newplot ( dat.energy, dat.norm)

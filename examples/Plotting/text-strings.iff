@@ -1,0 +1,29 @@
+#
+# some simple text strings using PGPLOT in Ifeffit
+#
+ read_data(file = ../data/cu.xmu, label = 'energy xmu', group = cu)
+ set $plot_xlabel ="E (eV)"
+ set $plot_ylabel ="\gm(E)"
+ newplot(cu.energy, cu.xmu, style=dashed,charsize=1.8,linewidth=2)
+
+ plot(text = "Greek letters: \ga \gb \gc \gd \ge \gf \gh \gi \gj \gk \gm \gn",  
+      text_x= 9400, text_y = 3.3)
+ plot(text = "Greek letters: \go \gp \gq \gr \gs \gt \gu \gv \gw \gx \gy \gz",
+      text_x= 9400, text_y = 3.1)
+
+ plot(text = "Common XAFS Symbols",      text_x= 9400, text_y = 2.8)
+# |chi(R)| (Ang^(-3))
+ plot(text = "|\gx(R)| (\A\u-3\d)",      text_x= 9900, text_y = 2.4)
+
+# k^2*chi(k) (Ang^(-2))
+ plot(text = "k\u2\d\gx(k) (\A\u-2\d)",  text_x=10900, text_y = 2.4)
+
+# mu(E)
+ plot(text = "\gm(E)",                   text_x= 9900, text_y = 1.8)
+
+# sigma^2
+ plot(text = "\gs\u2\d (\A\u2\d)",       text_x=10900, text_y = 1.8)
+
+
+
+

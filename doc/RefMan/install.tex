@@ -1,0 +1,119 @@
+\section{Installation} \label{App:Install}
+
+This appendix describes how to install {\ifeffit} on your computer.  Since
+{\ifeffit} is still in the development and early beta-testing phase, the
+installation process is not entirely automated.  Unlike the earlier
+{\uwxafs} programs, the full {\ifeffit} distribution requires several
+libraries and utilities that may not be installed on your computer.  These
+libraries are freely abailable and have been ported to many Unix systems,
+and appear to work on Windows/NT as well.  We'll see!
+ 
+Fist, you will need the latest distribution of the {\ifeffit} code itself.
+This includes Fortran, C, and Perl source, documentation, sample scripts,
+and examples.  The code is available from {\WWWiff}. 
+
+Second, you'll need a fortran and C compiler (these come with most Unix
+machines), and a fairly recent version perl.  Perl version 5.003 or higher
+is needed.  You can test the version of perl on your machine by typing
+{\texttt{perl -v}}.  If this this reports an older version, you'll need to
+upgrade.  The latest version of perl is at {\WWWperl}.  Perl is fairly easy
+to install, though you should probably install it as root, and may want to
+have some experience with system administration.  Simply following the
+instructions, and giving the default answers when unsure, usually works.
+
+Third, you'll need the Perl/Tk library.  You'll need the Tk module with
+version number higher than Tk400.202 (including the newer Tk800.series)
+This gets added to the standard perl library, so you'll probably want to do
+this as root, too.  This is also very easy to install (read the INSTALL
+file), and goes fairly quickly.  The Perl/Tk library is available from
+{\WWWperl}.
+
+Fourth, you'll need the PGPLOT fortran plotting library.  This library is a
+bit more difficult to install.  The instructions are clear, but involve
+several steps that could probably be more automated.  The source is
+available at {\WWWpgplot}.  The main thing is that you'll have to edit a
+file called {\file{drivers.list}} to select the graphical devices you'd
+like supported.  So far, I've used the GIF, Postscript, and X-window
+devices.
+
+Fifth, you'll really want (though don't strictly need) the GNU readline
+library, and the associated Perl Module.  The main library itself may
+already be installed on your computer -- look for
+/usr/local/lib/libreadline.a or /usr/lib/libreadline.a.  If you can't find
+this, you can get it from the standard GNU locations like
+{\htmladdnormallink{http://prep.mit.ai.edu/}{http://prep.mit.ai.edu/}}.  As
+with most GNU software, this is a fairly easy to install.  The 
+Perl module is Term::ReadLine:GNU, and you can find it in the CPAN part of
+the perl home page.
+
+If you think you might be interested in playing with scripts using
+{\ifeffit}, and know some perl (or want to learn), there is a perl
+interface to the PGPLOT routines you may be interested in. Called PGPERL,
+this is at the standard CPAN sites, available from {\WWWperl}.
+
+Finally, once all of these libraries are installed, you're ready to install
+{\ifeffit}.  These steps should work:
+\begin{verbatim}
+  ~>  gunzip -c ifeffit.tar.gz | tar xvf -
+  ~>  cd ifeffit
+  ~>  configure
+  ~>  make
+  ~>  make install
+\end{verbatim}
+
+But you may want to read the INSTALL file for more detailed instructions.
+
+\section{Using the Command-Line Version} \label{App:Readline}
+
+This appendix describes some of the details of the command-line version of
+{\ifeffit}.  For the initial releases, this may get a little confusing
+because the main command-line program is named {\ifeffit}, whereas I've
+been referring to the base command interpreter as {\ifeffit} in this
+document.  The distinction is not that important except that the
+command-line version has a few extra features that are {\emph{not}} part of
+the basic interpreter, but make the command-line program much easier to
+use.  This appendix will focus on the extra features in the command-line
+program.
+
+The {\ifeffit} program (as opposed to the {\ifeffit} library, which the
+rest of this Reference Guide discusses) is a program written in Perl, and
+so requires the Perl program and two ``extra'' Perl modules to be
+installed.  The first extra module is the Ifeffit module that comes with
+the {\ifeffit} distribution.  The second extra module is the Term::Readline
+module, which is available at the same place as the Perl program itself
+({\WWWperl}) and with the {\ifeffit} distribution.  Perl modules are easy
+to install, but you may need root privilege to do so.  The Readline module
+is actually optional, and the {\ifeffit} program will run without it.
+
+
+The main additional features of the command-line program are:
+\begin{enumerate}
+\item a command-history mechanism so that the up-arrow will scroll through
+  previous commands.  As long as the program is exited gracefully, commands
+  will be remembered between {\ifeffit} sessions as well.  The previous
+  commands can be displayed with the {\texttt{l}} command within
+  {\ifeffit}.  {\texttt{l 20}} will display the most recent 20 lines
+  executed.
+  
+\item tab completion of commands and filenames works.  The list of commands
+  that are completed can be customized, even to include macro names.
+  
+\item some shell commands (ls, cp, cd, vi, etc) are supported directly.
+  The list of shell commands can be customized.  Any shell command can also
+  be invoked by `escaping to the shell' by starting a line with a `!'.
+  
+\item customization of commands for tab-completion, shell-commands to
+  support, and loading of start-up macros can be done through the
+  ``resource file'' {\file{.ifeffitrc}} in your home directory.  The
+  reading of this file can be turned off with the '-x' switch: type
+  {\texttt{ifeffit -x}} at the shell prompt.
+  
+\item script files of {\ifeffit} commands can be executed by naming them on
+  the command line.  Typing {\texttt{ifeffit MyFile}} at the shell prompt
+  will effectively do a {\texttt{load MyFile}}.  This can be used to load a
+  set of custom macros or to execute a ``batch process'' (putting an
+  {\texttt{exit}} at the end of the script will return you to the shell
+  prompt instead of leaving you at the {\ifeffit} prompt).
+
+\end{enumerate}
+

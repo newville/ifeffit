@@ -1,0 +1,16 @@
+   def  rrr = reff/10
+   path(1, feff=../feff/feff0001.dat, delr=rrr)
+   path(2, feff=../feff/feff0002.dat, delr=rrr)
+   ff2chi(1,2,group=x)
+   echo 'aa' 
+   show rrr
+
+   set path_index = 1
+   echo 'bb' 
+   show rrr, path_index
+
+   path_index = 2
+   show rrr
+
+
+

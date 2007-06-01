@@ -1,0 +1,4 @@
+#!/usr/bin/sh
+cat TclSetup.in Makefile.in > Makefile
+make
+

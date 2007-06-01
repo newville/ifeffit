@@ -1,0 +1,165 @@
+#!/usr/bin/perl
+#
+# simple implementation of Cromer-Libermann normalization
+use Ifeffit;
+use Getopt::Std;
+use subs qw/DumpHelp/;
+
+if ($#ARGV<0) {DumpHelp and exit;}
+
+getopts('hz:');
+$z = ($opt_z) ? ($opt_z) : "29";
+
+$file  = $ARGV[0];
+$ofile = $ARGV[1];
+if ($ofile eq '') { $ofile = $file.".norm"; }
+
+$i = Ifeffit::ifeffit( "\&screen_echo = 1");
+
+
+$script =<<"ESCR";
+read_data(file = $file, prefix = dat, type = xmu)
+
+plot dat.energy, dat.xmu
+set e0 = 17163
+echo " pick low energy of pre-edge range"
+cursor
+set pre1 = cursor_x - e0
+
+echo " pick high energy of pre-edge range"
+cursor
+set pre2 = cursor_x - e0
+
+#
+pre_edge(energy = dat.energy, xmu = dat.xmu, 
+         pre1=pre1,pre2=pre2, e0 = 17163)
+
+
+set  (e0_dat = e0)
+set  (es_dat = edge_step)
+set  (ps_dat = pre_slope)
+set  (po_dat = pre_offset)
+#
+set  (cl.e  = dat.energy)
+f1f2(z= $z, energy=cl.e, width=0.1)
+
+pre_edge(cl.e, cl.f2, 
+         pre1=pre1,pre2=pre2, e0 = 17163)
+
+set  (e0_cl = e0)
+set  (es_cl = edge_step)
+set  (ps_cl = pre_slope)
+set  (po_cl = pre_offset)
+
+#
+cl2.e  = cl.e + e0_dat - e0_cl
+cl2.f2 = splint(cl.e, cl.f2, cl2.e)
+ESCR
+
+ifeffit($script);
+#-----------
+# set weighting array
+
+$e0      = Ifeffit::get_scalar("e0_dat");
+@energy  = Ifeffit::get_array("cl2.e");
+@weight  = @energy ;
+for ( $i = 0; $i < $#energy; $i++ ) {
+    $e = $energy[$i];
+    $weight[$i] = 1;
+    if ($e < $e0) { $weight[$i] = 5;};
+    if (abs($e - $e0) < 20) { $weight[$i] = 0.001};
+}
+
+$i = Ifeffit::put_array("cl2.weight", \@weight);
+#---------
+
+$model =<<"EOM";
+guess (a0  = po_dat - po_cl)
+guess (a1  = ps_dat - ps_cl)
+guess (a2  = 0)
+guess step = es_dat / es_cl
+
+cl2.model  = a0  + a1 * (cl2.e) + a2 * cl2.e* cl2.e + cl2.f2 * step
+cl2.diff   = (dat.xmu - cl2.model) * cl2.weight
+
+
+print " pick low energy of fit range "
+cursor
+set fit_r1 = cursor_x 
+
+print " pick high energy of fit range "
+cursor
+set fit_r2 = cursor_x 
+
+minimize(cl2.diff, x = cl2.e, xmin = fit_r1, xmax=fit_r2)
+show  \@variables
+
+show fit_r1,fit_r2
+
+newplot cl2.e, cl2.model
+   plot cl2.e, dat.xmu
+
+pre_edge(cl2.e, cl2.model, pre1=pre1, pre2=pre2, e0 = e0_dat)
+print "Autobk            edge step :" , es_dat
+print "Cromer-Libermann  edge step :" , edge_step
+
+# print e0, pre_slope, pre_offset, norm_c0, norm_c1, norm_c2
+cl2.nl  = norm_c0 + norm_c1 * cl2.e + norm_c2 * cl2.e^2
+
+cl2.pl  = pre_offset + pre_slope * cl2.e
+cl2.dl = cl2.nl - cl2.pl
+
+pause 
+
+plot cl2.e, cl2.pl
+plot cl2.e, cl2.nl
+# plot cl2.e, cl2.dl
+
+pause
+
+# show \@variables
+
+# generate normalized xmu data:
+# still relying on older pre_edge line
+dat.norm = dat.pre /edge_step
+
+
+\$t_x1 = 'Normalized to match Cromer-Libermann f'' data '
+write_data(file = $ofile, dat.energy, dat.norm, e0_dat, edge_step,
+           \$t_x1, \$dat_titl*)
+
+newplot dat.energy, dat.norm
+show e0_dat, edge_step
+
+EOM
+
+ifeffit($model);
+print "wrote $ofile\n";
+
+#------------------
+
+sub DumpHelp {
+my $help_msg =<<'END'; # written when no arguments are given
+usage:    clnorm  xmu_file
+
+END
+print STDERR $help_msg;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

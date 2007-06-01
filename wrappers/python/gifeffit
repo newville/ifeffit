@@ -1,0 +1,3 @@
+#!/usr/bin/env python
+import GIFeffit, sys
+GIFeffit.GIFeffit(sys.argv[1:])

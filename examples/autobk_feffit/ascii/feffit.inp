@@ -1,0 +1,25 @@
+# very simple feffit.inp
+
+ title  = basic feffit test
+ data   = cuk.chi
+ out    = fit.dat  
+
+ rmin   = 1.75   
+ rmax   = 3.25     
+ kmin   = 2.0
+ kmax   = 17.0   
+ dk     = 2 
+ kweight= 2
+
+ guess  e0      =   0.0       
+ guess  dr      =   0.0
+ guess  s02     =   0.9
+ guess  sig2    =   0.0
+
+
+ path    1 ../feff/feffcu01.dat 
+ s02     1  s02
+ e0      1  e0
+ delr    1  dr
+ sigma2  1  sig2
+	

@@ -1,0 +1,207 @@
+#
+# plot some typical window functions
+# as in Reference Manual
+
+read_data(../data/cu150k.chi , group=dat, type=chi)
+macro make_hardcopy f x
+   plot(file = $1, device=$2)
+end macro
+ 
+
+macro kaiser
+  window(dat.k, kmin=2,kmax=17,dk=3.0,kwindow='kaiser')
+  newplot(dat.k, dat.win,xlabel="k (\A\u-1\d)",xmax=20,ymin=0,ymax=1.10,
+   title= "window(kmin=2,kmax=17,kwindow='kaiser')",color=black)
+
+  window(dat.k, kmin=2,kmax=17,dk=6.0,kwindow='kaiser')
+  plot(dat.k, dat.win,color=black,style=solid)
+
+  plot_text (x=13,y=0.88, text='dk=3.0')
+  plot_text (x=13,y=0.34, text='dk=6.0')
+
+  make_hardcopy kaiser01.ps '/cps'
+end macro
+
+macro msine
+  window(dat.k, kmin=2, kmax=17, dk=1,kwindow='sine')
+  newplot(dat.k, dat.win,xlabel="k (\A\u-1\d)",xmax=20,ymin=0,ymax=1.10,
+   title= "window(kmin=2,kmax=17,dk=2,kwindow='sine')",color=black)
+
+  my.y = range(0,1,0.1)
+  my.x = ones(npts(my.y))*kmin
+
+  my.x = ones(npts(my.y))*(kmin-dk1)
+
+  plot(my.x    ,my.y, color=black,style=dashed)
+  plot_text (x=kmin-dk1+0.2,y=0.70, text='kmin-dk=1.0')
+
+
+  my.x = ones(npts(my.y))*(kmax+dk1)
+  plot(my.x    ,my.y, color=black,style=dashed)
+  plot_text (x=kmax+dk1-4,y=0.70, text='kmax+dk=18.0')
+
+
+  make_hardcopy sine01.ps '/cps'
+end macro
+ 
+
+macro mgauss
+  window(dat.k, dk1=3.0,dk2=10.5,kwindow='gauss')
+  newplot(dat.k, dat.win,xlabel="k (\A\u-1\d)",xmax=20,ymin=0,ymax=1.10,
+   title= "window(dk1=3.00,dk2=10.5,kwindow='gauss')",color=black)
+
+
+  my.y = range(0,1,0.1)
+  my.x = ones(npts(my.y))*dk2
+  plot(my.x      ,my.y/2, color=black,style=dashed)
+
+  plot_text (x=dk2+0.25,y=0.25, text='dk2=10.5')
+
+  plot_text (x=11.5,y=1.02, text='\gW(k)=exp[-(k-dk2)\u2\d/(2dk1\u2\d)]')
+
+  set qfac = sqrt(2*log(2))*dk1
+  set  q.x = range(-qfac,qfac,0.04)+dk2
+
+  set q.y = 0.5*ones(npts(q.x))
+  plot(q.x,q.y,color=black,style=dashed)
+
+  qmax = qfac+dk2
+  qmin = dk2-qfac
+
+  plot_arrow(x1=qmax-0.2,y1=0.5,x2=qmax,y2=0.5,angle=30,barb=0,size=1.5)
+  plot_arrow(x1=qmin+0.2,y1=0.5,x2=qmin,y2=0.5,angle=30,barb=0,size=1.5)
+
+  plot_text(x=qmin+1.,y=0.58, text='FWHM=2*sqrt(2*log(2))*dk1')
+
+
+
+  make_hardcopy gauss01.ps '/cps'
+end macro
+ 
+
+
+macro welch
+window(dat.k, kmin=2, kmax=17,dk=2,kwindow='welch')
+
+newplot(dat.k, dat.win,xlabel="k (\A\u-1\d)",xmax=20,ymin=0,ymax=1.10,
+   title= "window(kmin=2,kmax=17,dk=2.,kwindow='welch')",color=black)
+
+my.y = range(0,1,0.1)
+my.x = ones(npts(my.y))*kmin
+
+plot(my.x-dk1/2,my.y,   color=black,style=dashed)
+plot(my.x      ,my.y/2, color=black,style=dashed)
+plot(my.x+dk1/2,my.y,   color=black,style=dashed)
+
+
+my.x = ones(npts(my.y))*kmax
+plot(my.x-dk2/2,my.y,   color=black,style=dashed)
+plot(my.x      ,my.y/2, color=black,style=dashed)
+plot(my.x+dk2/2,my.y,   color=black,style=dashed)
+
+
+plot_arrow(x1=kmin,y1=0.98,x2=kmin-dk1/2,y2=0.98,angle=30,barb=0,size=1.5)
+plot_arrow(x1=kmin,y1=0.98,x2=kmin+dk1/2,y2=0.98,angle=30,barb=0,size=1.5)
+
+plot_arrow(x1=kmax,y1=0.98,x2=kmax-dk2/2,y2=0.98,angle=30,barb=0,size=1.5)
+plot_arrow(x1=kmax,y1=0.98,x2=kmax+dk2/2,y2=0.98,angle=30,barb=0,size=1.5)
+
+
+plot_text (x=2.2, y=0.52, text='kmin=2.0')
+plot_text (x=16.5,y=0.52, text='kmax=17.0')
+plot_text (x=kmin-dk1/2,y=1.02, text='dk1=2.0')
+plot_text (x=kmax-dk2/2,y=1.02, text='dk2=2.0')
+
+make_hardcopy welch01.ps '/cps'
+end macro
+
+
+macro parzen
+
+window(dat.k, kmin=2, kmax=17,dk=2,kwindow='parzen')
+
+newplot(dat.k, dat.win,xlabel="k (\A\u-1\d)",xmax=20,ymin=0,ymax=1.10,
+   title= "window(kmin=2,kmax=17,dk=2.,kwindow='parzen')",color=black)
+
+my.y = range(0,1,0.1)
+my.x = ones(npts(my.y))*kmin
+
+plot(my.x-dk1/2,my.y,   color=black,style=dashed)
+plot(my.x      ,my.y/2, color=black,style=dashed)
+plot(my.x+dk1/2,my.y,   color=black,style=dashed)
+
+
+my.x = ones(npts(my.y))*kmax
+plot(my.x-dk2/2,my.y,   color=black,style=dashed)
+plot(my.x      ,my.y/2, color=black,style=dashed)
+plot(my.x+dk2/2,my.y,   color=black,style=dashed)
+
+
+plot_arrow(x1=kmin,y1=0.98,x2=kmin-dk1/2,y2=0.98,angle=30,barb=0,size=1.5)
+plot_arrow(x1=kmin,y1=0.98,x2=kmin+dk1/2,y2=0.98,angle=30,barb=0,size=1.5)
+
+plot_arrow(x1=kmax,y1=0.98,x2=kmax-dk2/2,y2=0.98,angle=30,barb=0,size=1.5)
+plot_arrow(x1=kmax,y1=0.98,x2=kmax+dk2/2,y2=0.98,angle=30,barb=0,size=1.5)
+
+
+plot_text (x=2.2, y=0.52, text='kmin=2.0')
+plot_text (x=16.5,y=0.52, text='kmax=17.0')
+plot_text (x=kmin-dk1/2,y=1.02, text='dk1=2.0')
+plot_text (x=kmax-dk2/2,y=1.02, text='dk2=2.0')
+
+make_hardcopy parzen01.ps '/cps'
+
+end macro
+
+
+macro hanning
+
+window(dat.k, kmin=2, kmax=17,dk=2,kwindow='hanning')
+
+newplot(dat.k, dat.win,xlabel="k (\A\u-1\d)",xmax=20,ymin=0,ymax=1.10,
+   title= "window(kmin=2,kmax=17,dk=2,kwindow='hanning')",color=black)
+
+my.y = range(0,1,0.1)
+my.x = ones(npts(my.y))*kmin
+
+plot(my.x-dk1/2,my.y,   color=black,style=dashed)
+plot(my.x      ,my.y/2, color=black,style=dashed)
+plot(my.x+dk1/2,my.y,   color=black,style=dashed)
+
+
+my.x = ones(npts(my.y))*kmax
+plot(my.x-dk2/2,my.y,   color=black,style=dashed)
+plot(my.x      ,my.y/2, color=black,style=dashed)
+plot(my.x+dk2/2,my.y,   color=black,style=dashed)
+
+
+plot_arrow(x1=kmin,y1=0.98,x2=kmin-dk1/2,y2=0.98,angle=30,barb=0,size=1.5)
+plot_arrow(x1=kmin,y1=0.98,x2=kmin+dk1/2,y2=0.98,angle=30,barb=0,size=1.5)
+
+plot_arrow(x1=kmax,y1=0.98,x2=kmax-dk2/2,y2=0.98,angle=30,barb=0,size=1.5)
+plot_arrow(x1=kmax,y1=0.98,x2=kmax+dk2/2,y2=0.98,angle=30,barb=0,size=1.5)
+
+
+plot_text (x=2.2, y=0.52, text='kmin=2.0')
+plot_text (x=16.5,y=0.52, text='kmax=17.0')
+plot_text (x=kmin-dk1/2,y=1.02, text='dk1=2.0')
+plot_text (x=kmax-dk2/2,y=1.02, text='dk2=2.0')
+
+
+make_hardcopy hanning01.ps '/cps'
+
+end macro
+
+
+#  hanning
+#  pause
+#  parzen
+#  pause
+#  welch
+#  pause 
+ msine
+ pause
+ mgauss
+ pause
+ kaiser
+

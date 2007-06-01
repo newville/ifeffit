@@ -1,0 +1,40 @@
+This is the Tcl interface to the Ifeffit library.
+
+To build and install this interface: 
+
+ 1. build and INSTALL the ifeffit library.  That is, the
+    ifeffit library must be installed in its final resting 
+    place for the tcl extension to work properly.
+
+    If you're building this from the standard distribution, a 
+    TclSetup.in file should already be in this directory.  If 
+    not (or if you are building this from the stand-alone perl
+    distribution after the Ifeffit library has been installed)
+    copy the TclSetup.in from the ifeffit directory:
+     
+     ~> cp /usr/local/share/ifeffit/TclSetup.in .
+   
+    (the exact location may be different, depending on how
+     ifeffit was built and installed).
+
+
+ 2. type 'sh Build'.  
+    this will simply do 
+      ~> cat TclSetup.in Makefile.in > Makefile
+      ~> make
+
+    If this fails, you may want to edit the Makefile to properly 
+    reflect your system's setup.
+
+ 3. test the Tcl extension:
+     ~> tcl test.tcl
+
+    If the test fails (you'll see a bunch cryptic error messages), 
+    first check the 'Fortran.Notes' in the main wrapper directory.  
+    If that doesn't help, please let me know.
+
+ 4. I do not know enough about tcl to know how to properly install
+    a third-party extension in 'the standard way'.  If you do, please
+    let me know.
+
+Matt Newville <newville@cars.uchicago.edu>

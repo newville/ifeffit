@@ -1,0 +1,24 @@
+#
+#  compare Einstein and Debye Models:
+#  construct an array of sigma2 values for Cu (theta_debye=315).
+#  then fit this array with an Einstein model.
+#
+
+path(index  = 1,   feff   = ../feff/feffcu01.dat )
+ff2chi(1,group=x)
+set my.temp  = range(0,500,5)
+set my.debye = debye(my.temp,315)
+
+guess offset = 0
+guess theta  = 200
+def my.eins  = offset + eins(my.temp, theta)
+
+def my.resid = my.eins - my.debye
+
+minimize(my.resid)
+
+newplot( my.temp, my.debye, key = 'Debye', 
+          xlabel = 'T (K)',   ylabel  = '\gs\u2\d (\A\u2\d)')
+
+plot my.temp, my.eins,  key = 'Einstein'
+show @variables

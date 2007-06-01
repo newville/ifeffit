@@ -1,0 +1,324 @@
+%%#fixtex% for html/pdf   -*-latex-*-  
+\section{Input and Output Files} \label{Ch:IO}
+
+At some point, you'll want to read your data into {\ifeffit}.  Getting data
+in the expected format is quite possibly the hardest part of dealing with
+any data analysis program.  Currently, {\ifeffit} uses plain text files
+with data in columns delimited by white space (blanks and/or tab
+characters).  There is also some support for a {\ifeffit}-specific file
+format for storing data to be read back into subsequent {\ifeffit}
+sessions.  The `old-style' UWXAFS RDF binary files are not currently
+supported.  {\index{RDF files}}
+
+{\ifeffit} expects data to be in plain text (also known as ASCII) files
+that have some lines of descriptive text followed by some numerical arrays
+stored in space- or tab-delimited columns.  The column-based data files
+have the feature that only one set of related data can be stored in a given
+file.  In particular, all arrays in an ASCII column file must have the same
+number of data points.  This is not usually a serious problem, but it is
+something to keep in mind.  Another thing to keep in mind is that
+{\ifeffit} does not yet have any special procedures to support
+beamline-specific data.
+
+The commands for dealing with column files are {\cmnd{read\_data}} and
+{\cmnd{write\_data}}.  These commands are discussed in
+this chapter and in sections~{\ref{Ch:Command:read-data}}
+and~{\ref{Ch:Command:write-data}}.
+
+
+\subsection{Reading ASCII Column Files} \label{Ch:IO-READ}
+
+When reading data files with {\cmnd{read\_data}}, {\ifeffit} needs to
+assign array names to the arrays read from the file.  Deciding the arrays
+names is the only tricky part to {\cmnd{read\_data}}.  Since all arrays in
+{\ifeffit} have two-part names, with a ``group name'' for the suffix, and
+since data in any data file are usually meant to be grouped together,
+{\ifeffit} will use a common group name for all arrays read from a given
+file.  The group name used can be specified explicitly with the
+{\tt{group}} keyword to the {\cmnd{read\_data}} command.  If not specified,
+the group name will be automatically set based on the file name itself.
+
+Before we get on to the details of naming the arrays, let's discuss the
+title lines in the file.  As said above, these lines contain descriptive
+text about the data, and not the numerical data itself.  Normally,
+{\ifeffit} will try to figure out where the descriptive text ends and the
+numeric data begins.  One simple way to ensure that this is done correctly
+is to put some non-numeric character in the first column of each line of
+the header.  `\#', `\%', `*', `!', and `;' are popular choices for such
+``comment characters'', and {\ifeffit} will respect them all.  Another
+possibility is to specify the number of title lines explicitly, with the 
+{\tt{title\_lines}} keyword, as in 
+\begin{verbatim}
+  read_data(file=my.chi, title_lines = 3)
+\end{verbatim}
+\noindent
+It is generally easier to arrange for files to have title lines that always
+begin with some comment character than to have to count the number of title
+lines for each file. 
+{\indexcmd{read\_data}}
+{\index{{data files!title lines}}} 
+{\index{{data files!group name}}}
+
+The first 64 title lines will be stored in strings named according to the
+``group name'' with names like {\tt{\$GROUP\_title\_II}}.  That is, when
+reading a file with group name ``{\tt{xfile}}'', the first comment line
+will be save in {\tt{\$xfile\_title\_01}}, and the twelfth in
+{\tt{\$xfile\_title\_12}}.
+
+OK, on to the naming of the arrays.  There are several ways to specify how
+the suffixes of the array names will be.  The sheer number of options may
+seem unnecessary at this point, but after using {\ifeffit} for a while, you
+will probably end up using several of these methods depending on the data
+file you're using.  The simple way to name the arrays from a file is to
+make the suffix of each array name be the integer for that column, by
+specify {\texttt{type=raw}} in the {\cmnd{read\_data}} command. That is,
+\begin{verbatim}
+  read_data(file=myfile.dat, group = A, type = raw)
+\end{verbatim}
+\noindent
+will create arrays {\texttt{A.1}}, {\texttt{A.2}}, {\texttt{A.3}}, and so
+on.  The ``raw'' names aren't very mnemonic, but they're simple and and
+very predictable.  For analyzing several similar files, you could read in
+the data using ``{\tt{type = raw}}'' and write a macro to rename the
+``raw'' column arrays.  For more on macros, see chapter~{\ref{Ch:Macros}}.
+
+Often times data comes in fairly standard file types, in which the columns
+have known arrays.  So the second way to name arrays in {\ifeffit} is to
+specify one of several known ``type'' to {\tt{read\_data}}.  Thus,
+\begin{verbatim}
+  read_data(file=my.chi, group = A, type = chi)
+\end{verbatim}
+\noindent
+will name the array from the first column {\texttt{A.k}}, and that from the
+second column {\texttt{A.chi}}.  Any remaining columns will be
+{\texttt{A.3}}, and so on.  Similarly,
+\begin{verbatim}
+  read_data(file=cu.xmu,  type = xmu)
+\end{verbatim}
+\noindent
+will name the array from the first column {\texttt{cu.energy}}, and that
+from the second column {\texttt{cu.xmu}}.  (Note here that ``{\tt{group}}''
+was not specified, and so was taken from the file name itself).
+Table~{\ref{Table:io_types}} lists all the recognized file types and the
+associated column names.
+{\indexcmds{read\_data}{type}}
+
+\begin{table}
+ \begin{center}
+\caption[a]{Table of Known Data Types for {\tt{read\_data()}}. Note that if
+there are more columns in the file, the subsequent arrays will be named by
+the column index.}
+  {\label{Table:io_types}}
+\begin{tabular}{ll}
+  \noalign{\smallskip}
+  Data Type & Array suffixes   \\
+ \noalign{\smallskip}    \hline    \noalign{\smallskip}    
+  xmu      & energy, xmu \\
+  chi      & k, chi   \\
+  rsp      & r, chir\_re, chir\_im, chir\_mag, chir\_pha\\
+  qsp      & q, chiq\_re, chiq\_im, chiq\_mag, chiq\_pha\\
+  chi\_std & k\_std, chi\_std\\
+  xmu.dat  & energy, e\_wrt0, k, mu, mu0, chi\\
+  chi.dat  & k, chi, mag, phase\\
+  feff.dat & k, cphase, mag, phase, redfactor, lambda, realp\\
+  \noalign{\smallskip}    \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Another common situation is for files to come with column labels already
+provided in the file.  In such a case, the {\tt{type = label}} can be
+used to {\emph{read}} the column labels from the file itself, provided the
+file has been formatted with this in mind.  By that I mean 1) the file
+has text strings at the top of the file, before the column data, 2) that
+the next to last text line is a line of minus signs (the important thing is
+that the third through eight character on the line are minus signs), and 3)
+the last text line is a label line.  Such a file would look like this
+{\index{{data files!column labels}}}
+{\small{
+%%#VerbSBox%
+\begin{VerbSBox}
+# Cu XAFS 
+# data file containing xmu(energy)
+#-----------------------------
+#  energy  xmu    i0
+ 8760.02   1.313982  60351.3
+ 8770.01   1.323154  59808.3
+ 8779.98   1.332213  59290.3
+ 8790.02   1.344031  58709.3
+ 8799.98   1.352667  58245.3
+ 8810.02   1.364248  57719.3
+ 8819.99   1.375764  57165.3
+ 8829.98   1.384695  56690.3
+\end{VerbSBox}
+%%#VerbSBox%
+}}\noindent
+and be said to have column labels ``energy'', ``xmu'', and ``i0''.  All the
+files distributed with {\ifeffit} have columns labeled in this way and
+{\ifeffit} normally write out files with such labels.  To read this file,
+and have the array be named by the given labels, you would say
+\begin{verbatim}
+  read_data(file=my.xmu, group = A, type = label)
+\end{verbatim}
+\noindent
+which will create the arrays {\texttt{A.energy}}, {\texttt{A.xmu}}, and
+{\texttt{A.i0}}.  There are some minor issues when column labels contain
+characters (``()./,'' and so forth) which can't be in the suffix part of an
+array name, in which case the arrays names will end up a little mangled --
+usually ``\_'' will be used instead of the offending character.
+
+When all else fails, you'll just want to specify the array names yourself.
+Keeping in my the previous method, the preferred way to specify the names
+is with the {\tt{label}} keyword.  This overrides all the above methods,
+and can be used to override default column names from the file itself.
+The argument to {\tt{label}} is a space delimited string with the array
+suffixes as if it had been the label string in the file.  Thus, using 
+\begin{verbatim}
+  read_data(file=my.xmu, group = A, label = 'x y z')
+\end{verbatim}
+\noindent
+would create arrays {\texttt{A.x}}, {\texttt{A.y}}, and {\texttt{A.z}},
+even if the arrays are labeled something else in the file.
+
+A note of caution: there is nothing preventing two columns from having the
+same label.  This is currently an unsolved `feature' that may be fixed in
+the future.
+
+As we have seen, there are several options for how to name arrays read in
+with {\cmnd{read\_data}}.  So, which one is the default if neither
+{\tt{type}} or {\tt{label}} are given, or if both are given?  The answer is
+this: First the string from the {\tt{label}} keyword is used.  If
+{\tt{label}} is not given, then the type specified by the {\tt{type}}
+keyword is used to generate the array names (with results shown in
+Table~{\ref{Table:io_types}}).  If neither of the {\tt{label}} or
+{\tt{type}} keywords are given, the existing ``label line'' from the file
+is used.  Finally, if there is no label line in the file, the column
+indices ({\emph{i.e.}} {\tt{type=raw}}) are used.
+
+Given these complicated rules, it might be nice to know for sure what
+arrays were actually read in.  This may not seem so important when using
+{\ifeffit} at the command-line, because you can always do a {\tt{show
+    @arrays}} or even {\tt{show @group=A}} and figure it out.  But if
+you're writing a {\emph{script}}, this can be a serious issue.  In all
+cases, {\cmnd{read\_data}} will set the string {\tt{\$column\_label}} to a
+space-delimited string of the array {\emph{suffixes}} just read in, as if
+this had been the label string in the file.
+
+
+\subsection{Sorting Data with {\cmnd{read\_data}}} \label{Ch:IO-SORT}
+
+{\indexcmds{read\_data}{sort}}
+In general, {\ifeffit} expects data to be well-ordered.  For {\muE} data,
+it generally expects the data to be in strictly increasing order of energy
+-- and without repeated energy values.  Unfortunately, not all data comes
+like this.  Notably, XAFS data collected in ``continuous scan mode'' or
+``Quick-EXAFS'' is rarely guaranteed to be in strictly increasing order.
+In addition, data is not always perfectly ordered for some beamlines using
+encoder-readback for monochromator position even in step-scan mode.
+
+To overcome problems resulting from poorly-sorted data, {\cmnd{read\_data}}
+allows you specify a column {\emph{number}} to put into strictly
+non-decreasing order (that is, increasing order but with repeated points
+retained) and to sort the other columns accordingly.  To do this, you would
+use the ``sort'' keyword,
+\begin{verbatim}
+  read_data(file=sro_xafs.dat, group = sro, sort=1)
+\end{verbatim}
+\noindent
+Note that the column number is given, not the column name.  The reason for
+this is that the actual column names are not necessarily known prior to
+running {\cmnd{read\_data}}, and confusion could easily occur between
+similarly named columns.  By default, the data will not be sorted.  You can
+ensure that sorting will not be done by using
+{\texttt{read\_data(...,no\_sort=1,...)}}.
+
+{\index{sorting data}}
+{\indexcmds{spline}{sorting input data}}
+{\indexcmds{pre\_edge}{sorting input data}}
+{\indexcmds{blg\_cl}{sorting input data}}
+
+The {\cmnd{spline}}, {\cmnd{pre\_edge}}, and {\cmnd{bkg\_cl}} commands will
+internally sort {\muE} data into strictly increasing order (averaging
+repeated energy points) to avoid such problems.  Still, if you may have
+poorly-sorted data, it is recommended that you sort it with
+{\cmnd{read\_data}} before doing any processing on it.
+
+
+\subsection{Writing ASCII Column Files} \label{Ch:IO-WRITE}
+
+To write data with {\ifeffit}, you use the {\cmnd{write\_data}} command,
+specifying the name of the output file, and listing the names of the text
+strings, scalars, and arrays to write to this file.  Text strings are
+written at the top of file, one per line, in the order you specify.  The
+``comment character'' is written at the beginning of each of the lines of
+text (in the first non-blank row).  To specify the comment character,
+either set the Program Variable {\texttt{\$commentchar}} or set the
+{\texttt{commentchar}} keyword to {\texttt{write\_data}}.
+{\indexcmd{write\_data}} {\indexcmds{read\_data}{commentchar}}
+
+After the string variables are written, scalars are written, one per line,
+in the form ``<comment character> <scalar name> = <scalar value>''.  After
+the scalars, a line of minus signs is written, and the a label line
+(suitable for later reading with {\tt{read\_data(\ldots, type = label)}})
+is written containing all the array {\emph{suffixes}}.  Both the line of
+minus signs and the label line will still have the ``comment character'' at
+the front of the line).  Finally, the arrays are written out in columns, in
+the order (left-to-right) listed.  {\index{{data files!comment
+      characters}}}
+
+{\cmnd{write\_data}} will write the same number of points for all arrays,
+even if the Program Variables have different number of points.  In fact,
+the \emph{minimum} number of points will be written.    At this writing, 
+{\cmnd{write\_data}} is limited to writing out 64 columns per file.
+
+It's common to want to write out {\emph{all}} the strings named
+{\tt{\$GROUP\_title\_II}} to a file, so as to preserve the comments from
+the starting file(s).  Typing each name individually would be painful, so
+{\cmnd{write\_data}} supports the usual ``*'' glob character to mean ``all
+that match''.  So putting {\tt{\$GROUP\_title\_*}} in the list would cause
+all strings matching that name to be written.  You can use a ``*'' in this
+way to match any string names.  You could even use it to match array names
+using something like {\tt{*.xmu}} or {\tt{a.*}}, but since the number of
+points could be different for the different arrays, this should be used
+with caution.
+
+
+\subsection{{\ifeffit} PAD Format for Save and Restore Files} \label{Ch:IO-PAD}
+{\index{{data files!PAD format}}}
+
+Though ASCII column files are often the most convenient form to use, they
+are somewhat limited for large amounts of data.  The least desirable
+features of ASCII files are that they take too much space, that they can't
+store arrays of different sizes, and that they can't hold many arrays.  All
+of these limitations can be overcome by using the PAD (that stands for
+Packed ASCII Data) file format specially designed for {\feff} and
+{\ifeffit}.  PAD files are fully portable plain-text files that can store
+an unlimited number of arrays of different sizes and can be transferred to
+(and read on!) any machine.  The PAD format stores approximately 12
+significant digits for each numerical value.
+
+Of course, there are drawbacks to the PAD file system.  These are 1) a
+slight increase in time to read the file compared to regular binary (but
+much faster than a set of plain ASCII files!!), and 2) these files cannot
+be used directly in any other program.  The second point is a serious
+problem.  Like the UWXAFS RDF files that they're intended to replace, the
+PAD format is a home-built file storage system.  Moving to one of the
+accepted scientific data formats such as netCDF may be necessary in the
+future.
+
+PAD files are especially suited for {\ifeffit} because they can store and
+mix all types of Program Variables.  This makes them ideal for saving a
+full set of {\ifeffit} variables.  The {\cmnd{save}} command
+(section~{\ref{Ch:Command:save}}) uses the PAD format to save the current
+state of {\ifeffit} into a save file that can be then read in with
+{\cmnd{restore}} (section~{\ref{Ch:Command:restore}}) to re-create a previous
+{\ifeffit} session.  Since all Program Variables are saved and since the
+PAD files are saved in printable ASCII characters, this
+{\cmnd{save}}/{\cmnd{restore}} mechanism makes a completely portable way to
+preserve an {\ifeffit} session into a single file for later inspection or
+to share with a colleague.
+{\indexcmd{save} \indexcmd{restore}}
+
+
+%%
+

@@ -1,0 +1,5 @@
+# very simple autobk.inp
+title   = basic autobk test
+data    = cu_xmu.dat
+output  = cu.dat
+

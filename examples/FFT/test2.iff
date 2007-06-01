@@ -1,0 +1,11 @@
+     read_data(file="../data/cu_150k.xmu", group=a)
+     read_data(file="../data/cu_150k.xmu", group=b)
+     spline(a.energy, a.xmu)
+     fftf(a.chi, kweight=1, kmin=2, kmax=25.019, dk=2,
+          kwindow=kaiser-bessel)
+     spline(b.energy, b.xmu)
+     fftf(b.chi, kweight=1, kmin=2, kmax=25.019, dk=2,
+          kwindow=kaiser-bessel, pc_caps=1, pc_edge="cu k")
+     newplot(a.r, a.chir_mag, xmin=0,xmax=6, style=lines, key="no pc")
+     plot(b.r, b.chir_mag, style=lines, key=cu010k_1, key="with pc")
+

@@ -1,0 +1,69 @@
+
+======================================
+==  ifeffit command-line executable ==
+======================================
+
+The files in this directory create the executable program ifeffit, the
+primary command shell to the Ifeffit library.  This program uses the GNU
+ReadLine package, so that command editing is quite good, with the arrow
+keys working to scroll through previous commands, tab completion (hitting
+the tab key tries to complete partially typed words), and emacs bindings
+for moving around the command line, including:
+   Control-a   move to beginning of line
+   Control-e   move to end-of-line
+   Control-k   cut line from cursor to end-of-line to 'buffer'
+   Control-y   paste buffer at cursor position.
+
+To start the program, type 'ifeffit'.  You'll get a command prompt at which
+you can type ifeffit commands.  A limited number of Unix shell commands
+(ls, more, cd, pwd) are also supported, and '!' can be used to escape to
+the Unix shell.
+
+For the first word on a command line, tab-completion will expand a limited
+number of commands (ifeffit as well as shell commands).  Type 'help' at the
+command prompt for a complete list of commands that will complete.  Hitting
+tab on the second word will complete a file in the current directory.
+
+== Startup file ==
+
+If found, ifeffit will load a file called  .ifeffit in your home directory
+on startup.  This is simply an ifeffit command file allowing pre-defined
+macros and customization, as if you had typed  
+  load '/home/.../.ifeffit'
+ 
+each time you launched the program.
+
+== History file ==
+
+ifeffit will save the command you type to the file .ifeffit_hist in your
+home directory.  This file will be loaded on startup, so that the up-arrow
+will go through your previous ifeffit session.  The history file is limited
+to 500 lines, and is written when you type 'exit' or 'quit'.  If you exit
+the program with Control-d, the session will not be saved.
+
+
+== Command line Options ==
+
+A list of ifeffit command files can be loaded by listing them on the
+command line.   For example,
+
+ > ifeffit File1.iff File2.iff
+
+will load File1.iff and then File2.iff before giving the command prompt.
+The startup file (if found) will be loaded before any files listed on the
+command-line, so macros and definitions in your startup file can be used.
+
+To run files in 'batch mode' so that you immediately exit back to the Unix
+shell, use the -x switch:
+ > ifeffit -x File1.iff File2.iff
+
+This will load File1.iff and then File2.iff and exit.
+
+The loading of command-line files is not saved to the history file.
+
+
+======================================
+
+--Matt Newville <newville@cars.uchicago.edu>
+
+

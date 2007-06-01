@@ -1,0 +1,313 @@
+%%#fixtex% for html/pdf   -*-latex-*-
+
+\section{Fourier Transforms in {\ifeffit} } \label{App:Fourier}
+
+This appendix describes and lists the conventions used for Fourier
+transforms in {\ifeffit}.
+
+
+\subsection{Fourier transform Conventions}\label{App:Fourier:overview}
+
+Many of {\ifeffit}'s command use Fourier transforms (FT) to perform
+their tasks.  In addition to {\cmnd{fftf}} and {\cmnd{fftr}}, which
+are principly designed to do Fourier transforms, the commands
+{\cmnd{chi\_noise}}, {\cmnd{feffit}}, and {\cmnd{spline}} all do (or
+can do) Fourier transforms as part of their data processing.  The form
+of the Fourier transform done by all these commands is the same, and
+is really an XAFS-specific Fourier transform that converts {\chik}
+into {\chir} in the forward direction and {\chir} into {\chiq} in the
+reverse direction.  The XAFS-specific FT done by these commands will
+be described in detail shortly.  For now, an important point to
+emphasize is that all these commands share many arguments and grogram
+variables describing the Fourier transforms.  These shared command
+arguments and program variables are the topic of this section.
+
+The forward XAFS Fourier transform, done with {\cmnd{fftf}}, transforms
+{\chik} to {\chir}.  To do this, the {\chik} data is first multiplied by a
+$k$-weighting factor of the form $k^w$ and a window function before the
+actual Fast Fourier transform is performed.  The $k$-weighting factor $w$
+is used to ``even out'' the decaying {\chik} function and to emphasize
+different $k$-regions of the EXAFS in the resulting {\chir}.  Popular
+choics for $w$ are 1, 2, and 3.  
+
+Formally, the XAFS Fourier transform can be written as
+\begin{equation}
+\tilde\chi(R) =  {{1}\over{\sqrt{2\pi}}} \int_{-\infty}^{\infty} {
+         dk e^{i2kR} k^w \tilde\chi(k) \Omega(k) }      
+\end{equation}
+\noindent
+where $\Omega(k)$ is the window function, and $w$ is the $k$-weighting
+factor.  The window function can take a variety of functional forms, all of
+which rise from a small value (possible zero) at low-$k$, rise up to one,
+and then fall back towards zero at high-$k$.  The window is intended to
+smooth out any ringing in the resulting FT amplitude while maintaining as
+much resolution as possible, and will be discussed in more detail in the
+next section.
+
+
+A discrete form of the above formula is actually used so that the Fast
+Fourier Transform algorithm can be exploited.  The key point here is that
+the data is sampled on a finite and {\emph{uniform}} grid in $k$ (or $R$
+for the back-transform).  The $k$-space grid used throughout {\ifeffit} is
+$\delta k=0.05 {\rm\,  \AA}^{-1}$.  The array sizes for {\chik} and {\chir}
+are $N_{\rm fft} = 2048$, and the data is {\emph{zero-padded}} out to
+high-$k$ (or high-$R$).  The zero-padding for {\chik} will smooth the data
+points in $R$-space, and the zero-padding of {\chir} will smooth the data
+in backtransformed-$k$-space.  The grid in $R$-space is $\delta R = \pi /
+N_{\rm fft}\,\delta k$, which is then $\sim0.0307\,\rm\AA$.
+
+For the discrete Fourier transforms, we write $k_n =n \delta k$ and $R_m = m
+\,\delta R$, and have
+\begin{equation}
+\tilde\chi(R_m) = {{i \delta
+    k}\over{\sqrt{\pi N_{\rm fft}}}}\, \sum_{n=1}^{N_{\rm fft}} \chi(k_n)
+\, \Omega(k_n) \, k_n^w e^{2\pi i n m/N_{\rm fft}}
+\end{equation}
+\noindent
+for the forward transform and
+\begin{equation}
+\tilde\chi(k_n) = {{2
+    i \delta R}\over{\sqrt{\pi N_{\rm fft}}}}\, \sum_{m=1}^{N_{\rm fft}}
+\tilde\chi(R_m) \, \Omega(R_m) \, e^{-2\pi i n m/N_{\rm fft}}
+\end{equation}
+\noindent
+for the back transform.  These normalizations preserve the symmetry
+properties of the Fourier Transforms with conjugate variables $k$ and $2R$.
+
+
+There are few slight complication with these formulas.  The first arises
+from the fact that because the classic EXAFS equation has a term of the
+form ${e^{i2kR}}$ or $\sin(2kR)$, it customary to use $k$ and $2R$ as the
+Fourier conjugate variables while still desiring the $R$ space function to
+be a function of $R$.  This changes the normalization factors in front of
+the integral to those above.  
+
+
+The other minor complication is that the ``measured'' {\chik} derived from
+{\muE} and is a strictly real function while the Fourier transform
+inherently treats {\chik} as complex functions, signified by the $\tilde{ }
+$ above the $\chi$).  There is an ambiguity about how to construct the
+complex $\tilde\chi(k)$.  In many formal treatments, the measured XAFS is
+written as the imaginary part of some function, so that constructing
+$\tilde\chi(k)$ as $(0, \chi_{\rm measured}(k))$ might seem a natural
+choice.  For historical reasons, {\ifeffit} uses the opposite convention,
+constructing $\tilde\chi(k)$ as $(\chi_{\rm measured}(k),0)$.  You can
+easily override this default however and do transforms assuming {\chik} is
+the imaginary part of $\tilde\chi(k)$.  Normally, one does a forward
+transform with
+\begin{verbatim}
+  Iff> fftf(real = data.chi)
+\end{verbatim}
+\noindent
+which sets $\tilde\chi(k)$ as $(\chi_{\rm data}(k),0)$. You can use
+\begin{verbatim}
+  Iff> fftf(imag = data.chi)
+\end{verbatim}
+\noindent
+to  construct $\tilde\chi(k)$ as $(0,\chi_{\rm data}(k))$.
+
+The Fourier transform requires that the $\chi(k)$ data begin at $k=0$.
+More to the point, the {\cmnd{fftf}} command {\emph{assumes}} that the
+supplied array for $chi$ starts at $k=0$ unless told otherwise.  It is
+important to include the $k$-array with this keyword.  If not given, the
+$\chi$ array will be assumed to have it's first point be $\chi(k=0)$, and
+then to be input on an even $k$-grid with spacing $\rm0.05\,\AA$.
+
+
+ 
+\subsection{Fourier transform window functions}\label{App:Fourier:windows}
+
+There are seven optional forms for the Fourier transform window
+$\Omega(k)$.  There is quite a bit of literature on the different windows,
+and generally more opinion than justified reason for selecting one window
+function over others.  I believe that all the window functions in
+{\ifeffit} are appropriate and useful for EXAFS analysis.  My
+recommendation is to pick one function and stick with it.  If you're unsure
+about which one to pick, my favorites are the Hanning window (the default
+in {\ifeffit}, largely for historical reasons) and the Kaiser-Bessel
+window.  Again, I have not seen any objective rational for preferring any
+other windows, and the choice is really a matter of taste.
+
+The available window functions are described below, first in the table
+giving a brief description, then with an equation for the window function,
+and finally with a representative plot.  For simplicity, all are written as
+functions of $k$.  The $R$-space windows are exactly analogous with
+{\tt{k}} replaced by {\tt{r}}.
+
+\begin{table}
+  \begin{center}
+    \caption[a]{Table of Fourier Transform Window Functions.  The first
+      four windows list ramp up from 0 to 1 over a $k$-range defined by the
+      {\tt{dk}} parameter, stay at 1 for some $k$-range, and then drop back
+      down to zero.  The final three window functions apply a continuous
+      function that may never go to zero over the entire $k$-range of the
+      window.  For each window type, the Key in the second column gives the
+      value to use for the {\tt{kwindow}} parameter of {\cmnd{fftf}}, or
+      the {\tt{rwindow}} parameter of {\cmnd{fftr}}.  \smallskip }
+    {\label{Table:FTwins}}
+    \begin{tabular}{lll}
+    \noalign{\smallskip}%
+    {Window Name} & {Key} & Description  \\ 
+    \noalign{\smallskip}    \hline    \noalign{\smallskip}    
+    Hanning            & {\tt{hanning}} &  ramps up and down as $\cos^2(k)$ \\
+    Parzen             & {\tt{parzen}}  &  ramps up and down linear with $k$\\
+    Welch              & {\tt{welch}}   &  ramps up and down linear with $k^2$\\
+    \noalign{\smallskip}
+    Sine               & {\tt{sine}}    &  a Sine function over the full $k$-range\\
+    Gaussian           & {\tt{gaussian}}&  a Gaussian function over the full  $k$-range\\
+    Kaiser-Bessel      & {\tt{kaiser}}  &  a modified Bessel function over the full $k$-range\\
+    \noalign{\smallskip}    \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+  
+{\tt{altwindow}} names an alternative window {\bf{array}} is named with
+   this keyword, overriding the `normal' window.  The array specified must be
+   created before invoking {\tt{feffit}}. 
+
+
+
+%%#GraphicsFile%    win_hanning  WinHanning
+% Anatomy of the Hanning Window.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/win_hanning.ps}
+  \caption{ Anatomy of the Hanning Window.}\label{Fig:WinHanning}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+%%#GraphicsFile%    win_parzen  WinParzen
+% Anatomy of the Parzen Window.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/win_parzen.ps}
+  \caption{ Anatomy of the Parzen Window.}\label{Fig:WinParzen}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+%%#GraphicsFile%    win_welch  WinWelch
+% Anatomy of the Welch Window.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/win_welch.ps}
+  \caption{ Anatomy of the Welch Window.}\label{Fig:WinWelch}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+%%#GraphicsFile%    win_gauss  WinGauss
+% Anatomy of the Gauss Window.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/win_gauss.ps}
+  \caption{ Anatomy of the Gauss Window.}\label{Fig:WinGauss}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+%%#GraphicsFile%    win_kaiser  WinKaiser
+% Anatomy of the Kaiser Window.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/win_kaiser.ps}
+  \caption{ Anatomy of the Kaiser Window.}\label{Fig:WinKaiser}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+%%#GraphicsFile%    win_sine  WinSine
+% Anatomy of the Sine Window.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/win_sine.ps}
+  \caption{ Anatomy of the Sine Window.}\label{Fig:WinSine}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+%% {{\bigskip} \halign{\tolerance=8000 \hfuzz=5pt
+%% \vtop{\parindent=0.25truein\hsize=1.00truein\tt\strut{\hfil#\hfil}\strut}&%
+%% \vtop{\parindent=0.00truein\hsize=5.25truein\rm\strut{#}\strut}\cr
+%% Ikwindo & Window Type and functional form  \cr
+%% \noalign{\smallskip}
+%% %%
+%%   0  & Hanning Window Sills:  The Default Window Type.  \cr%%
+%%      & {\vskip-30truept { $${
+%%   { {\rm W}(k) =  \cases{
+%% \displaystyle\sin^2\bigg({{\pi \, ({k - {\tt Kmin} + {\tt Dk1}/2})}\over
+%%                          {2 \, \, {\tt Dk1}}} \bigg) ,
+%%       & ${\tt Kmin} - {\tt Dk1}/2 \le k  <  {\tt Kmin} + {\tt Dk1}/2$\cr
+%%  1.0, & ${\tt Kmin} + {\tt Dk1}/2 \le k \le {\tt Kmax} - {\tt Dk2}/2$\cr
+%% \displaystyle\cos^2\bigg({{\pi \, ({k - {\tt Kmax} + {\tt Dk2}/2})}\over
+%%                          {2 \, \, {\tt Dk2}}} \bigg) ,
+%%    & ${\tt Kmax} - {\tt Dk2}/2  <  k \le {\tt Kmax} + {\tt Dk2}/2$\cr}
+%% }  \hskip 3truept plus 5pt minus 2pt \hfill  }$$}\vskip-16truept}\cr
+%% %%
+%%   1  & Hanning Window Fraction:  {\tt Dk1} is the fraction of the 
+%%            window range that is not held at 1.00. In the formula 
+%%            below, $\gamma =  {\tt Dk1}({\tt Kmax}-{\tt Kmin})/2$ \cr
+%%      & {\vskip-30truept { $${
+%% {\rm W}(k) =  \cases{
+%% \displaystyle\sin^2\bigg({{\pi \, ({k - {\tt Kmin} + {\tt Dk1}/2})}\over
+%%                          {2 \, \, {\tt Dk1}}} \bigg) ,
+%%   & ${\tt Kmin} \le k  <  {\tt Kmin} + \gamma $ \cr
+%% {\vbox{\vskip4truept }}
+%%  1.0 
+%%    & ${\tt Kmin} + \gamma  \le k \le {\tt Kmax} - \gamma $\cr
+%% {\vbox{\vskip4truept }}
+%% \displaystyle\cos^2\bigg({{\pi \, ({k - {\tt Kmax} + {\tt Dk1}/2})}\over
+%%                          {2 \, \, {\tt Dk1}}} \bigg) ,
+%%    & ${\tt Kmax} - \gamma <  k \le {\tt Kmax} $
+%% \cr}  \hskip 45truept plus 10truept minus 20truept \hfill 
+%% }$$}\vskip-16truept}\cr
+%% \noalign{\goodbreak}
+%%  2  &  Gaussian Window:  Note that ${\rm W}(k)$ never goes to zero.
+%%        {\tt Iwindo} = 7 gives an alternate form for the Gaussian window.\cr
+%%      & {\vskip-30truept { $${
+%% {\rm W}(k) =
+%%      \exp\bigg( -{\tt Dk1}\, \bigl\{{ {2k - {\tt Kmax} - {\tt Kmin} }
+%%                                      \over{ {\tt Kmax} + {\tt Kmin} } 
+%%                                       }\bigr\}^2\bigg) 
+%%  \hskip 163truept plus 10truept minus 20truept \hfill }$$}\vskip-16truept}\cr
+%% %%\noalign{\smallskip}
+%% \noalign{\medskip \goodbreak}
+%%  3   & Lorentzian Window: Note that ${\rm W}(k)$ never goes to zero.\cr
+%%      & {\vskip-30truept { $${
+%% {\rm W}(k) =
+%%   \bigg( 1.0 + {\tt Dk1}\, \bigl\{{ {2k - {\tt Kmax} - {\tt Kmin} }
+%%                                    \over{ {\tt Kmax} + {\tt Kmin} } 
+%%                                       }\bigr\}^2\bigg)^{-1} 
+%%  \hskip 156truept plus 10truept minus 20truept \hfill }$$}\vskip-16truept}\cr
+%%  %%\noalign{\smallskip}
+%% \noalign{\goodbreak}
+%%   4  & Parzen Window: This window has linear ``sills''.\cr
+%%      & {\vskip-30truept { $${
+%% {\rm W}(k) =  \cases{%
+%% \displaystyle{ { k - {\tt Kmin} + {\tt Dk1}/2 }\over
+%%                          {\tt Dk1}}  ,
+%%    & ${\tt Kmin} - {\tt Dk1}/2 \le k  <  {\tt Kmin} + {\tt Dk1}/2$\cr
+%% {\vbox{\vskip4truept }}
+%% 1.0   & ${\tt Kmin} + {\tt Dk1}/2 \le k \le {\tt Kmax} - {\tt Dk2}/2$\cr
+%% {\vbox{\vskip4truept  }}
+%% \displaystyle{1.0 - {{ k - {\tt Kmax} + {\tt Dk2}/2 } \over
+%%                          {\tt Dk2}} } ,
+%%    & ${\tt Kmax} - {\tt Dk2}/2  <  k \le {\tt Kmax} + {\tt Dk2}/2 $
+%% \cr}  \hskip 25truept plus 10truept minus 20truept \hfill 
+%% }$$}\vskip-16truept}\cr
+%% \noalign{\goodbreak}
+%%   5  & Welch Window: This window has quadratic ``sills''. \cr
+%%      & {\vskip-30truept { $${
+%% {\rm W}(k) =  \cases{%
+%% \displaystyle{ \big\{{{ k - {\tt Kmin} + {\tt Dk1}/2} \over
+%%                          {\tt Dk1}}\big\}^2 },
+%%    & ${\tt Kmin} - {\tt Dk1}/2 \le k  <  {\tt Kmin} + {\tt Dk1}/2$\cr
+%% {\vbox{\vskip4truept }}
+%% 1.0   & ${\tt Kmin} + {\tt Dk1}/2 \le k \le {\tt Kmax} - {\tt Dk2}/2$\cr
+%% {\vbox{\vskip4truept }}
+%% \displaystyle{1.0 - \big\{{{k - {\tt Kmax} + {\tt Dk2}/2}\over
+%%                          {\tt Dk2}}\big\}^2 } ,
+%%   & ${\tt Kmax} - {\tt Dk2}/2  <  k \le {\tt Kmax} + {\tt Dk2}/2$\cr}
+%%   \hskip 8truept plus 10truept minus 20truept \hfill 
+%% }$$}\vskip-16truept}\cr
+%% \noalign{\goodbreak}
+%%    6  &  Sine Window: This gives a half-period over the window range. \cr
+%%       & {\vskip-30truept { $${{\rm W}(k) =
+%%             \sin \bigg({ { \pi\,({\tt Kmax} + {\tt Dk2} - k)}\over
+%%              { {\tt Kmax} + {\tt Dk2} - {\tt Kmin} + {\tt Dk1}}}\bigg)
+%%             \hskip 180truept plus 10truept minus 20truept \hfill }$$}
+%% \vskip-16truept}\cr
+%%    7  &  Gaussian Window: An alternate version of the Gaussian window.\cr
+%%       & {\vskip-30truept { $${ {\rm W}(k) =
+%%              \exp\bigg( -{\tt Dk1}\, \bigl({k - {\tt Dk2} }\bigr)^2\bigg)
+%%           \hskip 216truept plus 10truept minus 20truept \hfill }$$}
+%% \vskip-16truept}\cr   }}   \goodbreak

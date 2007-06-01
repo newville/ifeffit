@@ -1,0 +1,60 @@
+This is the Perl interface to the Ifeffit library.
+
+To build and install this interface: 
+
+ 1. build and INSTALL the ifeffit library.  That is, the
+    ifeffit library must be installed in its final resting 
+    place for the perl extension to work properly.
+   
+    If you're building this from the standard distribution, a 
+    Makefile.PL file should already be in this directory.  If 
+    not (or if you are building this from the stand-alone perl
+    distribution after the Ifeffit library has been installed)
+    copy the Makefile.PL from the ifeffit directory:
+     
+     ~> cp /usr/local/share/ifeffit/Makefile.PL .
+   
+    (the exact location may be different, depending on how
+     ifeffit was built and installed).
+
+ 2. build the Perl interface by typing 
+     ~> perl Makefile.PL
+     ~> make
+  
+    The Makefile.PL file should properly reflect your Ifeffit 
+    installation, and should not require any tweaking.  If this 
+    compilation fails, ask a local Perl expert or send email.
+
+ 3. test the Perl extension:
+     ~> make test
+
+    If the test fails (you'll see a bunch cryptic error messages), 
+    first check the 'Fortran.Notes' in the main wrapper directory.  
+    If that doesn't help, please let me know.
+
+ 4. install the perl extension:
+     ~> make install
+ 
+    You'll need write permissions to the normal Perl library, 
+    which probably means you'll need to be root.
+
+ 5. The file 'ifeffit_shell.pl' is a friendly command-line interface 
+    to the ifeffit library.  If the Perl Readline Module has been 
+    installed, then command history and tab completion should work. 
+    (If in doubt, install the GNU version of the Readline module). 
+    
+    You may want to install this file as 'ifeffit' somewhere in your 
+    path to use instead of the standard, less-featured C version.  You
+    may also want to copy (and possibly edit) the two 'run-time
+    configuration' files: 
+      ~> cp dot.ifeffitrc        $HOME/.ifeffitrc
+      ~> cp dot.ifeffit_macros   $HOME/.ifeffit_macros
+
+    Documentation for the Perl Module can be found by typing 
+      ~> perldoc Ifeffit
+    
+    additional documentation about the command-line program can be 
+    found by typing 'help' at the command prompt.
+
+
+Matt Newville <newville@cars.uchicago.edu>

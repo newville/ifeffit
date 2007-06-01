@@ -1,0 +1,44 @@
+Notes on the GNU Readline library:
+
+First, for MacOS X, the Makefile as supplied should work fine.  
+This README is really for building on non MacOS X systems using 
+this makefile.
+
+If you get errors in the Ifeffit build that look like this:
+
+   ....
+   cc -O2  -o ifeffit ../cmdline/iff_shell.o libifeffit.a \
+   -L/usr/local/pgplot -lpgplot -L/usr/lib -L/usr/local/lib -lpng  ....
+   ../cmdline/iff_shell.o: In function `ifeffit_completion':
+   ../cmdline/iff_shell.o(.text+0x7ef): undefined reference to `rl_completion_matches'
+   /usr/lib/libreadline.so: undefined reference to `tgetnum'
+   /usr/lib/libreadline.so: undefined reference to `tgoto'
+   /usr/lib/libreadline.so: undefined reference to `tgetflag'
+   collect2: ld returned 1 exit status
+   make: *** [ifeffit] Error 1
+
+This almost certainly means that the GNU Readline Library is older than
+what ifeffit can use. 
+
+You can either download and install the latest version (4.2) of the GNU
+Readline Library or do the following steps:
+
+1. build a local copy of Readline:
+   cd ../../readline
+   configure ; make
+
+2. use this local copy of Readline:
+   edit Makefile to read:
+
+READLINE_FLAG = -DMY_READLINE
+READLINE_LIBS = ../../readline/libreadline.a -lncurses
+
+Actually,  the '-lncurses' there might be replaced by  
+'-lcurses' or '-ltermpcap' depending on your system.  Try
+
+   grep TERMCAP_LIB ../../readline/Makefile
+
+for hints.  Then 'make' should work fine.
+
+
+

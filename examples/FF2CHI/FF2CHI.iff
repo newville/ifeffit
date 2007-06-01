@@ -1,0 +1,25 @@
+
+kmin = 1.5, kmax = 18.5, dk = 1.0, kweight = 2
+
+s02 =  1, e0  = -1, ss2 = 0.002
+
+path (0, s02 = s02, e0 = e0, sigma2 =  "abs(ss2) + 0.001" )
+
+path (1, feff= ../feff/feffcu01.dat)
+path (2, feff= ../feff/feffcu02.dat)
+path (3, feff= ../feff/feffcu03.dat)
+
+ff2chi(1,   group = f1)
+fftf  (real = f1.chi)
+
+ff2chi(2,   group = f2)
+fftf  (real = f2.chi)
+
+ff2chi(3,   group = f3)
+fftf  (real = f3.chi)
+
+ff2chi( 1,2,3,  group = sum)
+$group = sum
+fftf  (real = sum.chi)
+
+show @paths

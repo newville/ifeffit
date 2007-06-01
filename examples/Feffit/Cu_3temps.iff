@@ -1,0 +1,70 @@
+#
+#
+#   simultaneous fit to 1st shell XAFS for Cu at 10K, 50K, and 150K
+#   using einstein model for sigma^2
+#
+
+guess s02     = 0.93
+guess theta   = 240
+guess e0      = 3.5
+guess alpha   = 0.0
+guess a_t     = 0.00
+
+set   rmin    = 1.60    
+set   rmax    = 2.75
+set   kmin    = 1.5
+set   kmax    = 18.5   
+set   dk      = 1.0
+set   kweight = 2      
+
+read_data(file = ../data/cu10k.chi,  group=dat_10,  type=chi)
+read_data(file = ../data/cu50k.chi,  group=dat_50,  type=chi)
+read_data(file = ../data/cu150k.chi, group=dat_150, type=chi)
+ 
+path(index  = 101, 
+     feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first shell, for 10K", 
+     s02    = s02, 
+     sigma2 = eins(10, theta), 
+     delr   = reff * (alpha + 10.0 * a_t) , 
+     e0     = e0 )
+
+
+path(index  = 201, 
+     feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first shell, for 50K", 
+     s02    = s02, 
+     sigma2 = eins(50, theta), 
+     delr   = reff * (alpha + 50.0 * a_t) , 
+     e0     = e0 )
+
+
+path(index  = 301, 
+     feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first shell, for 150K", 
+     s02    = s02, 
+     sigma2 = eins(150, theta), 
+     delr   = reff * (alpha + 150.0 * a_t) , 
+     e0     = e0 )
+
+
+feffit(chi = dat_10.chi,  k=dat_10.k, group = fit_10, 101,
+       data_set=1, data_total=3)
+
+feffit(chi = dat_50.chi,  k=dat_50.k, group = fit_50, 201,
+       data_set=2, data_total=3)
+
+feffit(chi = dat_150.chi, k=dat_150.k,group = fit_150, 301,
+       data_set=3, data_total=3)
+ 
+show @variables, r_factor, chi_square
+
+
+xdr_010 =  (alpha + 10. * a_t )
+xdr_050 =  (alpha + 50. * a_t )
+xdr_150 =  (alpha + 150. * a_t )
+
+show xdr_010, xdr_050, xdr_150, reff, path_index
+# 
+
+

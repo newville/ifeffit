@@ -1,0 +1,16 @@
+  # r/e0 restraint
+   feffit fitting   1 data sets
+   fitting ...
+   estimating uncertainties ...
+ done.
+   fit took    4.00000000  iterations
+ s02            =       0.918367920
+ e0             =       0.795980201
+ dr             =       0.010000000
+ chi_square     =   11685.373647853
+ r_factor       =       0.041278120
+ n_idp          =      19.002929688
+ dr_force       =       0.000980805 := (dr-0.01)*1.e8
+ e0_force       =       1.607919532 := (e0-0.8)*(-4.e2)
+  Warning -- command ignored (typo?):
+      -> q

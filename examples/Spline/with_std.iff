@@ -1,0 +1,33 @@
+#
+# background-removal using known chi(k) data
+#
+ read_data(file = ../data/cu_rt01.xmu,     label = 'energy xmu', group = cu)
+ read_data(file = ../data/cu_chi.dat, label = 'k chi ', group = std)
+
+ set u.energy = cu.energy
+ set u.xmu    = cu.xmu
+
+ # without standard 
+ spline(energy= u.energy, xmu= u.xmu, kweight=1,rbkg=0.6)
+
+ set e0_wo_std = e0
+ set  u.chik =  u.chi *  u.k
+
+ # with standard
+
+ spline(energy= cu.energy, xmu= cu.xmu, kweight=1,rbkg=0.6,
+        k_std=std.k, chi_std = std.chi)
+
+ set e0_with_std = e0
+ set cu.chik   = cu.chi * cu.k
+ set diff.chik = cu.chik - u.chik
+
+ newplot(cu.k, cu.chik ,  text='with standard, rbkg=0.6',text_x=12,text_y=0.2,
+	       xlabel = 'k (\A\u-1\d)', ylabel = 'k\gx(k)(\A\u-1\d)')
+
+    plot(u.k, u.chik+0.6, text='no standard,  rbkg=0.6',text_x=12,text_y=0.8)
+
+    plot(u.k, diff.chik-0.4, text='difference',
+    text_x=14,text_y=-0.3 )
+
+print ' e0 with and without standard: ', e0_with_std, e0_wo_std

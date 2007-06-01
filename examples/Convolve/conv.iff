@@ -1,0 +1,10 @@
+read_data xmu-c0.dat ,group=c, label='e ex k mu mu0 chi'
+newplot c.e, c.mu, xmax=1870, key='data'
+
+set c.lc  =lconvolve(c.e, c.mu, 1.0)
+plot c.e, c.lc, key='loren'
+
+set c.gc  =gconvolve(c.e, c.mu, 1.0)
+
+
+plot c.e, c.gc, key='gauss'

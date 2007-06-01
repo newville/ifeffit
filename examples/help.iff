@@ -1,0 +1,14 @@
+echo " " 
+echo " This is the Help File in the Ifeffit Example Directory"
+echo " " 
+echo " To run any of the example scripts in this directory or one of "
+echo " the subdirectories, either run the script from the system prompt:"
+echo "   ~> ifeffit  script.iff "
+echo " "
+echo " or from within the Ifeffit environment: "
+echo "   ~> ifeffit"
+echo "  Ifeffit> load script.iff"
+echo " "
+echo " A brief description of each example script is given in the README file"
+
+exit

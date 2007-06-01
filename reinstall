@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# this will do a full build and install of the 
+# ifeffit library, perl and python extension
+#
+# it assumes root permissions, and that the
+# build procedure runs smoothly and correctly
+#
+# this is really intended for _remaking_ the
+# ifeffit installation after a change to the
+# source code of the libraries or extensions
+
+# ./configure
+make
+make install
+cd wrappers/python
+  sh Build 
+  sh Install
+cd ../perl
+  perl Makefile.PL 
+  make install
+  make clean

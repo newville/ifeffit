@@ -1,0 +1,24 @@
+read_data(file=a.xmu, group=a,label=(energy xmu ))
+newplot(a.energy, a.xmu, xlabel='energy',ylabel='xmu', title='a')
+pre_edge(a.energy,a.xmu,e0find,pre1=0.0,pre2=0.0,norm1=0.0,norm2=0.0)
+newplot(a.energy,a.xmu,xlabel=E (eV),ylabel=mu)
+set a.preline = pre_offset+pre_slope*a.energy
+plot(a.energy,a.preline)
+newplot(a.energy,a.norm,xlabel=E (eV),ylabel=mu)
+spline(a.energy,a.xmu,rbkg=0.0,kweight=0.0,kmin=0.0,kmax=0.0,find_e0)
+newplot(a.energy,a.xmu,xlabel="E (eV)",ylabel="\gm(E)")
+plot(a.energy,a.bkg)
+set a.chi_kw = a.chi * a.k^kweight_spl
+newplot(a.k,a.chi_kw,xlabel="k (\A\u-1\d)",ylabel="k\u0\d\gx(k)")
+spline(a.energy,a.xmu,rbkg=1.,kweight=1.,kmin=0.0,kmax=25.0191527473,find_e0)
+set a.chi_kw = a.chi * a.k^kweight_spl
+newplot(a.k,a.chi_kw,xlabel="k (\A\u-1\d)",ylabel="k\u1\d\gx(k)")
+fftf(real=a.chi,kweight=0.0,kmin=0.0,kmax=0.0,dk=0.0,kwindow="hann")
+set a.chi_kw = a.chi * a.k^kweight
+newplot(a.r,a.chir_mag,xlabel="R (\A)",ylabel="|\gx(R)| (\A\u-1\d)")
+fftf(real=a.chi,kweight=2,kmin=2.,kmax=17.,dk=2,kwindow="hann")
+set a.chi_kw = a.chi * a.k^kweight
+newplot(a.r,a.chir_mag,xlabel="R (\A)",ylabel="|\gx(R)| (\A\u-3\d)")
+newplot(a.r,a.chir_mag,xlabel="R (\A)",ylabel="|\gx(R)| (\A\u-3\d)")
+plot(a.r,a.chir_re)
+

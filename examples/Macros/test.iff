@@ -1,0 +1,12 @@
+macro  t2
+  echo '##  this is macro t2'
+end macro
+
+macro  t1
+  echo '## < macro t1 : to t2 >'
+  t2 
+  echo '## < macro t1 : from t2> '
+end macro
+
+&print_level = 8
+t1

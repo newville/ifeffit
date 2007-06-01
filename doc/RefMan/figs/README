@@ -1,0 +1,12 @@
+# pstopng:   
+# using pstoimg from latex2html
+# and netpbm 9.12
+
+/usr/local/bin/pstoimg -type png -crop abls -white -out _tmp_x.png $1.ps 
+pngtopnm _tmp_x.png > _tmp_x.pnm
+pnmrotate -90 _tmp_x.pnm  > _tmp_y.pnm
+pnmtopng _tmp_y.pnm > $1.png
+rm _tmp_*
+
+
+pstopng  plot_arrows

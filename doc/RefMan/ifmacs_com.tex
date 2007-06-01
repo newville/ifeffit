@@ -1,0 +1,105 @@
+
+ \setlength{\oddsidemargin}{0.25in}
+ \setlength{\evensidemargin}{-0.25in}
+ \setlength{\topmargin}{-0.25in}
+ \setlength{\headsep}{0.375in}
+ \setlength{\textheight}{9.00in}
+ \setlength{\textwidth}{5.75in}
+
+ 
+ \pagestyle{fancy} \fancyhf{}
+ \addtolength{\headwidth}{\marginparwidth}
+ \addtolength{\headheight}{2pt}
+ \renewcommand{\headrulewidth}{0.7pt} 
+ \rhead{\slshape\thepage}\lhead{\bfseries\leftmark}
+ \cfoot{}
+  
+
+
+ \definecolor{LightGrey}{gray}{0.675}
+ \definecolor{HalfGrey}{gray}{0.5}
+ \newcommand{\greyline}{{\color{LightGrey}{\rule{\linewidth}{0.75mm}}\par}}
+ \newcommand{\ThickGreyLine}{{\color{HalfGrey}{\rule{\linewidth}{5pt}}\par}}
+
+ \newcommand{\program}[1]{{{\scshape{#1}}}}
+ \newcommand{\uwxafs}{\program{uwxafs3.0}}
+ \newcommand{\feff}{\program{feff}}
+ \newcommand{\feffit}{\program{feffit}}
+ \newcommand{\autobk}{\program{autobk}}
+ \newcommand{\atoms}{\program{atoms}}
+ \newcommand{\ifeffit}{\program{ifeffit}}
+ \newcommand{\gifeffit}{\program{g.i.feffit}}
+ \newcommand{\athena}{\program{athena}}
+ \newcommand{\artemis}{\program{artemis}}
+
+ \newcommand{\XAIBook}{\textsl{XAFS Analysis with {\ifeffit} }}
+ \newcommand{\IFFtut}{\textsl{The {\ifeffit} Tutorial}}
+ \newcommand{\IFFrefg}{\textsl{The {\ifeffit} Reference Guide}}
+
+\newcommand{\cmnd}[1]{{\texttt{#1()}}}
+%external file name
+\newcommand{\file}[1]{{{\slshape\ttfamily{#1}}}}
+  \newcommand{\feffndat}{\file{feffnnnn.dat}}
+  \newcommand{\feffbin}{\file{feff.bin}}
+  \newcommand{\autobkinp}{\file{autobk.inp}}
+  \newcommand{\feffitlog}{\file{feffit.log}}
+%math constructions
+  \newcommand{\Eo}{{\ensuremath{E_0}}}
+  \newcommand{\muE}{{\ensuremath{\mu(E)}}}
+  \newcommand{\Del}{{\ensuremath{\Delta \mu_0(E_0)}}}
+  \newcommand{\bkg}{{\ensuremath{\mu_{0}(E)}}}
+  \newcommand{\bkgk}{{\ensuremath{\mu_{0}(k)}}}
+  \newcommand{\CHI}{{\ensuremath{\chi}}}
+  \newcommand{\chiE}{{\ensuremath{\chi(E)}}}
+  \newcommand{\chik}{{\ensuremath{\chi(k)}}}
+  \newcommand{\chir}{{\ensuremath{\tilde\chi(R)}}}
+  \newcommand{\chiq}{{\ensuremath{\tilde\chi(k)}}}
+  \newcommand{\chisqr}{{\ensuremath{\chi^2}}}
+  \newcommand{\redchi}{{\ensuremath{\chi^2_{\nu}}}}
+
+  \newcommand{\Rmax}{{\ensuremath{R_{\rm max}}}  }
+  \newcommand{\kmin}{{\ensuremath{k_{\rm min}}}  }
+  \newcommand{\kmax}{{\ensuremath{k_{\rm max}}}  }
+  \newcommand{\Rbkg}{{\ensuremath{R_{\rm bkg}}}  }
+  \newcommand{\Nbkg}{{\ensuremath{N_{\rm bkg}}}  }
+  \newcommand{\RIst}{{\ensuremath{R_{\rm 1st}}}  }
+
+  \newcommand{\fp}{\ensuremath{{f'(E)}}}
+  \newcommand{\fpp}{\ensuremath{{f''(E)}}}
+  \newcommand{\angst}{\ensuremath{{\rm\,\AA}}}
+  \newcommand{\iangst}{\ensuremath{{\rm\,\AA^{-1}}}}
+  \newcommand{\ie}{{\emph{i.e.}}}
+  \newcommand{\eg}{{\emph{e.g.}}}
+  \newcommand{\etal}{{\emph{et al.}}}
+  \newcommand{\abinitio}{{\emph{ab initio}}}
+%%
+  \def\delim{\ensuremath{\langle {\rm delimiter} \rangle}}
+  \def\rmand{{\rm and\ }}      \def\rmor{{\rm or\ }}
+  \def\caret{{{\^\ \kern-0.4em}}}
+
+
+\newcommand{\MNseealso}[1]{{{\texttt{{#1}}}(Section~\ref{Ch:Command:#1})}}
+
+\newcommand{\indexcmd}[1]{{\index{#1@{{\cmnd{#1}}}}}}
+\newcommand{\indexcmds}[2]{\index{#1@{{\cmnd{#1}}}!{#2}}}
+\newcommand{\indexvar}[1]{{\index{#1@{{\tt{#1}}}}}}
+\newcommand{\indexfil}[1]{{\index{#1@{{\file{#1}}}}}}
+
+\newcommand{\subfunc}[1]{\relax\par\vfill\goodbreak%
+\subsection{{\texttt{{#1}}}}{\label{Ch:Command:#1}\indexcmd{#1}}}
+
+\newcommand{\subfuncn}[1]{\subsection{{\texttt{{#1}}}}%
+{\label{Ch:Command:#1}\indexcmd{#1}}}
+
+
+\newcommand{\entryxlabel}[1]{\mbox{{\textsf{#1: }}}}
+\newcommand{\entrylabel}[1]{\mbox{{\textsf{#1: }}}\hfil}
+\newcommand{\yes}{Y}
+\newenvironment{IFFcom}{\begin{list}{}{\vspace{-0.05truein}
+      \renewcommand{\makelabel}{\entrylabel}\settowidth{\leftmargin}{97pt}
+      \settowidth{\labelwidth}{95pt}\setlength{\rightmargin}{15pt}
+      \setlength{\labelsep}{2pt}\setlength{\listparindent}{0pt}
+      \setlength{\itemindent}{0pt}\setlength{\itemsep}{-1pt}}}
+  {\end{list}}
+
+

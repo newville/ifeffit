@@ -1,0 +1,29 @@
+#
+# Makefile for the Ifeffit extension to tcl
+# location of Tcl/Tk libraries
+LIB_TK    = -L/usr/lib -ltcl -ltk
+# location of tcl
+TCL       = tcl
+
+#
+# how to compile C code to an object file for dynamic loading
+SHARE_FLAG = -fpic
+COMPILE   = $(CC) $(SHARE_FLAG) $(CFLAGS) -c -I../../src/lib
+LD        = $(CC) -shared 
+
+LIBS      =  $(LIB_IFF) $(LIB_PLT) $(LIB_F77) $(LIB_TK) $(LIB_X11)
+default:  ifeffit_tcl.so
+
+.PHONY:  clean
+
+ifeffit_tcl.so: ifeffit_wrap.o
+	$(LD) ifeffit_wrap.o $(LIBS) -o ifeffit_tcl.so
+
+ifeffit_wrap.o: ifeffit_wrap.c
+	$(COMPILE) ifeffit_wrap.c -o ifeffit_wrap.o
+
+test: ifeffit_tcl.so
+	$(TCL) test.tcl
+
+clean:
+	rm ifeffit_wrap.o ifeffit_tcl.so

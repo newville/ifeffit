@@ -1,0 +1,1177 @@
+\section{Structure and Syntax of {\ifeffit}} \label{Ch:Structure}
+
+This chapter takes an in-depth view at {\ifeffit}'s data and syntax.  It is
+more formal and in-depth than the previous chapter, but most of the topics
+here were touched on there.  For those of you with some programming
+experience or some familiarity with {\feffit}, nothing in this chapter
+should be too confusing.  In some sense, {\ifeffit} is a language for data
+analysis and this chapter describes the {\ifeffit} language.  As a
+programming languages, {\ifeffit} is pretty weak, missing many key
+features.  Since {\ifeffit} is really XAFS data analysis program, I'll try
+not to make this sound like a programming text, and keep the examples in
+the previous chapter close at hand throughout this chapter.
+
+{\ifeffit} keeps a common storage areas for all its data, and gives
+you access to this data through named variables.  You are allowed to
+pick your own variable names for your data and create and do simple
+algebraic manipulation on your data.  In the previous chapter we saw
+an example of this when we read in data from a file to variables with
+names corresponding to the column labels in the file, and then
+constructed $\mu(E)$ ourselves by simple manipulation of this data.
+
+%%00%%
+\subsection{Commands} \label{Ch:Structure-cmnd}
+
+{\ifeffit} is a command-based program, and every operation you type at the
+command-line or send to {\ifeffit} through a script is a interpreted as a
+command.  Most {\ifeffit} commands have syntax like this:
+\begin{verbatim}
+   Ifeffit> command(argument1, argument2, ... )
+   Ifeffit> command(keyword= value, keyword= value, 
+                    keyword= value, ...).
+\end{verbatim}
+\noindent
+That is, there is a unique command name that is given first, then a set of
+arguments separated by commas.  Most arguments are keyword/value pairs,
+which have the form {\tt{keyword= value}}, where {\tt{keyword}} is a
+predefined string and {\tt{value}} is the value you wish to assign to it.
+Some commands use arguments that are not keyword/value pairs, but have some
+or all of their arguments be lists of strings or program variables, but the
+majority are keyword/value pairs.  We'll come back to these topics in
+section~\ref{Ch:Structure-commands}.
+
+The enclosing parentheses for commands are optional, so that
+\begin{verbatim}
+   Ifeffit> command keyword= value, keyword= value
+\end{verbatim}
+\noindent
+is allowed.  If you use an open paren ``('', you must match it with a close
+paren ``)'', even if that means the command extends over several lines.
+That allows commands to be extended over several lines, which will be
+necessary in some cases.  Commands are not processed until they have
+matching open and closing parentheses.  When using the command-line
+program, you'll get a prompt of {\tt{\ldots>}} instead of the usual
+{\tt{Ifeffit>}} when a command is partially completed.  
+
+As we will saw in the example in the previous chapter, and as we will see
+in the next few sections, a significant amount of the command-line
+processing you will do with {\ifeffit} is to create and define Program
+Variables from your data.  These procedures are done with the commands
+{\cmnd{def}} and {\cmnd{set}} which differ slightly but which both have the
+effect of specifying a value for a Program Variable. That is
+\begin{verbatim}
+   Ifeffit> def(kweight = 2.0,  kmin = 2.50, kmax = 15.4)
+\end{verbatim}
+\noindent
+will create and define (or redefine, if they already existed) values for
+the Program Variable {\tt{kweight}}, {\tt{kmin}}, and {\tt{kmax}}.
+
+But, as you have probably noticed, we didn't use the {\cmnd{def}} or
+{\cmnd{set}} command in the previous example, and simply said
+\begin{verbatim}
+   Ifeffit> cu.energy  = cu.1 * 1000.0
+   Ifeffit> cu.xmu     = ln(cu.2 / cu.3)
+\end{verbatim}
+\noindent
+This is because the default command it {\cmnd{def}}.  That is, if the first
+word on the command line is not a known command or macro (which we'll get
+to eventually), the {\cmnd{def}} command is used.
+
+An important consequence of this is that when you do really want to use the
+{\cmnd{set}} command, you'll need to specify it explicitly.  We'll come
+back to this topic in section~\ref{Ch:Structure-SetDef}.  For know, you can
+simply remember that 
+\begin{center}
+   {\bf{\large{The default command is {\cmnd{def}}.}}}
+\end{center}
+
+
+%%00%%
+\subsection{Scalars, Arrays, and Strings} \label{Ch:Structure-variables} 
+
+{\ifeffit} has three types of variables: numeric scalars, numeric arrays,
+and text strings.  I'll call all of these ``Program Variables'' throughout
+this Reference Manual to mean all the named quantities that {\ifeffit}
+knows about -- you shouldn't confuse ``Program Variables'' with values that
+are adjusted in a fit which I'll call ``Fitting Variables'' (see
+section~\ref{Ch:Structure-Guess}) when there's room for confusion.  If you
+have some programming experience, {\ifeffit}'s data types should be
+familiar: numeric scalars are real numbers, numeric arrays are arrays of
+real numbers, and text strings are sequences of characters.  If that you're
+not familiar with the ways computers store data, numeric scalars contain a
+single number, numeric arrays contain a set of numbers that is referred to
+as a whole, and text strings contain a single line of text.  {\ifeffit}
+uses double precision (64bit) floating point numbers for all it's numeric
+values, and does not have a separate integer type.  Due to implementation
+limitations, the maximum number of elements in an array is 16384, and the
+maximum length of text strings is 128 characters.  These limits are set
+when {\ifeffit} is built.  In principle, these limits could be changed, but
+I wouldn't guarantee it to be easy to do.
+
+All Program Variables are named, and are {\emph{global}} in the sense that
+every part of {\ifeffit} sees the same variables using the same names.  As
+you use {\ifeffit}, you will define variables for your data, and tell the
+commands which data to use by name.  In turn, {\ifeffit}'s commands will
+access variables by name, and may even create named variables or overwrite
+the values of variables already defined.  That is, the variables you create
+and the ones that the {\ifeffit} commands use will live in the same
+``name-space''.  This gives you and {\ifeffit}'s commands equal access to
+the variables.  Thought this should definitely be seen as a strength, it
+also means that you should use some care in naming your variables.
+Normally, there's not much too worry about, as long as you avoid things
+like trying to store the value of $E_0$ in a variable named {\tt{kmin}}.
+In general, {\ifeffit} expects named variables to store quantities
+{\bf{it}} expects.  A glossary of the names and meanings {\ifeffit} expects
+is listed at the end of Appendix~\ref{App:Glossary}.
+
+To create a variable, you would say something like {\tt{phi = (1 +
+sqrt(5))/2}}.  To set the value of $k_{\rm min}$ (used by several
+commands for Fourier transforms), you might say {\tt{kmin = 1.00}}.
+You can also use any variable to assign to other variables.  If you
+were so inclined, you could have said something like {\tt{kmin =
+phi*(phi-1)}}, or possibly something along the lines of {\tt{x=
+exp(0), kmin = 4*atan(x)/pi}} is more of your idea of a good time.
+Actually, these aren't exactly equivalent ways to define variables,
+but we'll get to that shortly.
+
+{\ifeffit} uses a simple and strict naming convention for Program
+Variables, and distinguishes the 3 variable types {\emph{by name}}.
+This means that everyone (and every command) can tell the variable
+type from its name alone.  The convention may be a somewhat unusual,
+but shouldn't be very difficult to get used to.  The rules are:
+
+\begin{enumerate}
+\item {{Text strings}} have names that begin with a dollar sign ({\$}).
+  Names for numeric scalars and arrays do not begin with a dollar sign.
+\item {{Arrays}} have names that contain one dot (``.''), with at least
+  one character before and after the dot.  This gives arrays a prefix and
+  suffix, which leads to a convention: the {\emph{prefix}} is associated
+  with the {\emph{group}} of the array, and the {\emph{suffix}} describes
+  the contents of the array.  Neither scalars nor text strings
+  may have a dot in their name.
+\item Scalars, the prefix and suffix of arrays, and the characters in the
+  name of a text string after the dollar sign can contain only letters,
+  numbers, '\&', '?', ':', and `\_' (underscore).  They are limited to 64
+  characters.
+\item Scalars and array prefixes names cannot begin with a numeral.   
+  Text strings and the  suffixes of array names can begin with a numeral.    
+\item Variable names are not case-sensitive.
+\end{enumerate}
+\noindent
+Some examples of the naming convention: `\$file' and `\$plot\_color' are
+text strings.  So is `\$20', but `\$19.95' is {\emph{not}} allowed. `\$1'
+is a valid name for a text string, but {\ifeffit} uses `\$1' \ldots `\$9'
+as special variables for macro arguments (see chapter~\ref{Ch:Macros}) and
+it will likely cause confusion if you actually try to use such variable
+names, especially in macros.  `\$test.1' is not allowed, nor is
+`dec\$window' (it contains a `\$' in the middle of it's name, and might
+inspire a wistful pining for VMS).  Array names look like `my.energy' and
+`data.chi'.  `X.11' is allowed, and as we saw in the previous chapter, the
+common convention for how to name data from column files, but `8.3' is not
+allowed as a variable (because it's a plain number).  Typical scalar names
+are `E0' and `edge\_step'.  `10th\_var' is not allowed, since it starts
+with a numeral.  Neither `data-10' nor `the\_end.' are allowed (the former
+contains a minus sign, the latter has a dangling dot `.').
+
+`\&' is allowed in variable names, and by convention, several built-in
+``system'' scalar variables begin with `\&', notably {\tt{\&print\_level}}
+and {\tt{\&screen\_echo}}.  The characters '?', '\_', and ':' are also
+allowed in variable names, and are not currently given any special meaning.
+Speaking of special characters, `@' is not allowed in any variable names,
+but is used with the {\cmnd{show}} command as a primitive wildcard or glob
+character.  In addition, `*' is used in the {\cmnd{write\_data}} command as
+a glob character, to match multiple string names, but isn't allowed in real
+string names.  We'll come back to these glob characters later.
+
+The naming convention gives a clear distinction between the three
+types, making life easier on all of us.  Text strings will likely be
+used less than numbers, so the extra {\$} (with the mnemonics of
+``string'' for English speakers) was chosen for text strings.  The `.'
+in an array name suggests that they are associated with files (or data
+structures for the programmers out there).  It also gives a prefix and
+a suffix to the array names, which gives a handy convention for
+grouping them together.  Though this convention can be disregarded, it
+is generally a good idea to use the prefix to associate related arrays
+(say, from the same file, or along a single line of analysis), and to
+use the suffix to distinguish the contents of the array.  This allows
+{\cmnd{read\_data}} to assign decent array names based either on the
+column labels in the file or on the {\tt{type}} and {\tt{group}}
+keywords.  It also means you can have arrays named {\tt{Cu1.xmu}} and
+{\tt{Cu2.xmu}}, containing $\mu(E)$ data from two different files.  A
+{\cmnd{spline}} command with {\tt{Cu1.xmu}} would generate
+{\tt{Cu1.bkg}}, etc, while a {\cmnd{spline}} on {\tt{Cu2.xmu}} would
+generate {\tt{Cu2.bkg}}, etc. 
+
+One more thing on naming conventions: though we haven't discussed macros
+much yet, macros are named sequences of {\ifeffit} commands.  They share
+the same naming rules as plain scalars.   In fact, {\emph{commands}} also
+share the same naming rules as plain scalars.  To avoid confusion, you
+cannot assign a scalar a name of an existing macro or command.  By the same
+token, you won't be able to create a macro with the name of a known scalar
+or command.
+
+Before leaving this section I should admit that there actually is some data
+that you do not have direct access to through the Program Variables.  The
+most notable example of data that is {\emph{not}} available through Program
+Variables is the complete set of information for an EXAFS Path.  The hiding
+of this data was a difficult design decision, but I felt it provided a
+simpler and cleaner interface {\footnote{If you have some programming
+    experience, it might help to think of Paths as Objects: A complex data
+    structure which you cannot access directly, but only through the
+    supplied methods.  In this view, path() defines and creates a path
+    object, and the commands {\cmnd{show}}, {\cmnd{ff2chi}} and
+    {\cmnd{feffit}}, the functions {\tt{debye()}} and {\tt{eins()}}, and
+    special variables like {\tt{reff}} and {\tt{degen}} access this
+    data.}}, and one that was more amenable to expanding.  For the most
+part, you probably won't even notice that this path data is missing.
+Besides, almost all of the information about a Path can be converted into
+Program Variables.
+
+%%00%%
+\subsection{Dynamic Variables: {\texttt{Set}}, {\texttt{Def}}, and 
+{\texttt{Sync}}} \label{Ch:Structure-SetDef}
+
+As seen in the previous chapter, you can define your own variables in
+{\ifeffit} simply like this:
+\begin{verbatim}
+   Ifeffit>  a  =  1,  b  =  3
+   Ifeffit>  c  = (a + b)/2
+\end{verbatim}
+\noindent
+When you say something like this, it's pretty clear that the value of
+{\tt{c}} should be 2.  But a complication can arise when you redefine a
+variable.  For example, if you now say
+\begin{verbatim}
+   Ifeffit> b  =  5
+\end{verbatim}
+\noindent
+Should {\tt{c}} be 2 or 3?  There are two slightly separate parts to this
+question, and both are important for understanding how {\ifeffit} works: 1)
+should {\ifeffit} store the value or the formula for a defined variable?
+and 2) if the formula is stored, how often should the value be
+re-evaluated?
+
+The answer to question 1 is that {\ifeffit} can store either the value or
+the formula for a variable.  It stores the formula by default, which means
+that {\tt{c}} will be 3.  If you don't want the formula stored, but want
+the current value of an expression {\emph{at the time of definition}}, use
+{\cmnd{set}} command should be used:
+\begin{verbatim}
+   Ifeffit> set (c  = (a + b)/2 )
+\end{verbatim}
+\noindent
+With {\cmnd{set}}, the formula is not stored, so no matter what values
+{\tt{a}} or {\tt{b}} are changed to, {\tt{c}} will be 2.
+
+This ``store the formula'' aspect of {\ifeffit} is fairly unusual in
+data-processing programs and languages.  {\ifeffit} is primarily designed
+for complex data {\emph{modeling}}, and this approach is extremely useful
+for setting up complex models for fitting.
+
+Well, that brings us to the second question: if the formula is stored,
+when will {\tt{c}} be re-evaluated?  Normally, {\ifeffit}
+automatically re-evaluates the variables for you.  As you might
+imagine, if lots of interrelated formulas are stored, re-evaluating
+them to make sure they're all consistent can turn become complicated
+and inefficient.  {\ifeffit} tries to hide all this from you, and
+isn't as inefficient as you might guess{\footnote{That is, it's not
+storing the text string for the formulas and re-using them -- that
+would be far too inefficient for data modeling.  Instead, {\ifeffit}
+parses and converts the formula into a sort of `byte-code' for easy
+re-evaluation.  The {\cmnd{sync}} command inspects this `byte-code'
+for each formula to determine the simplest order of re-evaluation of
+the variables so that all the inter-dependencies are satisfied}}.
+It's possible that {\ifeffit} can get confused about variables and
+their interdependencies.  You can force the variables to be
+re-evaluated with the {\cmnd{sync}} command.  {\cmnd{sync}} checks the
+dependencies of each variable (both scalars and arrays), re-orders the
+list of variables, and makes sure that the values are up-to-date.
+{\cmnd{sync}} is done internally at the beginning of many {\ifeffit}
+commands.  These are listed in chapter~\ref{Ch:Commands}, and include
+{\cmnd{def}}, {\cmnd{set}}, {\cmnd{plot}}, {\cmnd{write\_data}}, and
+the fitting commands ({\cmnd{minimize}} and {\cmnd{feffit}}).  You should
+never need to use {\cmnd{sync}} explicitly, but it's there if you think
+you need it.
+
+You can see all this in action with {\tt{show @scalars}} and {\tt{show
+    @arrays}}, which list variable names, values, and {\emph{formulas}} for
+scalars and arrays.  In fact, the variable list shown is as re-ordered by
+{\cmnd{sync}} to reflect the order of inter-dependencies of variables, so
+that the variables can be correctly evaluated in one pass.  Trivial
+formulas like `{\tt{x = 1 + 1}}' are not stored, since {\ifeffit} can
+easily tell that the value of {\tt{x}} won't change.
+
+Before moving on, let me try to clarify the distinction between
+{\cmnd{set}} and {\cmnd{def}} one more time.  Everything you type at the
+command line is interpreted as a command.  The default command is
+{\cmnd{def}}.  When you type {\tt{a = 1, b = 3}}, {\ifeffit} first looks at
+{\tt{a}} to see if it's a command.  Recognizing that it is not, {\ifeffit}
+translates the line to {\tt{def(a = 1, b = 3)}}.  This has the consequences
+that you don't really need to type {\cmnd{def}}, though keeping in mind
+that it's really there all the time is generally a good idea.
+
+%%00%%
+\subsection{Fitting Variables: {\texttt{Guess}}}
+\label{Ch:Structure-Guess}
+
+In the previous section, we discussed two varieties of scalars: those that
+are {\cmnd{def}}ined as expressions of other scalars and arrays, and those
+that are {\cmnd{set}} to a static value.  There is actually a third category:
+{\emph{fitting variables}}.  These are a lot like static ({\cmnd{set}})
+scalars except that their values will be changed by the fitting commands
+{\cmnd{minimize}} and {\cmnd{feffit}}.  Fitting variables are a little special
+in that they keep track of their uncertainties and correlations with other
+variables as well as their value.  To define a fitting variable, and to
+give the initial value for it, you use the {\cmnd{guess}} command, which has
+a syntax like this: 
+\begin{verbatim}
+ Ifeffit> guess my_age = 19
+\end{verbatim}
+\noindent
+There are no {\emph{fitting arrays}} or {\emph{fitting strings}}.
+
+It should be clear that many commands alter the values of scalars.  For
+example, {\cmnd{pre\_edge}} can alter the value of {\tt{e0}}.  But in this
+case {\tt{e0}} is not considered a fitting variable in {\cmnd{pre\_edge}},
+because it is not defined as a {\cmnd{guess}}ed scalar.  You may, however,
+define a fitting variable {\tt{e0}} when doing fitting of the XAFS with the
+{\cmnd{feffit}} command.  That is, a scalar is a fitting variable if it was
+defined with {\cmnd{guess}}, not just if its value changes.
+
+After a fit is executed (either with the {\cmnd{feffit}} or
+{\cmnd{minimize}} command), an estimate of the uncertainties in the fitted
+variables will be determined and stored in scalar variable.  The variable
+will be named with a {\tt{delta\_}} pre-pended to each variable name:
+{\tt{delta\_air\_lines}} will contain the uncertainty in {\tt{air\_lines}},
+and so on.
+
+Finally, there is an {\cmnd{unguess}} command that will turn all fitting
+variables into regular scalars, with their current value.  This effectively
+does a {\cmnd{set}} on all variables, and can be very convenient when
+changing fitting models, as unused variables can make it impossible to
+determine error bars. For complicated macros, scripts, or programs, it is
+usually a good idea to execute an {\cmnd{unguess}} before executing your
+{\cmnd{guess}} commands to clear any unwanted variables.
+
+
+\subsection{Mathematical Syntax and Operations} \label{Ch:Structure-math}
+
+As mentioned in the previous section, the definitions of numeric scalars
+and arrays are interpreted as mathematical expressions.  These are simple
+algebraic expressions, using numbers, named variables (scalars and arrays),
+mathematical operations, and intrinsic functions.  The syntax is fairly
+standard, and the case of the operators and variable names is ignored.
+
+When arrays are used in an expression, the result will typically be an array,
+with each element of the array being operated on.  For example,
+\begin{verbatim}
+ Ifeffit> my.y =  sin(my.x) 
+\end{verbatim}
+\noindent
+will define {\tt{my.y}} as an array of the same size as {\tt{my.x}}, with
+the sine operation done on each element of the array.  In addition, arrays
+can be {\emph{built}} with {\ifeffit} using functions such as {\tt{range}},
+\begin{verbatim}
+ Ifeffit> my.x =  range(1,4,1)
+ Ifeffit> print my.x
+   1.0000  2.0000  3.0000 4.0000 
+\end{verbatim}
+\noindent
+Several more functions for creating and manipulating array data, as well as
+details of built-in math functions are given in the following sections.
+
+
+\subsubsection{Common Math Operations}
+
+The supported math operations include {\tt *, /, +, -, **, and {\caret}},
+with exponentiation done with either {\tt{**}} or {\tt{\caret}}.  Standard
+math precedence (quantities inside parentheses first, from inner to outer
+parentheses, then {\tt **} and {\tt \caret}, followed by {\tt *} and {\tt
+  /}, and then + and -) is obeyed{\footnote{Actually, {\ifeffit} violates
+    standard math precedence by incorrectly associating exponentiation from
+    left to right instead of right to left. That is, it evaluates
+    {\tt{4**3**2}} as 4096 (= (4**3)**2) instead of the correct value of
+    262144 (= 4**(3**2)).  Fixing this is not high on the priority list.}},
+but parentheses are encouraged.  If syntax errors like out-of-range
+arguments or nonsense math operations are give, an error message will be
+printed, and the value will be zero.
+
+There are two built-in constants, whose values you won't be able to change:
+{\texttt{pi}} gives the value of $\pi$; 3.1415926\ldots, and
+{\texttt{etok}} gives the value of $2m_e/\hbar^2$ in units of $\rm 1/
+eV\AA^2$; 0.2624683\ldots.  The utility of $\pi$ should be obvious.  For
+XAFS, converting photo-electron energy $E$ in eV to wavenumber $k$ in
+$\rm\AA^{-1}$ can be done as {\tt {k = sqrt(E * etok)}}. This line just
+keeps 
+
+
+\subsubsection{Common Math Functions}
+
+The supported math functions are listed in Table~{\ref{Table:Operators1}},
+Table~{\ref{Table:Operators2}}, and Table~{\ref{Table:Operators3}}.  You'll
+find all the usual trigonometric functions there, as well as a few other
+special functions.  Note that both {\texttt{log}} and {\texttt{ln}} give
+the natural logarithm, base $e$.  All trigonometric functions use radians.
+
+While most functions listed in Tables~{\ref{Table:Operators1}} should be
+familiar, there are a few here that may need further explanation.  Gamma,
+log-gamma, and error function are supported as {\texttt{gamma(),
+    loggamma(), {\rm{and}} erf()}}, following the usual description found
+in standard mathematical handbooks.
+
+\begin{table}[t]
+{\index{Math Functions}}
+ \begin{center}
+  \caption[a]{Table of Mathematical Functions, Part I (common functions).
+    All function arguments can be expressions themselves.  The listing
+    below indicates the expected type for all these functions as scalar.
+    When applied to arrays, these functions return an array of values with
+    the function applied to each element of the argument.  \smallskip }
+  {\label{Table:Operators1}}
+  \begin{tabular}{llll}
+    \noalign{\smallskip}%
+    \multicolumn{3}{l}{Function Prototype} & Description  \\ 
+ \noalign{\smallskip}    \hline    \noalign{\smallskip}    
+    y   &=&  abs(x)       & absolute value\\
+    y   &=&  min(x1,x2)   & smaller of two values\\
+    y   &=&  max(x1,x2)   & larger of two values\\
+    y   &=&  sign(x)      & sign (1.0 or -1.0) of x \\
+    y   &=&  sqrt(x)      & square root\\
+    y   &=&  exp(x)       & exponential, base $e$\\
+    y   &=&  log(x)       & logarithm, base $e$\\
+    y   &=&  ln(x)        & logarithm, base $e$\\
+    y   &=&  log10(x)     & logarithm, base 10\\
+    y   &=&  sin(x)       & sine\\
+    y   &=&  cos(x)       & cosine\\
+    y   &=&  tan(x)       & tangent\\
+    y   &=&  asin(x)      & arc-sine\\
+    y   &=&  acos(x)      & arc-cosine\\
+    y   &=&  atan(x)      & arc-tangent\\
+    y   &=&  sinh(x)      & hyperbolic sine\\
+    y   &=&  cosh(x)      & hyperbolic cosine\\
+    y   &=&  tanh(x)      & hyperbolic tangent\\
+    y   &=&  coth(x)      & hyperbolic cotangent \\
+    y   &=&  gamma(x)     & gamma function \\
+    y   &=&  loggamma(x)  & log of gamma function \\
+    y   &=&  erf(x)       & error function \\
+    y   &=&  gauss(x,x0,sigma)    & Gaussian function \\
+    y   &=&  loren(x,x0,sigma)    & Lorentzian function \\
+    y   &=&  pvoight(x,x0,fwhm,eta)  & pseudo-Voight  function \\
+    \noalign{\smallskip}   \hline
+  \end{tabular}
+ \end{center}
+\end{table} 
+%%%-----
+
+
+The functions {\tt{gauss(), loren(), {\rm{and}} pvoight()}} are available
+for constructing typical lineshapes to model data, which are especially
+convenient when used the general least-squares minimization command
+{\cmnd{minimize}}.  The functions are most likely used with the first
+argument being an array, though this is not required.  The versions here
+are properly normalized so that they integrate to 1.  For example,
+{\texttt{y = gauss(x,x0,sigma)}}
+gives
+\begin{equation} 
+  y = {{\cal G}(x,x_0,\sigma)} = {{1}\over{\sigma\sqrt{2\pi}}} \exp[ - (x-x_0)^2/ 2\sigma^2)]
+\end{equation} 
+\noindent
+where $x$ is {\tt{x}}, $x_0$ is {\tt{x0}}, and $\sigma$ is {\tt{sigma}}.
+Similarly, {\texttt{y = loren(x,x0,sigma)}} gives 
+\begin{equation} 
+  y = {{\cal L}(x,x_0,\sigma)} = {{{\sigma}/{2\pi}}\over{(x-x_0)^2 + ({\sigma}/2)^2}}
+\end{equation} 
+\noindent
+
+The pseudo-Voight function is a linear combination of a Gaussian and
+Lorentzian function with the same full-width-at-half-maximum (FWHM), often
+used to describe real diffraction lineshapes.  Since the same FWHM for the
+Lorentzian and Gaussian functions imply different values of $\sigma$, the
+result is that {\texttt{y = pvoight(x,x0,sigma)}} gives
+\begin{equation} 
+  y = \eta {{\cal L}(x,x_0,\sigma)} + (1-\eta) {{\cal G}(x,x_0,\sigma_g)}
+\end{equation} 
+\noindent
+where the specified FWHM = $\sigma$ and $\sigma_g = \sigma /
+2\sqrt{2\ln(2)}$.
+
+
+
+\subsubsection{Array-Specific Operations}
+
+
+\begin{table}[t]
+{\index{Math Functions}}
+  \begin{center}
+  \caption[a]{Table of Mathematical Functions, Part II (array-specific functions). 
+    All function arguments can be expressions themselves.  The listing
+    below indicates the expected type ({\tt{x}} for scalar, {\tt{my.x}} for
+    array) for arguments and results.  Functions with array arguments
+    return a scalar value ({\tt{npts()}} \ldots {\tt{vprod()}},
+    {\tt{nofx()}}) will work on scalar arguments, with trivial results.
+    Functions with a scalar arguments that return arrays (i.e., {\tt{indarr}}
+    \ldots {\tt{range}}) will use the first element of an array argument as
+    the scalar used.  \smallskip } {\label{Table:Operators2}}
+%%  \begin{tabular}{r@{\,\,}c@{\,\,}l@{\,\,\,}l}
+  \begin{tabular}{llll}
+    \noalign{\smallskip}%
+    \multicolumn{3}{l}{Function Prototype} & Description  \\ 
+    \noalign{\smallskip} \hline   \noalign{\smallskip}
+    y   &=&  floor(my.a)  & smallest element of array\\
+    y   &=&  ceil(my.a)   & largest element of array\\
+    y   &=&  vsum(my.a)   & sum of all elements of array\\
+    y   &=&  vprod(my.a)  & product of all elements of array\\
+    y   &=&  npts(my.a)   & number of  elements in array\\
+    \noalign{\smallskip}
+    my.y&=&  indarr(n)    & generate array 1, 2, \ldots, $n$\\
+    my.y&=&  ones(n)      & generate array of $n$ ones\\
+    my.y&=&  zeros(n)     & generate array of $n$ zeros\\
+    my.y&=&  range(start,stop,step)    & generate array over a given range\\
+    \noalign{\smallskip}
+    my.y&=&  join(my.x1,my.x2) & concatenate 2 arrays\\
+    my.y&=&  slice(my.x,n1,n2) & generate sub-array my.x[n1:n2] \\
+    n   &=&  nofx(my.x,x)      & index of my.x with value closest to x\\
+    \noalign{\smallskip}   \hline
+ \end{tabular}
+ \end{center}
+\end{table} 
+%%%-----
+
+
+As mentioned above, when arrays are used in expression, the result is
+usually an array.  In addition, the functions listed in
+Tables~{\ref{Table:Operators2}} are designed especially to work with
+arrays, and may either create arrays given a few scalars or return a scalar
+given an array expressions.  For example, the functions {\texttt{ceil(),
+    floor(), vsum(), vprod(), {\rm{and}} npts()}} each return a scalar
+given an array argument.  {\tt{ceil()}} and {\tt{floor()}} give the maximum
+and minimum element of the array, respectively.  {\tt{vsum()}} returns the
+sum of all elements of an array, {\tt{vprod()}} returns the product of all
+the elements, and {\tt{npts()}} returns the number of points in an array.
+As with all functions, these can be used on expressions as well as on named
+arrays.  Note that {\tt{ceil()}} is different from {\tt{max()}}, as
+{\tt{ceil()}} returns the single largest value of an array, while
+{\tt{max()}} returns the larger of two values.  The functions
+{\tt{floor()}} and {\tt{min()}} are not the same.
+
+
+As mentioned earlier, there are a number of functions to help build arrays
+from scratch. The function {\texttt{indarr()}} takes one scalar argument as
+an array length and fills the array with integers: 1, 2, 3, \ldots. For
+example
+\begin{verbatim}
+ Ifeffit> my.index = indarr(10)
+\end{verbatim}
+\noindent
+will fill {\texttt{my.index}} be the array (1, 2, 3, \ldots, 10).  The
+functions {\texttt{ones()}} and {\texttt{zeros()}} create arrays of a
+specified length, only the created arrays will have all elements set to 1
+and 0, respectively.  Of course, these functions can be used anywhere in a
+math expression:
+\begin{verbatim}
+ Ifeffit> my.xval  =  1 + indarr( max(x1,1)  ) /100
+\end{verbatim}
+\noindent
+It is an error to give these functions an argument that evaluates to less
+than 1.  If the argument to one of these three functions is itself an
+array, the first element will be used as the dimension, and the rest of the
+array will be ignored.  
+
+The function {\tt{range()}} is a more general function for creating evenly
+spaced arrays.  It takes three arguments: a starting value, a stopping
+value, and a step size for the array.  That is
+\begin{verbatim}
+ Ifeffit> my.x  = range(3,10,1)
+\end{verbatim}
+\noindent
+will create the array (3, 4, 5, \ldots 10), and
+\begin{verbatim}
+ Ifeffit> my.x  = range(2,4,0.1)
+\end{verbatim}
+\noindent
+will create an array with values (2,2.1,2.2,\ldots, 3.8,4.0).  If the range
+is not an exact multiple of the step size, {\tt{range()}} will make sure
+all elements of the array are within the range specified by the start and
+stop values. Negative step sizes are allowed, but should be used with care.
+
+Arrays can also be built up and broken apart using the {\tt{join()}},
+{\tt{slice()}}, and {\tt{nofx()}} functions.  The {\tt{join()}} function
+concatenates two arrays, for example
+\begin{verbatim}
+ Ifeffit> my.x1  = indarr(3)
+ Ifeffit> my.x2  = range(10,16,1.5)
+ Ifeffit> my.x   = join(my.x1,my.x2)
+ Ifeffit> print my.x 
+ 1.0000  2.0000  3.0000  10.0000  11.5000  13.0000  14.50000  16.0000
+\end{verbatim}
+\noindent
+The {\tt{slice()}} function will select a {\emph{sub-array}}, or portion of
+the array defined by indices for the first and last point desired.
+Counting of indices begins with 1, so that 
+\begin{verbatim}
+ Ifeffit> my.x1  = indarr(10)
+ Ifeffit> my.x2  = slice(my.x1,3,6)
+ Ifeffit> print my.x2
+  3.0000  4.0000  5.000  6.0000 
+\end{verbatim}
+The function {\tt{nofx()}} will return the index of an array nearest to
+a given scalar value:
+\begin{verbatim}
+ Ifeffit> my.x1  = range(90,180,9)
+ Ifeffit> nx     = nofx(my.x1,126)
+ Ifeffit> print my.x1
+  90.0000  99.0000  108.000  117.000  126.000  135.000  
+ 144.000  153.000  162.000  171.000  180.000
+ Ifeffit> print nx
+   5.0000
+\end{verbatim}
+\noindent 
+If multiple values in the array match (or are equally close to) the
+requested scalar, the first occurrence of ``the closest value'' will be
+reported.
+
+
+\begin{table}[t]
+ \begin{center}
+{\index{Math Functions}}
+  \caption[a]{Table of Mathematical Functions, Part III (special
+    functions).  See notes for Tables~{\ref{Table:Operators1}}
+    and~{\ref{Table:Operators2}} for explanation of arguments and text for
+    explanation of the functions themselves.
+    \smallskip } {\label{Table:Operators3}}
+%%  \begin{tabular}{r@{\,\,}c@{\,\,}l@{\,\,\,}l}
+  \begin{tabular}{llll}
+    \noalign{\smallskip}%
+    \multicolumn{3}{l}{Function Prototype} & Description  \\ 
+ \noalign{\smallskip}    \hline    \noalign{\smallskip}    
+    my.y&=&  deriv(my.x)                & finite-difference derivative of array\\
+    my.y&=&  smooth(my.x)               & three-point smoothing of array\\
+    my.y&=&  interp(old.x,old.y,my.x)   & linear interpolation of arrays\\
+    my.y&=&  qinterp(old.x,old.y,my.x)  & quadratic interpolation of arrays \\
+    my.y&=&  splint(old.x,old.y,my.x)   & spline interpolation of arrays\\ 
+    my.y&=&  rebin(old.x,old.y,my.x)    & re-binning interpolation of arrays\\ 
+    \noalign{\smallskip}
+    my.z   &=&  lconvolve(my.x,my.y,sigma)   & convolve data with Lorentzian \\
+    my.z   &=&  gconvolve(my.x,my.y,sigma)   & convolve data with Gaussian  \\
+    \noalign{\smallskip}
+    y   &=&  debye(temp,theta) & $\sigma^2$ in Debye approximation\\
+    y   &=&  eins(temp,theta)  & $\sigma^2$ in Einstein approximation\\
+    \noalign{\smallskip}    \hline
+  \end{tabular}
+ \end{center}
+\end{table} 
+%%%-----
+
+\subsubsection{Functions for Smoothing and Interpolating Data}
+
+
+The functions listed in Table~{\ref{Table:Operators3}} do need some more
+detailed explanation.  Many of these functions are for smoothing and
+interpolating data. The {\tt{deriv()}} function returns the derivative (in
+the finite-difference sense) of its argument (a single array).  The
+{\tt{smooth()}} function returns a three-point smoothing of its array
+argument.  There are three functions for interpolation of arrays,
+{\tt{linterp()}} {\tt{qinterp()}}, do linear and quadratic interpolation,
+respectively, while {\tt{splint()}} does a cubic spline interpolation.
+These routines map an x-y pair onto another set of x-values, with syntax
+\begin{verbatim}
+ Ifeffit> new.y = linterp(old.x, old.y, new.x)
+ Ifeffit> new.y = qinterp(old.x, old.y, new.x)
+ Ifeffit> new.y = splint(old.x, old.y, new.x)
+\end{verbatim}
+\noindent
+It may be a bit confusing to remember the order of arguments, but is
+important to keep straight.  The idea is that you're moving
+{\texttt{old.y}} from {\texttt{old.x}} onto {\texttt{new.x}}. 
+
+{\index{interpolation of data}}
+{\index{re-binning of data}}
+
+The {\texttt{rebin()}} function works in a similar manner to these
+interpolation schemes, but will average input data onto the output x array.
+That is, if the input x-array is finer than the output x-ray (over any
+portion of the two arrays), the corresponding y-values will be
+{\emph{averaged}} where it is appropriate to do so.  This is especially
+useful for finely-spaced data, as QEXAFS or continuous scan data.  Note
+that the {\cmnd{spline}} and {\cmnd{bkg\_cl}} commands use this algorithm
+for all XAFS data when converting from {\muE} to {\chik}.
+
+As with other functions, even though the interpolation functions are
+intended for working with other arrays, they can be used with some of their
+arguments as scalars.  This can be useful to estimate a single value of an
+array as a scalar as
+\begin{verbatim}
+ Ifeffit> y = splint(old.x, old.y, x)
+\end{verbatim}
+\noindent
+which will define {\tt{y}} to be the scalar value of {\tt{old.y}} at
+{\tt{old.x = x}}.
+
+
+The functions {\texttt{lconvolve()}} and {\texttt{gconvolve()}} provide
+ways to convolve a data (given by two arrays: $y(x)$ represented by
+{\tt{my.x}} and {\tt{my.y}} for $x$ and $y$, respectively) with a
+Lorentzian or Gaussian function.  For example,
+\begin{verbatim} 
+ Ifeffit>  my.y = lconvolve(my.x,my.y,sigma)
+\end{verbatim} 
+\noindent
+will convolve $y(x)$ with a Lorentzian function described by {\tt{sigma}}.
+Similarly, 
+\begin{verbatim} 
+ Ifeffit>  my.y = gconvolve(my.x,my.y,sigma)
+\end{verbatim} 
+\noindent
+will convolve $y(x)$ with a Gaussian function described by {\tt{sigma}}.
+Convolution can be a slow process, show this should be used with caution,
+and special care should be given to whether {\cmnd{set}} or {\cmnd{def}} is
+used with these functions.
+
+
+\subsubsection{XAFS-specific Functions for $\sigma^2$}
+
+There are two intrinsic functions to calculate $\sigma^2$ for an XAFS path.
+The {\tt{debye(temp, theta)}} function generates $\sigma^2$ for a path
+given a temperature {\tt{temp}} and Debye Temperature {\tt{theta}} using
+the correlated Debye Model implemented by Rehr, {\it et al.\/} in {\feff}.
+Similarly, {\tt{eins(temp,theta)}} calculates $\sigma^2$ for a path given a
+temperature {\tt{temp}} and Einstein Temperature {\tt{theta}} using the
+Einstein Model.
+
+Of course, these two functions need more information than just external
+temperature and characteristic temperature.  All of the other information
+depends on which XAFS path is being considered, and is found using the
+concept of the {\emph{Current Path}}, further discussed in
+Section~{\ref{Ch:FEFFIT-paths}}.  Without repeating too much of that
+discussion here, the basic point is that {\ifeffit} keeps track of which
+path it is considering with the variable {\tt{path\_index}}.  Within the
+functions {\tt{ff2chi}} and {\cmnd{feffit}}, this variable is looped
+through the paths you specified, and the path-dependent values like
+{\tt{reff}} are automatically updated.  Similarly, if a $\sigma^2$ Path
+Parameter depends on {\tt{debye()}} or {\tt{eins()}} (even indirectly), it
+will automatically be updated.  From outside {\cmnd{ff2chi}} and
+{\cmnd{feffit}}, you can set {\tt{path\_index}} yourself, and then both
+{\tt{debye()}} and {\tt{eins()}} will use be evaluated for the specified
+path.
+
+\subsection{Commands, Arguments, and Keyword/Values} \label{Ch:Structure-commands}
+
+As mentioned in section~\ref{Ch:Structure-cmnd}, every operation you 
+send to {\ifeffit} is a command, and commands have the general syntax
+\begin{verbatim}
+   Ifeffit> command(key= value, key= value, key= value, ...).
+\end{verbatim}
+\noindent
+Here, we'll give a more in-depth discussion of the functionality hinted
+at in section~\ref{Ch:Structure-cmnd}.
+
+Generally speaking, arguments (including keyword/value pairs) can be in any
+order.  The rules for dealing with keyword/value pairs are discussed below
+, but for I'll just say that the keyword itself determines what type of
+variable will be read, and that the equal sign (=) and comma (,) are the
+delimiters between the keyword and the value.  The value is often treated
+as a character string, in which case it's often safest to enclose it in
+quotes.
+
+Many commands have default keywords that are expected in the first few
+arguments.  For example, {\texttt{spline}} has default keywords of
+{\texttt{energy}} and {\texttt{xmu}} for the first and second arguments, so
+that
+\begin{verbatim}
+   Ifeffit> spline( my.x, my.y)
+\end{verbatim}
+\noindent
+is shorthand for
+\begin{verbatim}
+   Ifeffit> spline(energy= my.x, xmu= my.y)
+\end{verbatim}
+\noindent
+Similarly, {\cmnd{plot}} has default keywords of {\tt{x}} and {\tt{y}} for
+the first two arguments, so that
+\begin{verbatim}
+   Ifeffit> plot(my.x, my.y)
+\end{verbatim}
+\noindent
+is the same as {\tt{plot(x = my.x, y = my.y)}}.  Let me clarify this.  In
+this example, the first keyword is taken as {\tt{x}} for {\cmnd{plot}}
+because {\tt{my.x}} is not a keyword, and it is the first argument in the
+list.  This is not to say that the first argument without a known keyword
+will be used as the {\tt{x}}-array.
+\begin{verbatim}
+   Ifeffit> plot(color = blue, my.x, y = my.y)    # No!
+\end{verbatim}
+\noindent
+will not work.  For several commands, there are keywords that don't really
+require a value.  Such keywords are often used as {\emph{flags}}, and so
+just giving the keyword is sufficient. For:
+\begin{verbatim}
+   Ifeffit> pre_edge(my.energy, my.xmu, e0find)
+\end{verbatim}
+\noindent
+the {\tt{e0find}} will cause $E_0$ to be determined, even if it appears to
+be known already.  Similarly, in 
+\begin{verbatim}
+  Ifeffit> plot(my.energy, my.bkg, nogrid, xmin = 8800)
+\end{verbatim}
+\noindent
+the {\tt{nogrid}} flag will draw the plot without the background grid.
+Actually, flags like `{\tt{nogrid}}' don't really ignore their value --
+they interpret their value as either `true' or `false', and are true unless
+the first character of the value is {\tt{f}}, {\tt{F}}, {\tt{n}}, {\tt{N}},
+or {\tt{0}}.  Specifically, a blank value means `true', so that a
+value is not needed. 
+
+
+Some commands don't use keyword/value pairs for all their arguments, but
+use lists for some of their arguments.  The notable examples of this are
+{\cmnd{write\_data}}, {\cmnd{ff2chi}}, and {\cmnd{feffit}}.
+{\cmnd{write\_data}} uses lists of arrays of text strings to write out to a
+file.  Both {\cmnd{ff2chi}} and {\cmnd{feffit}} take a list of {\feff}
+paths to use in the sum-over-paths.  {\cmnd{write\_data}} is somewhat more
+complicated, as it interprets a few arguments as keyword/values (notably,
+the {\tt{file}} keyword), but expects lists of arrays and strings.  Since
+{\cmnd{write\_data}} can even take a glob `*' character, it is definitely
+the command with the least `normal' syntax.  It may be convenient to think
+of lists as values without keywords, but it's probably better to not think
+about it at all.  Lists are used when they make sense, which turns out to
+not be very often.
+
+
+As mentioned in section~\ref{Ch:Basics-sample}, commands take their input
+from both the argument list and the global Program Variables. More
+precisely, many commands read {\emph{default}} values for command
+parameters from the global set of Program Variables.  In all cases, there
+is a corresponding keyword (often using the same name as the Program
+Variable) that can be used to override the value read from the Program
+Variable.  Typically, the Program Variables that are used as default inputs
+are also written to when the command is finished, so that subsequent
+executions of that command focus on what to change from the earlier
+execution.
+
+This mechanism of having default values allows you to use a mixture of
+explicit arguments and ``silent'' Program Variables.  For example, the
+{\cmnd{fftf}} command in the initial example took it's value for the
+$k$-weight from the Program Variable {\tt{kweight}} which had been
+explicitly set a few a lines up.  We could have also said
+\begin{verbatim}
+ Iff> fftf(real = my.chi, kmin = 2.0, kmax = 13.0, 
+ Iff>      dk = 1.0, kweight=2)
+\end{verbatim}
+\noindent
+which is more explicit.  Of course, there is plenty of room for confusion
+in this approach of mixing implicit and explicit parameters for a command.
+In general, the use of implicit parameters setting should be kept to a
+minimum.  Though it means a bit more typing, you'll probably be happier
+explicitly specifying all command arguments you care about. 
+
+The general execution procedure for all commands is this:
+\begin{enumerate}
+\item read the needed parameters from the list of program variables.  If a
+  program variables has not yet been defined, it will be created, and
+  initialized to 0 for numeric variables or blank for strings.
+\item read the command parameters from the argument list.  This effectively
+  overrides the values read from the program variables.
+\item perform its main tasks, possibly altering or creating some program
+  variables.
+\item update the output program variables to the new values.
+\end{enumerate}
+\noindent
+The description in Chapter~\ref{Ch:Commands} for each command contains a
+complete list of the variables read as inputs, the variables set on output,
+as well as the complete list of keywords and the variables they correspond
+to.  
+
+The procedure listed above may a bit abstract, so an example will probably
+help.  Let's investigate the {\cmnd{spline}} call in the example of the
+previous chapter in more detail.   There, the deceptively simple command
+\begin{verbatim}
+ Ifeffit> spline(energy = my.energy, xmu = my.xmu, 
+ Ifeffit> rbkg=1.1, kweight=1., kmin=0) 
+\end{verbatim} 
+\noindent 
+was used.  Looking ahead to section~{\ref{Ch:Command:spline}}, you may notice 
+that {\cmnd{spline}} actually needs the values for several scalar variables:
+{\tt{rbkg}}, {\tt{e0}},{\tt{kmin\_spl}}, {\tt{kmax\_spl}},
+{\tt{kweight\_spl}}, etc{\footnote{Note that all the Fourier transform
+    parameters for {\cmnd{spline}} are stored in variables that end with
+    {\tt{\_spl}}.}} to name a few.  So how does {\cmnd{spline}} get its values for
+{\tt{rbkg}}, {\tt{e0}}, and {\tt{kmax\_spl}}?
+
+First, {\cmnd{spline}} checks if there are already variables named {\tt{rbkg}},
+{\tt{e0}}, etc.  If these exist, their values are taken. Then {\cmnd{spline}} reads
+its argument list.  Since the keyword {\tt{rbkg}} is given in this example, that
+value is used in place of any {\tt{rbkg}} variable already defined.  Now, some
+values don't have defaults, but are required for {\cmnd{spline}}: the name of the
+energy and $\mu(E)$ arrays are required.  If these aren't found in the argument
+list, {\cmnd{spline}} will complain and return without calculating anything.
+
+Once {\cmnd{spline}} has determined all the input parameters, it calculates
+$\mu_0(E)$ based on all the scalar and array parameters.  The method used
+is essentially the same algorithm as {\autobk}, and is described in detail
+in {\XAIBook}, but it's sort of secondary at this point.  What's important
+here is that the values of some scalar and array parameters may be changed,
+or been created if they didn't exist already.  For example, {\tt{e0}} and
+{\tt{kmax\_spl}} may be changed if their values at the beginning of
+{\cmnd{spline}} were out of the data range.  Because of this possibility,
+the last thing {\cmnd{spline}} does before returning is to reset the values
+of the Program Variables it has used.  This ensures that both you and all
+the commands you run later will agree on the values of the program
+variables like {\tt{e0}}.
+
+Of course, each command has its own set of program variables that it will look
+for on input and reset on output.  Chapter~{\ref{Ch:Commands}} lists the input
+and output variables for each command, as well as a bunch of other information
+about each command.
+
+For the most part, command arguments are interpreted as keyword/value
+pairs.  Keywords are single words (no whitespace), and are not
+case-sensitive. Generally, a keyword is followed by an equal sign, and the
+text between the equal sign, and up to the next comma or right
+parentheses\footnote{Actually, up to the first unprotected comma or right
+  parentheses.  A comma or parentheses can be protected by enclosing it in
+  pairs of parentheses, double quotes, or curly braces.} is taken as the
+value.
+
+The value is interpreted according to what {\emph{type}} of value the
+keyword wants.  That is, if the keyword wants an array, the value is read
+as an array, and if the keyword wants a text string (say, a filename or
+comment string) the value is read as a string.  Most arguments that expect
+array or scalar values take {\emph{expressions}} which could be a simple
+value (as in {\texttt{e0 = 8979.5}}), the name of existing variable (as in
+{\texttt{energy = my.energy}}) or something more complicated, like
+\begin{verbatim}
+  Ifeffit> set   rbkg1 = 1.2
+  Ifeffit> spline(my.energy, "a.xmu+b.xmu", rbkg = rbkg1)
+\end{verbatim}
+\noindent
+Though this may seem unnecessarily extravagant for command-line use, it can
+be very useful for more elaborate scripts.  This feature is also especially
+convenient with the {\cmnd{plot}} command, as it avoids needing to define
+intermediate arrays just to plot them:
+\begin{verbatim}
+  Ifeffit> newplot(my.energy, "my.xmu - my.bkg")
+\end{verbatim}
+\noindent
+Note that when an expression is given, it is usually a good idea to enclose
+the expression in matched parentheses, double quotes, or curly braces. 
+
+
+\subsection{Getting information back from {\ifeffit}}
+\label{Ch:Structure-info}  
+
+At some point, you'll probably want to get information about Program
+Variables, Paths, and other aspects of {\ifeffit}'s state.
+The most basic way to do this is with the {\cmnd{show}} command.
+
+The {\texttt{show}} command will print out information about the program
+variables, fitting variables, paths, macros, color table, and built-in
+commands.  In it's simplest form, {\cmnd{show}} will print the value and, if
+appropriate the formula, for a program variable.  For scalars, {\cmnd{show}}
+works like this:
+\begin{verbatim}
+  Ifeffit> a = 8,   x  = 9 / a
+  Ifeffit> show a, x
+    a             =       8.00000000
+    x             =       1.12500000 := 9/a
+\end{verbatim}
+\noindent
+Note that both the value and formula are shown for {\tt{x}}.  For text
+strings, the results are pretty straightforward -- there's no stored
+formula, so the string is simply printed.
+\begin{verbatim}
+  Ifeffit> $string  = ' My favorite string '
+  Ifeffit> show  $string
+    My favorite string
+\end{verbatim}
+\noindent
+For arrays, however, the results are a little different.  Since it's
+unlikely you'll want to see every element of an array (and if you do,
+there's always {\cmnd{print}}), so the number of points, maximum, minimum
+values, and if appropriate the formula are printed:
+\begin{verbatim}
+  Ifeffit> my.x = indarr(10)/3
+  Ifeffit> show my.x
+    my.x   =   10 pts  [ 0.33333  : 3.3333 ]  := indarr(10)/3
+\end{verbatim}
+\noindent
+To see the contents of a pre-defined macro, just tell the {\cmnd{show}}
+command  the macro name:
+\begin{verbatim}
+  Ifeffit> show make_ps
+    macro make_ps ifeffit.ps  /cps
+      "dump plot to a postscript file"
+        plot(device=$2,  file= $1)
+    end macro
+\end{verbatim}
+\noindent
+The arguments to {\cmnd{show}} can be of mixed type -- you can show scalars,
+strings, arrays, and macros with a single command.  If a program variable
+is not known, an `undefined variable' will be printed.
+
+{\indexcmd{show}}
+{\indexcmds{show}{"@ symbol}}
+
+
+Beyond these simple examples, {\cmnd{show}} can also print out classes of
+program variables, using the special {\tt{@}} symbol.  That is, to get a
+listing of all the scalars (with values and definitions, if appropriate),
+type {\tt{show @scalars}}.  Similarly, {\tt{show @arrays}} and {\tt{show
+    @strings}} will show all the arrays and strings, respectively.  The
+listing shown for scalars and arrays will be sorted with ``most constant''
+({\ie}, those values that were {\cmnd{set}}) at the top, and the ``least
+constant'' ({\ie}, those that depend on other variables) at the bottom.
+This means the listing is subject to re-ordering at any time.
+
+
+All the fitting variables can be shown with {\tt{show @variables}}: both
+the current value (which would be the initial value before a fit and
+best-fit value after a fit) and estimated uncertainty will be shown.
+{\tt{show @colors}} will print out the plotting color table (discussed in
+section~\ref{Ch:Plot-Color}).  {\tt{show @macros}} will print out all the
+macro names, with description and default arguments, but won't print out
+the full text for each macro.  You can say {\tt{show @macro = make\_ps}} or
+just {\tt{show make\_ps}} to see the full contents of a macro.
+
+For XAFS paths defined with the {\cmnd{path}} command, {\tt{show @paths}}
+will list the values of all the path parameters for all paths.  To get a
+listing for a limited selection of paths, {\tt{show @path = 1}} or
+{\tt{show @path = 1,2,5}} will show just those paths.
+
+In addition to the {\cmnd{show}} command, you can also print out messages
+with the {\cmnd{echo}} and {\cmnd{print}} commands.  {\cmnd{echo}} simply prints
+its argument, which is of limited utility at the command line, but is often
+helpful in more complicated scripts:
+\begin{verbatim}
+  Ifeffit> echo(" I am in macro BKG, about to write outputs")
+   I am in macro BKG, about to write outputs
+  Ifeffit> echo " t"
+   t
+\end{verbatim}
+\noindent
+{\cmnd{print}}, on the other hand, is a more general purpose printing
+command, interpreting its arguments as strings or mathematical expressions
+where appropriate, and printing out the resulting {\emph{values}}. For
+example,  
+\begin{verbatim}
+  Ifeffit> print pi
+  3.141593
+\end{verbatim}
+\noindent
+You can print out more than one value at a time, and even print out the
+value of expressions, making {\cmnd{print}} act like a  simple calculator:  
+\begin{verbatim}
+  Ifeffit> var = 100.
+  Ifeffit> $string = 'This is a string'
+  Ifeffit> print pi/2  sqrt(5*var)  $string
+      1.570796    22.36068 This is a string
+\end{verbatim}
+\noindent  % 
+{\cmnd{print}} does a mediocre job of parsing, so it is best to enclose
+expressions in quotes or double quotes. Enclosing in single and double
+quotes have different results, though.  Double quotes cause evaluation,
+while single quotes {\emph{prevents}} evaluation, so the string is written
+out literally.  That is, you can say something like this.
+\begin{verbatim}
+  Ifeffit>print 'x , sqrt(x) = ' ," x ", " sqrt(x) / 2 "
+     x , sqrt(x) =    10.22000    1.598437
+  Ifeffit>print ' Rbkg  = ',  rbkg, ' Ang '
+     Rbkg  =    1.2000000  Ang
+\end{verbatim}
+\noindent   
+Finally, unlike {\cmnd{show}}, {\cmnd{print}} will print out all elements of an
+array.  I won't give an example of that -- you can try it for yourself.
+
+
+\subsection{Log Files, {\texttt{echo}}, {\texttt{show}}, and {\texttt{print}}}
+\label{Ch:Structure-Logging}
+
+{\indexcmd{echo} \index{screen echo}}
+In the previous section we saw how {\cmnd{echo}}, {\cmnd{show}} and
+{\cmnd{print}} were used to get various information from {\ifeffit} printed
+to the screen during an interactive session.  Sometimes, you don't care to
+have such information printed to the screen, but would like to write it
+directly to a file.  Furthermore, when controlling {\ifeffit} from an
+external program or script, you may want to save the messages that would've
+been written to the screen and read them into the calling program.  All of
+these things are possible within {\ifeffit} and in this section.
+{\index{Programming!echo buffer}}
+
+{\ifeffit} sends all its output messages through a single routine that
+either writes the message to the screen (technically, standard output) or
+to an external log file, or saves the message into a buffer that a calling
+program can read later.  Which of these actions is taken depends on the
+scalar variable {\tt{\&screen\_echo}} and whether a log file is actually
+open and in use.  The valid values and meanings for {\tt{\&screen\_echo}}
+are given in Table~\ref{Table:ScreenEcho}.  When {\ifeffit} starts,
+{\tt{\&screen\_echo}} is 1, even when run from an external program, so to
+set up an external program to 'capture the echo buffer', you need to set
+{\tt{\&screen\_echo}} to 0.  If doing this, it's probably a good idea to
+check the echo buffer after each command.  Examples of doing this are
+available.\indexvar{\&screen\_echo}
+
+\begin{table}
+ \begin{center}
+  \caption[a]{Table of Values for {\tt{\&screen\_echo}}
+  {\label{Table:ScreenEcho}} }
+  \begin{tabular}{ll}
+    Value & Meaning \\
+    \noalign{\smallskip} \hline   \noalign{\smallskip}
+    0   & save message to echo buffer.\\
+    1   & print message to screen. \\
+    2   & print message to log file, if open.\\
+    3   & print message to both screen and to log file. \\
+    \noalign{\smallskip}   \hline
+  \end{tabular}
+ \end{center}
+\end{table}
+\noindent
+{\indexcmd{log} \indexvar{\&screen\_echo}}
+For normal interactive use, the default {\tt{\&screen\_echo}} is probably
+appropriate until you want to write some of the information from {\ifeffit}
+to a log file.  For that, the {\cmnd{log}} command is exactly what you
+need.  Using {\cmnd{log}} is simple:
+\begin{verbatim}
+  Ifeffit> log(file = my.log)
+\end{verbatim}
+\noindent
+will close any existing log file (there can be only one log file at a
+time), and open {\file{my.log}} as the current log file. It will also set
+{\tt{\&screen\_echo}} to 2, so that any subsequent outputs from {\ifeffit},
+including from the {\cmnd{show}}, {\cmnd{print}}, and {\cmnd{echo}} commands are
+sent to this file instead of the screen.  Because of system-specific
+constraints, you can't rely on the log file being completely full until
+it's closed, which you can do explicitly with
+\begin{verbatim}
+  Ifeffit> log(close)
+\end{verbatim}
+\noindent
+Though it's not completely necessary, you can also tell {\cmnd{log}}  the
+level of {\tt{\&screen\_echo}} to use as well:
+\begin{verbatim}
+  Ifeffit> log(file = my.log, screen_echo = 3)
+  Ifeffit> log(file = my.log, screen_echo = both)
+  Ifeffit> log(file = my.log, screen_echo = tee)
+\end{verbatim}
+\noindent
+will all tell {\cmnd{log}} to write all text output to both the log file
+and the screen.  You can also change the value of {\tt{\&screen\_echo}}
+yourself while a log file is open.\indexvar{\&screen\_echo}
+
+
+Note that because a script or program may use the echo buffer for its own
+purposes, it may not be wise to overwrite the value of
+{\tt{\&screen\_echo}} from {\emph{within}} an {\ifeffit} application.  For
+example, most of the other GUI applications (including {\gifeffit},
+{\athena}, and {\artemis}) set {\tt{\&screen\_echo}} to 0 and then
+intercept the output to save in a history buffer or display to some
+information screen.  This means that you don't need to set
+{\tt{\&screen\_echo}} yourself, and that bad things may happen if you do!
+On the other hand, getting a history of the input or output from these
+programs is usually a matter of cutting-and-pasting from the displayed
+output.
+
+
+
+
+
+

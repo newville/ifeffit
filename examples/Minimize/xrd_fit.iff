@@ -1,0 +1,50 @@
+#
+# example of using Ifeffit's minimize:
+#  fit powder diffraction data
+#
+#  usage:
+#   ifeffit>  load xrd_fit.iff
+#   ifeffit>  fit_file xrd.dat
+
+s2pi = sqrt(2*pi)
+
+macro show_fit
+#   print ' show_fit ', g1_amp
+#  plot(f.q,f.dat, new)
+#  plot(f.q,f.fit, color=red)
+end macro
+
+  read_data(file = xrd.dat, group=f, label='q, dat')
+
+  guess (bxn0   = 400, bxn1 = -100, bxn2    = 0)
+  guess (g1_amp = 1, g1_sig = 0.01, g1_cen  = 1.25)
+  guess (g2_amp = 1, g2_sig = 0.01, g2_cen  = 2.00)
+  guess (g3_amp = 1, g3_sig = 0.01, g3_cen  = 2.10)
+  guess (g4_amp = 1, g4_sig = 0.01, g4_cen  = 2.42)
+  guess (g5_amp = 1, g5_sig = 0.01, g5_cen  = 2.57)
+  guess (g6_amp = 1, g6_sig = 0.01, g6_cen  = 2.95)
+  guess (g7_amp = 1, g7_sig = 0.01, g7_cen  = 3.25)
+
+  f.bkg = bxn0 +  f.q * (bxn1 + f.q * bxn2)
+
+  f.g1  = (abs(g1_amp/(g1_sig * s2pi))) * exp(-((f.q-g1_cen)/g1_sig)^2/2)
+  f.g2  = (abs(g2_amp/(g2_sig * s2pi))) * exp(-((f.q-g2_cen)/g2_sig)^2/2)
+  f.g3  = (abs(g3_amp/(g3_sig * s2pi))) * exp(-((f.q-g3_cen)/g3_sig)^2/2)
+  f.g4  = (abs(g4_amp/(g4_sig * s2pi))) * exp(-((f.q-g4_cen)/g4_sig)^2/2)
+  f.g5  = (abs(g5_amp/(g5_sig * s2pi))) * exp(-((f.q-g5_cen)/g5_sig)^2/2)
+  f.g6  = (abs(g6_amp/(g6_sig * s2pi))) * exp(-((f.q-g6_cen)/g6_sig)^2/2)
+  f.g7  = (abs(g7_amp/(g7_sig * s2pi))) * exp(-((f.q-g7_cen)/g7_sig)^2/2)
+
+  f.fit = f.bkg + f.g1 + f.g2 +f.g3 + f.g4 + f.g5 + f.g6 + f.g7
+  f.dif = f.dat - f.fit
+
+#  show_fit
+
+  minimize(f.dif, ordinate = f.q,xmax=3.45, macro=show_fit)
+
+  plot(f.q,f.dat, new)
+  plot(f.q,f.fit, color=red)
+
+  show @variables
+
+

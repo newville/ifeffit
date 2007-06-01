@@ -1,0 +1,46 @@
+ Feff 6L.02
+ copper
+ Calculating potentials and phases...
+     free atom potential and density for atom type    0
+     free atom potential and density for atom type    1
+     overlapped potential and density for unique potential    0
+     overlapped potential and density for unique potential    1
+     muffin tin radii and interstitial parameters
+     phase shifts for unique potential    0
+     phase shifts for unique potential    1
+ Preparing plane wave scattering amplitudes...
+   nncrit in prcrit       9
+ Searching for paths...
+     Rmax  5.5000  keep and heap limits   0.0000000   0.0000000
+    Preparing neighbor table
+     nfound  nheap  nheapx  nsc    r
+     Rmax  5.5000  keep and heap limits   0.0000000   0.0000000
+     Paths found     1038   (nheapx, nbx     186   4)
+ Eliminating path degeneracies...
+     Plane wave chi amplitude filter   2.50%
+     Unique paths     19,  total paths     654
+ Calculating EXAFS parameters...
+     Curved wave chi amplitude ratio   4.00%
+     Discard feff.dat for paths with cw ratio <   2.67%
+     path  cw ratio     deg    nleg  reff
+       1   100.000    12.000     2   2.5527
+       2    22.980     6.000     2   3.6100
+       3    10.585    48.000     3   3.8290
+       4     8.646    48.000     3   4.3577
+       5    55.405    24.000     2   4.4213
+       6    10.626    48.000     3   4.7633
+       7    21.810    96.000     3   4.7633
+       8    18.936    12.000     2   5.1053
+       9     8.459    12.000     3   5.1053
+      10    43.711    24.000     3   5.1053
+      11     8.211    12.000     4   5.1053
+      12     3.566    12.000     4   5.1053
+      13     1.908    48.000     4   5.1053 neglected
+      14    32.797    12.000     4   5.1053
+      15     3.259    48.000     4   5.1053
+      16     2.404    48.000     4   5.1053 neglected
+      17     2.438    48.000     4   5.1053 neglected
+      18     4.140    48.000     3   5.2920
+      19     4.090    48.000     3   5.2920
+    16 paths kept,   19 examined.
+ Feff done.  Have a nice day.

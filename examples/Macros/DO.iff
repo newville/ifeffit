@@ -1,0 +1,19 @@
+
+read_parse pu089.dat
+! mv xafs.dat pu089.xmu
+pu089.en = my.1
+pu089.xmu= tmp.xafs
+
+read_parse pu090.dat
+! mv xafs.dat pu090.xmu
+pu090.en = my.1
+pu090.xmu= tmp.xafs
+
+out.en = pu090.en
+out.xmu = (pu089.xmu + pu090.xmu)/2.
+# 
+# 
+
+$title1   = 'Pu xample A / 1 : average of 2 scans '
+$title2   = 'ENERGY     XMU'
+write_data (file = 'ave.xmu',  $title1, $title2, out.en, out.xmu)

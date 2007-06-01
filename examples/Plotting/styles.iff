@@ -1,0 +1,42 @@
+#
+# This will generate a table of PGPLOT point types
+# 
+
+l.x = range(0,4.5,0.2)
+l.y = sin(l.x)/2 + 1.6
+
+newplot( l.x, l.y, xmin=0, xmax=2.5, ymin=0, ymax=2.25,  nogrid)
+plot (labelsize=0.0002, textsize=2.25, markersize=2.5)
+
+txt=0.15
+plot l.x, l.y, style=solid, color=black
+plot text='Solid', text_x =txt, text_y = 1.85
+
+set l.y = l.y-0.35
+plot l.x, l.y, style=dashed, color=black
+plot text='Dashed', text_x =txt, text_y = 1.5
+
+
+set l.y = l.y-0.35
+plot l.x, l.y, style=dotted, color=black
+plot text='Dotted', text_x =txt, text_y = 1.15
+
+
+set l.y = l.y-0.35
+plot l.x, l.y, style=dot-dash, color=black
+plot text='Dot-Dash', text_x =txt, text_y = 0.8
+
+
+set l.z = exp(1.*l.x-0.5)-0.6
+plot l.x, l.z, style=linespoints2, color=black
+plot text='linespoints2', text_x =0.85, text_y = 0.65
+
+
+set l.y = l.y-0.6
+plot l.x, l.y, style=linespoints4, color=black
+plot text='linespoints4', text_x = 0.85, text_y = 0.15
+
+m.x = range(0,4.5,0.05)
+set  m.t = 7.8 - m.x*4 
+plot m.x, m.t, style=points3, color=black
+plot text='points3', text_x = 1.85, text_y = 0.65

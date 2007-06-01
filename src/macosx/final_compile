@@ -1,0 +1,1 @@
+gcc -O2 -o ifeffit ../cmdline/iff_shell.o libifeffit.a -L/sw/lib/pgplot -lpgplot -L/usr/lib -L/sw/lib -lpng -L/usr/X11R6/lib -lX11 -framework Foundation -framework AppKit ../../readline/libreadline.a -ltermcap -lg2c -lm -lfrtbegin -lSystem

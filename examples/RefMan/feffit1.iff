@@ -1,0 +1,23 @@
+ # read in chi(k) data file
+  read_data(file=../data/cu_chi.dat, type=chi,group=data)
+
+  path(index = 1,  feff   = ../feff/feffcu01.dat, 
+       label = "Cu metal first neighbor", 
+       s02   = s02, sigma2 = ss2,  
+       e0    =  e0, delr   = delr)
+
+  guess (s02 = 0.5, ss2 = 0.001, e0= 0.0, delr = 0.09)
+
+  set (kmin = 2, kmax =17, kweight=2, dk1 = 1, dk2 =1)
+  set (rmin = 1, rmax = 3)
+
+  ff2chi(1, group=init)      #  keep initial guess and
+  fftf(real = init.chi)      #  generate chi(R) for it
+
+ # do the actual fit
+  feffit(1, chi= data.chi, group = fit) 
+  show @variables
+
+  plot(data.r, data.chir_mag, color = blue, xmax = 7, new)
+  plot(init.r, init.chir_mag, color = black, style=dashed)
+  plot( fit.r,  fit.chir_mag, color = red)

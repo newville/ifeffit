@@ -1,0 +1,756 @@
+%%#fixtex% for html/pdf   -*-latex-*-  
+\section{Fitting XAFS Data with {\feff} Calculations} \label{Ch:FEFFIT}
+
+Of course, a major point of {\ifeffit} is to be able to manipulate {\feff}
+calculations of XAFS spectra, and especially to fit XAFS data with {\feff}
+calculations.  Though many of the details of how this happens is discussed
+in {\XAIBook}, this chapter discusses the mechanics of implementing fitting
+with {\feff} calculations in {\ifeffit}.  Some familiarity with {\feff} and
+{\feffit} will definitely help when reading this chapter.
+
+In order to do a {\feff} fit, these things need to be done:
+\begin{enumerate}
+\item run {\feff} for a model structure that is expected to resemble your
+  system.
+\item read in $\chi(k)$ data to fit to.
+\item decide on the fitting space ($k$, $R$, or back-transformed $k$) and
+  Fourier transform parameters to use.
+\item define a set of paths, including the {\feff} file to use and any
+  numerical path parameters ($S_0^2$, $\Delta R$, $\sigma^2$ and the like).
+\item build a fitting model to determine what should be varied in the fit,
+  what should be held constant, and what constraints should be put in
+  place.
+\item execute the fit.
+\item inspect the results.
+\end{enumerate}
+\noindent
+
+If you made it this far in this manual, the first three items should be
+fairly straightforward.  The $\chi(k)$ data can be read-in from a file or
+generated from the {\cmnd{spline}} command.  When using data generated from
+other programs, an important point is that the {\ifeffit} array storing the
+$\chi$ data needs to be on an evenly spaced $k$-array, with the first point
+corresponding to $k=0$ and the $k$-grid of $\rm 0.05\,{\AA}^{-1}$.  The
+{\tt{interp}} function can help align data onto this grid, with syntax like
+\begin{verbatim}
+  read_data(file = my_chi.dat, type = chi, group = unaligned)
+  new.k    = range(0,ceil(my_chi.k),0.05)
+  new.chi  = interp(my_chi.k, my_chi.chi, new.k)
+\end{verbatim}
+\noindent
+This use of {\tt{range()}} and {\tt{ceil()}} guarantees that
+{\tt{new.k}} will start at zero, and goes out far enough in $k$, both
+of which are important.
+
+Deciding on the fitting space and Fourier transform parameters depends on
+what your data looks like, and what you're trying to get from the fit.
+Those are important topics, but left aside here in favor of getting through
+the mechanics efficiently.
+
+\subsection{Defining and Using Paths} \label{Ch:FEFFIT-paths}
+
+The fit of XAFS data with {\feff} calculations uses the idea of a
+{\emph{scattering path}} as the basic unit of the XAFS signal.  Some
+approaches to XAFS analysis use the concept of a ``shell'' or ``sphere'',
+which are similar but not identical to the ``path''.  A shell is generally
+thought of as a group of atoms, usually of the same atomic species, at
+roughly the same distance from the central atom.  A path, on the other
+hand, represents a set of atoms through which the photo-electron can
+scatter from before returning to the central atom.  For single-scattering
+XAFS the distinction is subtle, and possibly not worth worrying about --
+but for multiple-scattering the difference is important, and the approach
+of using scattering paths is clearly superior.  The total XAFS is then just
+a sum of these individual paths.  A convenient aspect of this approach is
+that the sum can usually be limited by path distance or to a limited set of
+``important'' paths.
+{\index{path!scattering}}
+{\index{path!compared to shell}}
+
+{\feff} {\footnote{{\ifeffit} requires version 5 or higher of {\feff}.
+    {\feff}7 or higher is recommended for use with {\ifeffit}.}}
+calculates the XAFS contributions for each path separately.  A series of
+files named {\feffndat} is written, one for each path with {\file{nnnn}}
+replaced with a 4 digit ``path index''.  Starting with {\feff}8, all the
+scattering information for all the paths is written to the single file
+{\file{feff.bin}}.  {\ifeffit} can use this file directly, or you can
+convert it to a series of {\feffndat} files with the appropriate
+{\tt{PRINT}} flag in {\feff} (consult the {\feff} documentation for
+details). {\feff} also writes out a single file of the sum-of-paths called
+{\file{chi.dat}}, but {\ifeffit} doesn't use this file -- it makes it's own
+sum-of-paths instead.  {\index{path!sum over} \indexfil{feffnnnn.dat}
+\indexfil{feff.bin}}
+
+The {\cmnd{path}} command is used to define paths in {\ifeffit}.  The
+path definition consists of a {\emph{path index}}, the {\feffndat} file to
+use for this path, a text-string label, and a set of path parameters which
+will be used to alter the XAFS for the path.  The path index is an integer
+by which the path will be referred in {\ifeffit}.  This path index does not
+need to be the same as the index used by {\feff}, but that is often a
+convenient way to label them.  The syntax and keywords for the
+{\texttt{path}} command are listed in section~{\ref{Ch:Command:path}}.
+Specifically, the keywords {\texttt{s02}}, {\texttt{e0}}, {\texttt{delr}},
+{\texttt{sigma2}}, and {\texttt{third}} give the ``standard EXAFS
+parameters'', and should look familiar to those who've used {\feffit}.
+There are three additional path parameters for the paths in {\ifeffit} that
+are {\emph{arrays}} to give $k$-dependent phase-shifts and amplitudes.
+While these may be necessary for some advanced analyses, or to extend the
+cumulant expansion, these $k$-dependent path parameters are infinitely
+abusable and should be used with caution.
+
+A typical path definition command would look like this:
+\begin{verbatim}
+   path(index  = 1, 
+        feff   = feffcu01.dat, 
+        label  = "Cu metal first neighbor", 
+        s02    = my_s02, 
+        delr   = my_delr,
+        sigma2 = my_ss2,
+        e0     = my_e0  )
+\end{verbatim}
+\noindent
+This defines path \#1 to be based on {\file{feffcu01.dat}}, and sets the
+path parameters $S_0^2$ , $\Delta R$, $\sigma^2$, and $E_0$ to take the
+values of the {\ifeffit} scalars {\tt{my\_s02}}, {\tt{my\_delr}},
+{\tt{my\_ss2}}, and {\tt{my\_e0}}, respectively.  Actually, since the
+{\cmnd{path}} command only defines the path parameters, you can use repeated 
+calls instead of long continuation lines:
+\begin{verbatim}
+   path(1,  feff   = feffcu01.dat) 
+   path(1,  label  = "Cu metal first neighbor")
+   path(1,  s02    = my_s02,  e0 = my_e0)
+   path(1,  delr   = my_delr, sigma2 = my_ss2)
+\end{verbatim}
+\noindent
+Note that the path index must be supplied for each execution of
+{\cmnd{path}}.  Abbreviated {\cmnd{path}} commands like this are especially
+convenient for redefining path parameters.
+{\index{path!path parameter}}
+
+The {\feffndat} file is a very important part of the path definition.  Each
+path must have a {\feffndat} file associated with it.  But a {\feffndat}
+file can be used for more than one path definition -- this is a useful
+trick in many cases, and very important for multiple data set fits.
+Because of the likelihood of repeated use of {\feffndat} files, {\ifeffit}
+keeps an internal list of {\feffndat} files that have been read in, and
+will not read in a {\feffndat} more than once.  In addition, the actual
+{\feffndat} file will not be read until it is needed.  The file will
+{\emph{not}} be read in when you run the {\cmnd{path}} command, but rather
+when you actually need the information: either when {\cmnd{ff2chi}},
+{\cmnd{feffit}} are executed or when you ask to see information about the
+path with {\tt{show @paths}} or {\cmnd{get\_path}}.  So don't be alarmed if
+the {\cmnd{path}} command executes without seeming to have read the
+{\feffndat} file -- it's not supposed to.{\indexfil{feffnnnn.dat}}
+
+
+When summing paths with {\cmnd{ff2chi}} or {\cmnd{feffit}}, {\ifeffit}
+loops through each path, and sets scalars for {\tt{path\_index}},
+{\tt{reff}}, and {\tt{degen}} corresponding to the ``current path''.  This
+allows you to refer to {\tt{reff}} and {\tt{degen}} in definitions of Path
+Parameters and be assured that the right value will be used for each path.
+{\indexvar{reff} \indexvar{degen} \index{current path}
+  \index{path!current}}
+ 
+As mentioned above, the {\tt{show @paths}} command is helpful in displaying
+which paths have been defined, and what their settings are.  You may also
+view individual paths by specifying the path index: {\tt{show @path=1}}
+will show information for path 1, while {\tt{show @path=1,2,4}} will show
+that for paths 1, 2, and 4.  A typical output from executing {\tt{show
+    @paths}} would look like this:
+\begin{verbatim}
+   PATH   1
+     feff  = ../feff/feffcu01.dat
+     id    = Cu metal first neighbor
+     reff  =    2.547800, degen  =   12.000000
+     s02   =    0.937476, e0     =   -0.867040
+     dr    =    0.007575, ss2    =    0.003522
+     3rd   =    0.000000, 4th    =    0.000000
+     ei    =    0.000000, dphase =    0.000000
+\end{verbatim}
+\noindent
+
+In addition to the simple {\cmnd{show}} command you can convert path
+information to Program Variables with the {\cmnd{get\_path}} command.  This
+is a very simple command, taking only the path index and a prefix to use
+for the names of the output scalars: {\indexcmd{get\_path}}
+\begin{verbatim}
+   get_path(1, prefix=path1)
+\end{verbatim}
+\noindent
+which will create Program Variables {\tt{path1\_s02}}, {\tt{path1\_e0}},
+{\tt{path1\_delr}}, {\tt{path1\_sigma2}}, \ldots, {\tt{path1\_reff}} from
+the current values of the Path Parameters for that path.
+
+\subsection{Creating $\chi(k)$ data with {\texttt{ff2chi}}}
+\label{Ch:FEFFIT-ff2chi} 
+
+Once a single path or set of paths have been defined, it is often desirable
+to convert them to $\chi(k)$ data so that they can be plotted and compared
+to one another or to data arrays.  The {\cmnd{ff2chi}} command will do a
+simple sum-of-paths to give $\chi(k)$ data.  This essentially mimics the
+final step of {\feff}, with the additional features like being able to
+alter any of the path parameters and include {\feffndat} files from
+different runs of {\feff} in the sum.
+
+{\indexcmd{ff2chi}}
+{\cmnd{ff2chi}} is a fairly simple command, with most of its arguments
+describing optional output parameters that are usually not needed.  The
+main argument will be a ``path list'', which is a list of path indices to
+sum.   Building on the path definition above, the simple
+\begin{verbatim}
+  ff2chi(1, group=feff)
+\end{verbatim}
+\noindent
+will generate arrays {\tt{feff.k}} and {\tt{feff.chi}} from the path \#1
+defined above.  If we then add a second path, with
+\begin{verbatim}
+  path(2, file = feffcu02.dat, s02 = s02, 
+    sigma2  = {sqrt(2) * ss2}, e0 = e0)
+\end{verbatim}
+\noindent
+we can  add these two paths together, like this,
+\begin{verbatim}
+  ff2chi(1,2,  group=two_paths) 
+\end{verbatim}
+\noindent
+which will generate  {\tt{two\_paths.k}} and {\tt{two\_paths.chi}}.
+
+The path list for the {\cmnd{ff2chi}} (and {\cmnd{feffit}}) command can be a
+simple list like ``1,2,3,4'', or use a dash like ``1-6'', or some
+combination of both, like ``1, 3-8, 10, 100-105''.  Be warned though that a
+path listed twice will be used twice.
+{\index{path!path list}}
+
+\subsection{Building a Fitting Model} \label{Ch:FEFFIT-model}
+
+Now for the tricky part.  Like it's predecessor {\feffit}, the fitting of
+XAFS data in {\ifeffit} is general and flexible, allowing a variety of
+physical constraints to be imposed on the fit.  This is made possible by
+having the ``Path Parameters'' be written as a mathematical function of
+variables and scalars. 
+
+In many cases, the fitting model is simple and straightforward to
+implement.  An example would be to use one path, and adjust parameters
+$S_0^2$, $E_0$, and $\Delta R$. To do this, you define variables  for each
+of these parameters:
+
+\begin{verbatim}
+  guess (my_s02 = 0.7 , my_ss2 = 0.021)
+  guess (my_e0= 0.0123, my_delr = 0.1)
+\end{verbatim}
+\noindent
+and then use these variables in the path definition:
+
+\begin{verbatim}
+  path(index  = 1,  feff   = feffcu01.dat, 
+       label  = "Cu metal first neighbor", 
+       s02    = my_s02, 
+       sigma2 = my_ss2, 
+       e0     = my_e0  , 
+       delr   = my_delr)
+\end{verbatim}
+\noindent
+In the path definition, the left-hand-side names the path parameter (say,
+{\tt{s02}}) and the right-hand-side ({\tt{my\_s02}}) gives the formula used
+to calculate its value in terms of the variables and other {\ifeffit}
+scalars.  Here it's a simple formula, but it could have been more
+complicated.  Using {\tt{max(0.5, my\_s02)}} would put a lower limit on the
+value of the $S_0^2$ parameter, for example.  An important feature of this
+approach of having the path parameters be functions of the variables (and
+not variables themselves) is that any variable like {\tt{my\_s02}} can be
+used multiple times, say to set the {\tt{s02}} parameter for different
+paths.  In the most general case, the different path parameters can be
+quite complex functions of the set of fitting variables.
+
+\subsection{Executing a Fit} \label{Ch:FEFFIT-fit}
+
+Most of the hard work (and flexibility) for the user is in building the
+fitting model.  The actual {\texttt{feffit}} command is actually fairly
+simple to execute.  Like its cousin {\cmnd{ff2chi}}, {\cmnd{feffit}} sums a
+list of paths and generates $\chi(k)$ data.  The principle difference is
+that {\cmnd{feffit}} does a fit -- the defined variables are adjusted until a
+set of data is best-fit.  That means that, in addition to setting up the
+paths, you also have to set up the $\chi(k)$ data and and Fourier transform
+and fitting parameters for the {\cmnd{feffit}} command.   
+{\indexcmd{feffit}}
+
+A simple example is probably best, so here's a relatively short but
+complete example of a fit.  We read in a $\chi(k)$ data file, 1 feff path,
+define 4 variables, set up the Fourier transform parameters, and do the
+fit.  It looks like this:
+
+
+{\small{
+%%#VerbSBox%
+\begin{VerbSBox}
+# read in chi(k) data file
+  read_data(file=../data/cu_chi.dat, type=chi,group=data)
+
+# turn off all previously defined variables
+  unguess         
+
+# give initial values for fitting variables
+  guess s02  = 1.0
+  guess ss2  = 0.0
+  guess e0   = 0.0
+  guess delr = 0.0
+
+# define a scattering path 
+  path(index  = 1,  
+       feff   = ../feff/feffcu01.dat, 
+       label  = "Cu metal first neighbor", 
+       s02    = s02, 
+       e0     =  e0, 
+       sigma2 = ss2,  
+       delr   = delr)
+
+# define FFT parameters
+  set (kmin = 2, kmax =17)
+  set (kweight=2, dk1 = 1, dk2 =1)
+  set (rmin = 1, rmax = 3)
+
+# keep initial guess , and generate chi(R) for it
+  ff2chi(1, group=init)
+  fftf(real = init.chi) 
+
+# do the actual fit
+  feffit(1, chi= data.chi, group = fit) 
+ 
+# show results
+  show @variables
+  plot(data.r, data.chir_mag, color = blue, xmax = 7, new)
+  plot( fit.r,  fit.chir_mag, color = red)
+  plot(init.r, init.chir_mag, color = black, style=dashed)
+
+\end{VerbSBox}
+%%#VerbSBox%
+}}\noindent
+We'll refer to this example for the next few sections.
+
+It's important to note that the Fourier transform parameters are set once
+here, not at each call to {\cmnd{fftf}} and {\cmnd{feffit}}.  This relies
+on the default values for the Fourier transforms being taken from the
+appropriately named scalars.  The values could be set directly in each call
+to {\cmnd{fftf}} and {\cmnd{feffit}}, but then you have to be more careful
+that the Fourier transform parameters are the same for all of the commands.
+The convention here is a very convenient and reduces chance of typing
+errors.
+
+The {\cmnd{feffit}} command generates the best-fit values for the
+{\tt{guess}}ed variables ({\tt{s02}}, and so on in this example).  It also
+generates {\chir} arrays for the data and best-fit -- the {\tt{data.r}},
+{\tt{data.chir\_mag}}, {\tt{fit.r}}, and {\tt{fit.chir\_mag}} arrays here
+-- so that they're immediately ready for plotting or saving to file. 
+
+\subsection{Estimating the uncertainties in fitted variables}
+\label{Ch:FEFFIT-error}
+
+{\index{Feffit!uncertainties in variables}}
+
+The uncertainties in the fitted variables will be estimated by the
+{\texttt{feffit}} command immediately after the fit is done.  No extra
+input from the user is required for this automated error analysis.  The
+correlations between pairs of variables will also be calculated.  We'll get
+to those is a bit, after talking about the variable uncertainties.
+
+For each variable {\tt{xxx}}, the scalar {\tt{delta\_xxx}} will be used to
+store the estimated uncertainty for that variable.  This allows you to see
+the uncertainties two ways. Either you can either view the set of
+variables, best fit values and  uncertainties together
+\begin{verbatim}
+  Iff> show @variables
+ s02            =      0.93747649 +/-      0.02586825
+ e0             =     -0.86703986 +/-      0.34801825
+ delr           =      0.00757485 +/-      0.00153554
+ ss2            =      0.00352229 +/-      0.00015579
+\end{verbatim}
+\noindent
+or you can select individual variables or uncertainties
+\begin{verbatim}
+  Iff> show s02, delta_s02, e0, delta_e0
+ s02            =       0.937476486
+ delta_s02      =       0.025868253
+ e0             =      -0.867039864
+ delta_e0       =       0.348018253
+\end{verbatim}
+\noindent
+The estimated uncertainties reflect the goodness-of-fit statistics and
+include the correlations between variables.  Of course, the uncertainties
+are only an estimate.  Also, note that if a variable is later set with a
+{\cmnd{set}} or {\cmnd{def}} command, the scalar {\tt{delta\_xxx}} will
+remain, probably holding an irrelevant value.
+
+{\indexcmd{correl}}
+As mentioned above, the correlations between pairs of fit variables are
+also generated by {\cmnd{feffit}}.  Because there are very many possible
+correlation parameters, many of which are small and uninteresting, these
+values are {\emph{not}} automatically converted to Program Variables, but
+are kept internally (until the next time you execute a {\cmnd{feffit}} or
+{\cmnd{minimize}} command.)  To view the correlations or to convert them to
+Program Variables, you can use the {\cmnd{correl}} command.  A simple way
+to print out all the correlations is to say
+\begin{verbatim}
+  Iff> correl(@all,@all,print)
+   correl_delr_s02 =    0.115944
+   correl_delr_e0  =    0.870971
+   correl_ss2_s02  =    0.880360
+   correl_ss2_delr =    0.116302
+\end{verbatim}
+\noindent
+The will create the scalars shown ({\tt{correl\_XX\_YY}} for variables
+{\tt{XX}} and {\tt{YY}}) and print out their values.  The {\cmnd{correl}}
+command (further discussed in section~\ref{Ch:Command:correl}) takes its
+first two arguments as the name of the variables to find the correlation of
+(with the special value {\tt{@all}} meaning to find the correlations with
+all variables).  The keyword {\tt{print}} means to print out as well as save
+the correlation values.  The minimum correlation (absolute value) to report
+can be set with the {\tt{min}} keyword -- the default value is 0.05.
+%%%!
+\subsection{Goodness of Fit Parameters}
+\label{Ch:FEFFIT-goodness}
+{\index{Feffit!goodness-of-fit}}
+{\index{Feffit!$\chi^2$ statistic}}
+{\index{Feffit!${\cal{R}}$ statistic}}
+{\index{Feffit!$N_{\rm idp}$}}
+
+In addition to doing the fit, the {\cmnd{feffit}} command generates a few
+scalars for the goodness-of-fit statistics.  The scalars
+{\texttt{chi\_square}}, {\texttt{chi\_reduced}}, and {\texttt{r\_factor}}
+will contain the values of goodness-of-fit parameters $\chi^2$,
+$\chi^2_{\nu}$, and ${\cal{R}}$, respectively.  The estimated uncertainties
+in the data in $k$ and $R$ space will be stored in {\texttt{epsilon\_k}},
+and {\texttt{epsilon\_r}}.  Details of these calculations are given in
+{\XAIBook}.  In addition, the number of variables in {\texttt{n\_varys}},
+the number of fit iterations in {\texttt{\&fit\_iteration}}, and the number
+of independent points in the data in {\texttt{n\_idp}}, which is defined as
+\[
+  N_{\rm idp} = { {2  \Delta_k \Delta_R}\over{\pi}}
+\]
+\noindent 
+where $\Delta k = $ {\tt{kmax}}-{\tt{kmin}} and $\Delta R = $
+{\tt{rmax}}-{\tt{rmin}}.  This value gives an estimate of the maximum
+number of parameters that can be determined from the data.
+
+The estimated uncertainties reflect the goodness-of-fit statistics and
+include the correlations between variables.  Of course, the uncertainties
+are only an estimate, and there are a couple of things you can do to affect
+these estimates.  By far the most important thing you can do is to improve
+the fit -- that's not always that easy.
+
+The goodness-of-fit parameters and, to a very small extent the
+uncertainties in the fitted parameters, depend on the estimated uncertainty
+in the data (which can be specified either in $k$- or $R$-space).
+Normally, {\cmnd{feffit}} automatically estimates these for you from the
+data itself and you don't have to worry about them.  If, on the other hand,
+you want to worry about or change these values, you can use the
+{\cmnd{chi\_noise}} command to do this.  {\cmnd{chi\_noise}} will estimate
+the uncertainty in the XAFS data {\chik} and {\chir} ({\texttt{epsilon\_k}}
+and {\texttt{epsilon\_r}}, respectively), based on the assumption that the
+noise in the data can be approximated from the high-$R$ components of
+{\chik}.  This can be done explicitly simply as
+{\indexcmd{chi\_noise} \indexvar{epsilon\_k} \indexvar{epsilon\_r}}
+\begin{verbatim}
+  Iff> chi_noise(chi  = data.chi)
+\end{verbatim}
+\noindent
+which will calculate {\texttt{epsilon\_k}} and {\texttt{epsilon\_r}}, given
+the current set of Fourier Transform parameters (you can give these with
+the usual parameters, of course).  If this default calculation for the
+uncertainty in the data is not good enough for your needs,  you can
+explicitly  specify the value of {\texttt{epsilon\_k}} or
+{\texttt{epsilon\_r}} to use in the {\cmnd{feffit}} command:
+\begin{verbatim}
+  Iff> feffit(1, chi= data.chi, group = fit, epsilon_k = 0.0008)
+\end{verbatim}
+\noindent
+This will alter the resulting values for {\texttt{chi\_square}} and
+{\texttt{chi\_reduced}}, but not {\texttt{r\_factor}} or the uncertainties
+in the fitted variables.
+
+\subsection{Post-Fitting Tasks} \label{Ch:FEFFIT-post}
+
+{\cmnd{feffit}} will generate $\chi(R)$ for the data and total best-fit.
+It will not, however, generate the back-transforms $\chi(k)$ or the
+$\chi(R)$ for the individual paths directly.  {\cmnd{ff2chi}} will not
+generate $\chi(R)$ or back-transformed $\chi(k)$ either.  So, depending on
+which set of paths (or partial sums of paths) you'd like to see, you may
+want to generate the contribution from paths separately by calling
+{\cmnd{ff2chi}}, and possibly {\cmnd{fftf}} several times.  Such tasks are
+an ideal job for macros or scripts.  As a simple example of a pair of macros
+I use often, consider
+\begin{verbatim}
+  macro makepath 1
+    "make chi(k) and chi(R) for a single path"
+    ff2chi($1, group=path$1)
+    fftf(real = path$1.chi)
+  end macro
+  macro showpath 1
+    makepath $1
+    plot(path$1.r, -path$1.chir_mag, $2)
+  end macro
+\end{verbatim} 
+\noindent % $
+This pair can then be used after a fit like this to show the data and
+best-fit, and the contributions from each path:
+\begin{verbatim}
+  feffit(1-3, chi= data.chi, group = fit)
+  newplot data.r, data.chir_mag, xmax=7
+  plot    fit.r,  fit.chir_mag
+  showpath 1  "color=blue"
+  showpath 2  "color=red"
+  showpath 3  "color=black,style=linespoints2"
+\end{verbatim}
+\noindent  
+You'll also have to manage the writing of output files of the data and fit
+yourself too, as well as log files.  You may want to plot the data and fit
+first, or look at the variables and then try re-defining some paths or path
+parameters of variables, or whatever else you can think of to get that
+perfect fit.  Again, using {\cmnd{feffit}} well is generally helped greatly
+by writing macros for such tasks.
+
+
+\subsection{Additional Fitting Features of {\texttt{feffit}}}
+\label{Ch:FEFFIT-advanced}
+
+Though already somewhat complex and feature-rich, the use of
+{\cmnd{feffit}} described so far really only shows the basic fitting
+capabilities of the {\cmnd{feffit}}.  Scattering paths are defined, what to
+vary and what to keep fixed in the fit is described, and the paths are
+summed together until they match the data, and the results are inspected.
+It is by no means trivial or easy to come up with a realistic fitting model
+or assess whether a fit is meaningful, but {\cmnd{feffit}} as described so
+far gives you all the tools to do these tasks.
+
+In the rest of this chapter, more advanced features of {\cmnd{feffit}} are
+described.  The features include the ability to refine the background
+($\mu_0(E)$) parameters at the same time as the structural model, the
+ability to include additional knowledge about the physical parameters of
+the systems, and the ability to create and fit a model describing more than
+one data set at a time.  I call these features ``advanced'', but most of
+these features are very easy to use, especially when compared to the rather
+large undertaking of building up a simple fitting model.  That is to say
+that although these features may seem like ``advanced topics'', and so best
+left alone by the beginner, they can, in fact, help greatly in assessing
+the quality and reliability of many fits, and should be kept in mind for
+many analyses, even by fairly new users.  These abilities are being
+built-in to the {\artemis} GUI program, and I heartly recommend trying
+these features.
+
+\subsubsection{Including Background Refinement} \label{Ch:FEFFIT-bkg}
+{\index{Feffit!do\_bkg}}
+
+It is often desirable in XAFS analysis to understand how the background
+absorption function effects or is affected by the structural fitting
+parameters.  Trationally, this has been difficult to do, as background
+removal and parameter fitting have been completely separated.  Though
+{\ifeffit} still separates these procedures, the {\cmnd{feffit}} command
+can be used to modify background-like parameters for {\chik} at the same it
+modifies structural parameters.   This option is very easy to add to a fit:
+simply add the argument {\tt{do\_bkg = true}} to {\cmnd{feffit}}:
+\begin{verbatim}
+  Iff> feffit(1, chi= data.chi, group = fit, do_bkg=true)
+\end{verbatim}
+\noindent
+This will automatically add several variables to define a smoothly varying
+spline $\mu_0(k)$ (now in $k$-space instead of $E$-space) that will be
+added to the model {\chik} to match your data.  The miminum $R$ value used
+in the fit will be set to 0.0.  The {\emph{number}} of spline parameters
+will be determined by {\tt{rmin}}, which now takes the role of {\tt{rbkg}}
+in the {\cmnd{spline}} command) so that the spline will only be ``free
+enough'' to easily match the low-$R$ portion (ie, those parts below
+{\tt{rmin}}) of the spectra.
+
+The main purpose of this feature is to investigate how the background
+parameters are correlated with the structural (or rather, traditional)
+fitting parameters.  The additional outputs from using this switch are a
+set of fitting variables {\tt{bkg01\_01}} \ldots {\tt{bkg01\_NN}} for
+{\tt{NN}} background variables.  The uncertainties in these variables and
+the correlations between these and the traditional fitting parameters will
+be available as normal.  Note that this feature can greatly increase the
+number of fitting variables and therefore slow down the fit.  In addition
+to adding the {\tt{bkg01\_NN}} fitting variables, the {\tt{do\_bkg}} switch
+will also cause the output of additional array, {\tt{fit.kbkg}} which will
+contain the additional background function, $\mu_0(k)$ added to the model
+in order to match the data.
+
+
+\subsubsection{Constraints and Restraints in Fitting} \label{Ch:FEFFIT-restraints}
+
+{\index{Feffit!restraints}}
+{\index{Feffit!constraints}}
+
+The amount of information available from XAFS is limited, and there is
+often a fair amount known about the system before you even collect XAFS on
+it.  Because of this, the ability to include some {\emph{prior knowledge}}
+about the physical parameters describing the system can be very important
+to a successful analys.  As a first step, you need to be able to impose
+relationships between path parameters affecting the fit, for example to say
+that {\tt{e0}} should be the same for all paths, or that {\tt{delr}} of one
+path should be related to that of another path.  Up to now, we've only
+discussed imposing constraints between parameters, using the {\cmnd{def}}
+command as discussed in section~\ref{Ch:Structure-SetDef} to define an
+exact mathematical relationship between two or more parameters.
+
+Sometimes, however, our prior knowledge is not exact and it desirable to
+impose {\emph{inexact}} knowledge or {\emph{preferences}} on the fit.  This
+can be easily accomplished with a {\bf{restraint}}.  Whereas as
+{\bf{constraint}} is a hard, exact relationship imposed on the fit, a
+{\bf{restraint}} is a softer relationahip imposed on the fit.  I'll avoid
+an in-depth discussion of restraints in XAFS analysis here, in favor of
+describing how to do them with {\ifeffit}.  A restraint is essentially a
+scalar to be added as an additional element of the vector for the
+least-squares minimization.  To make this happen, you need to define the
+restraint condition expressed as a scalar value that you would like
+minimized in the least-squares fit of the data, and then to identify this
+scalar with the {\tt{restraint}} keyword in {\cmnd{feffit}}.  A simple (if
+not altogether useful) example would be to impose a restraint that a
+distance $R$ should be near some value expected from other information:
+\begin{verbatim}
+  set r_expect = 2.5400
+  set weight   = 0.01
+  def res1     = (reff + delr - r_expect) / (weight)
+  feffit(1, chi= data.chi, group = fit, restraint=res1)
+\end{verbatim}
+\noindent
+The fit will add the restraint value defined by {\tt{res1}} to the normal
+sum-of-squares of the difference between data and fit.  An important
+concept here is the relative weight (represented here with the
+imaginitively named scalar {\tt{weight}}) between restraint condition and
+the normal fit to the data.  This topic is left for later discussion.
+
+
+\subsubsection{Multiple-$k$-Weighting} \label{Ch:FEFFIT-multi-k-fit}
+{\index{Feffit!multiple $k$-weights}}
+
+As we'll see in the next section, {\ifeffit} can simultaneously fit more
+than one data set at a time.  In the {\feffit} program, one early and very
+common use of this feature was to fit the same data set with more than one
+$k$-weight at a time.  This is an important ability, as simultaneous fits
+with more than 1 $k$-weight can significantly reduce the correlation
+between the EXAFS parameters $R$ and $E_0$ and between $NS_0^2$ and
+$\sigma^2$.  This ability is so important that it is implemented in
+{\ifeffit} directly, without the need to use the more complicated mechanism
+of multiple data-set fits.
+
+To fit with only one $k$-weight at at time, you simply give the
+$k$-weighting power with the {\tt{kweight}} keyword:
+{\tt{feffit(\ldots,kweight=2,\ldots)}}, or rely on the previously defined
+value of the scalar {\tt{kweight}}.  To fit with more than one $k$-weight
+at at time, you  simply give repeated values of {\tt{kweight}}, as in
+\begin{verbatim}
+  Iff> feffit(1, chi= data.chi, kweight=2, kweight=0, kweight=4)
+\end{verbatim}
+\noindent
+which will cause the fit to use $k$-weights of 0,2, and 4 at the same time.
+Up to 5 $k$-weights can be used simultaneously.  You must list all the
+$k$-weights explicitly, however, and the value in the {\tt{kweight}} scalar
+will not automatically be used. 
+
+When fitting with multiple $k$-weights, the order of the listed $k$-weights
+only matters for the weight of the automatically created output {\chir}
+arrays.  These will be formed using the {\bf{first}} $k$-weight listed.  Of
+course, to get arrays for the other $k$-weights, you can also construct
+your own output arrays using {\cmnd{ff2chi}} and {\cmnd{fftf}} as described
+in section~{\ref{Ch:FEFFIT-post}}.
+
+
+\subsubsection{Simultaneous Fitting of Multiple Data Sets} \label{Ch:FEFFIT-multi}
+{\index{Feffit!multiple data sets}}
+
+A very important feature of {\ifeffit} is ability to simultaneously fit
+more than one data set at a time.  To be honest, unlike most of the
+features above, this really is something of an advanced topic, and you
+should probably be fairly well-acquainted with using the {\cmnd{feffit}}
+command or with using the older {\feffit} program before trying this
+yourself.  As discussed in the previous section, fitting multiple data sets
+while only varying the $k$-weighting is no longer necessary in {\ifeffit}. 
+
+The key concept in simultaneously fitting multiple sets of data is pose the
+fitting model to the {\emph{set}} of spectra, not to individual spectra.
+This can greatly change the physically model imposed.  Nonetheless, even
+for simple data, the simultaneous analys of multiple data sets can be
+valuable, as the two key non-structural XAFS Path Parameters (namely,
+$S_0^2$ and $E_0$) can often be asserted to be the same for a set of data
+that has been measured under similar experimental conditions and that is
+carefully aligned in energy. 
+
+
+To fit more than one data set at a time, you simply give a series of
+{\cmnd{feffit}} commands for fits to each of the individual data sets,
+while identifying each data set as unique, and giving the total number of
+data sets to be simultaneously fit.  The actual fit will not actually be
+done until all the expected fits to the individual data sets have been
+defined.  Fitting variables, path indices, and all program variables are
+globally available, and can be shared between the models for the different
+data sets {\footnote{For those of you with experience with {\feffit}, the
+    concept of the ``local'' variable does not exist in {\ifeffit}.  All
+    variables are truly global.}}.  Since all path definitions are visible
+to all fits, you may have to define different paths that are very similar
+to one another for fits to different data sets.
+
+A simple example will illustrate this.  We'll stick with Cu metal, and fit
+the data for 3 different temperatures simultaneously.  In fact, we'll use
+the Einstein model for $\sigma^2$, and vary the Einstein temperature in the
+fit instead of the individual {\tt{sigma2}} parameters.  For those with
+experience using {\feffit} for multiple-data-set fits, the example shown
+below should look familiar.
+
+The paths for each data set are defined separately: even though they really
+use the same {\feffndat} file, the values of the Path Parameters
+{\tt{delr}} and {\tt{sigma2}} may be different.  In fact, each of these
+parameters is taken to be temperature dependent: {\tt{delr}} is linear in
+temperature and {\tt{sigma2}} is calculated from the Einstein model.  Each
+{\cmnd{feffit}} command includes {\tt{data\_set}} to identify each data set
+, and {\tt{data\_total}} to tell how many total data sets there will be.
+The fit is not really done until {\tt{data\_total}} is equal to the total
+number of defined data sets -- in this case 3. 
+
+{\small{
+%%#VerbSBox%
+\begin{VerbSBox}
+# simultaneous fit to 1st shell XAFS for Cu at 10K, 
+# 50K, and 150K using einstein model for sigma^2
+
+guess (s02     = 0.9, e0   = 3.5)
+guess (alpha   = 0.0, beta = 0.00, theta   = 240)
+
+rmin    = 1.60    , rmax    = 2.75
+kmin    = 1.5     , kmax    = 18.5   
+dk      = 1.0     , kweight = 2      
+
+read_data(file= ../data/cu10k.chi, group=dat_10, type=chi)
+read_data(file= ../data/cu50k.chi, group=dat_50, type=chi)
+read_data(file= ../data/cu150k.chi,group=dat_150,type=chi)
+ 
+path(index  = 101, feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first shell, for 10K", 
+     s02    = s02,  e0 = e0, 
+     sigma2 = eins(10, theta), 
+     delr   = reff * (alpha + 10.0 * beta) )
+ 
+path(index  = 201, feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first shell, for 50K", 
+     s02    = s02,  e0 = e0, 
+     sigma2 = eins(50, theta), 
+     delr   = reff * (alpha + 50.0 * beta) )
+ 
+path(index  = 301, feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first shell, for 150K", 
+     s02    = s02,  e0 = e0, 
+     sigma2 = eins(150, theta), 
+     delr   = reff * (alpha + 150.0 * beta) )
+
+
+feffit(chi = dat_10.chi,  group = fit_10,  101,
+       data_set=1, data_total=3)
+
+feffit(chi = dat_50.chi,  group = fit_50,  201,
+       data_set=2, data_total=3)
+
+feffit(chi = dat_150.chi, group = fit_150, 301,
+       data_set=3, data_total=3)
+ 
+show @variables, r_factor, chi_square
+\end{VerbSBox}
+%%#VerbSBox%
+}}\noindent 
+

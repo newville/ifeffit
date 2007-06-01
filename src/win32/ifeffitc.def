@@ -1,0 +1,13 @@
+LIBRARY   C_DLL
+DESCRIPTION "Ifeffit Library for XAFS Analysis"
+EXPORTS
+    iff_exec
+    iff_put_scalar
+    iff_get_scalar
+    iff_put_array
+    iff_get_array
+    iff_put_string
+    iff_get_string
+    iff_get_echo
+    iff_strval
+    iff_scaval

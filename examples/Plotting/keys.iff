@@ -1,0 +1,8 @@
+
+
+  my.x = range(0.1,10,0.1)
+  my.y = (exp(-my.x / 13) *  2* cos(my.x *2.3 ))
+  my.z = (exp(-my.x/ 7.5) * (20/sqrt(my.x))  * sin(my.x/5) * 
+          (cos(my.x*4)) +  cos((my.x+2.50)*2) / 4 )
+  newplot(my.x,my.y, color=red,key='bob')
+     plot(my.x,my.z, color=blue,key='joe')

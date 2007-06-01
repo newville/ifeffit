@@ -1,0 +1,1340 @@
+#!/usr/bin/perl
+## latexmk - version 2.0
+##
+##   Modified by Evan McLean (emm@rdt.monash.edu.au)
+##   Original script (RCS version 2.3) called "go" written by David J. Musliner
+##
+## - fully automated LaTeX document generation routine.
+## - checks to see if .bib or .tex source files (or included other files)
+##		have been changed since last run (which made .aux).
+## - see sub print_help for info.
+##
+##  LatexMk is no longer supported by the author.  With changes in work
+##  situation, the author no longer uses latex, and hence does not use
+##  LatexMk.  Having no access to latex also makes it difficult to test fixes.
+##
+##-----------------------------------------------------------------------
+## Here's the copyright notice that Mr. Musliner required to be
+## kept here.
+##-----------------------------------------------------------------------
+##Copyright 1992 by David J. Musliner and The University of Michigan.
+##
+##                        All Rights Reserved
+##
+##Permission to use, copy, modify, and distribute this software and its
+##documentation for any purpose and without fee is hereby granted,
+##provided that the above copyright notice and this permission notice appear in
+##all copies and modified versions.
+##
+##THE COPYRIGHT HOLDER(S) DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+##INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+##SHALL THE COPYRIGHT HOLDER(S) BE LIABLE FOR ANY SPECIAL, INDIRECT OR 
+##CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+##DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER 
+##TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
+##PERFORMANCE OF THIS SOFTWARE.
+##-----------------------------------------------------------------------
+##While I am not copyrighting my modifications (I don't even know if I
+##can) I do include my own disclaimer:
+##
+##THE AUTHOR/MODIFIER(S) DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+##INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT 
+##SHALL THE AUTHOR/MODIFIER(S) BE LIABLE FOR ANY SPECIAL, INDIRECT OR 
+##CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+##DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER 
+##TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR 
+##PERFORMANCE OF THIS SOFTWARE.
+##-----------------------------------------------------------------------
+$version_num = '2.0';
+##Modification History:
+## 2.0 - Final release, no enhancements.  LatexMk is no longer supported
+##       by the author.
+## 1.9 - Fixed bug that was introduced in 1.8 with path name fix.
+##     - Fixed buglet in man page.
+## 1.8 - Add not about announcement mailling list above.
+##     - Added texput.dvi and texput.aux to files deleted with -c and/or
+##       the -C options.
+##     - Added landscape mode (-l option and a bunch of RC variables).
+##     - Added sensing of "\epsfig{file=...}" forms in dependency generation.
+##     - Fixed path names when specified tex file is not in the current
+##       directory.
+##     - Fixed combined use of -pvc and -s options.
+##     - Fixed a bunch of speling errors in the source. :-)
+##     - Fixed bugs in xdvi patches in contrib directory.
+## 1.7 - Fixed -pvc continuous viewing to reattach to pre-existing
+##       process correctly.
+##     - Added $pscmd to allow changing process grepping for different
+##       systems.
+## 1.6 - Fixed buglet in help message
+##     - Fixed bugs in detection of input and include files.
+## 1.5 - Removed test message I accidentally left in version 1.4
+##     - Made dvips use -o option instead of stdout redirection as some
+##       people had problems with dvips not going to stdout by default.
+##     - Fixed bug in input and include file detection
+##     - Fixed dependency resolution process so it detects new .toc file
+##       and makeindex files properly.
+##     - Added dvi and postscript filtering options -dF and -pF.
+##     - Added -v version commmand.
+## 1.4 - Fixed bug in -pvc option.
+##     - Made "-F" option include non-existant file in the dependency list.
+##       (RC variable: $force_include_mode)
+##     - Added .lot and .lof files to clean up list of extentions.
+##     - Added file "texput.log" to list of files to clean for -c.
+##     - LatexMk now handles file names in a similar fashion to latex.
+##       The ".tex" extention is no longer enforced.
+##     - Added $texfile_search RC variable to look for default files.
+##     - Fixed \input and \include so they add ".tex" extention if necessary.
+##     - Allow intermixing of file names and options.
+##     - Added "-d" and banner options (-bm, -bs, and -bi).
+##       (RC variables: $banner, $banner_message, $banner_scale,
+##       $banner_intensity, $tmpdir)
+##     - Fixed "-r" option to detect an command line syntax errors better.
+## 1.3 - Added "-F" option, patch supplied by Patrick van der Smagt.
+## 1.2 - Added "-C" option.
+##     - Added $clean_ext and $clean_full_ext variables for RC files.
+##     - Added custom dependency generation capabilities.
+##     - Added command line and variable to specify custom RC file.
+##     - Added reading of rc file in current directly.
+## 1.1 - Fixed bug where Dependency file generation header is printed
+##       rependatively.
+##     - Fixed bug where TEXINPUTS path is searched for file that was
+##       specified with absolute an pathname.
+## 1.0 - Ripped from script by David J. Musliner (RCS version 2.3) called "go"
+##     - Fixed a couple of file naming bugs
+##        e.g. when calling latex, left the ".tex" extention off the end
+##             of the file name which could do some interesting things
+##             with some file names.
+##     - Redirected output of dvips.  My version of dvips was a filter.
+##     - Cleaned up the rc file mumbo jumbo and created a dependency file
+##       instead.  Include dependencies are always searched for if a
+##       dependency file doesn't exist.  The -i option regenerates the
+##       dependency file.
+##       Getting rid of the rc file stuff also gave the advantage of
+##       not being restricted to one tex file per directory.
+##     - Can specify multiple files on the command line or no files
+##       on the command line.
+##     - Removed lpr options stuff.  I would guess that generally,
+##       you always use the same options in which case they can
+##       be set up from an rc file with the $lpr variable.
+##     - Removed the dviselect stuff.  If I ever get time (or money :-) )
+##       I might put it back in if I find myself needing it or people
+##       express interest in it.
+##     - Made it possible to view dvi or postscript file automatically
+##       depending on if -ps option selected.
+##     - Made specification of dvi file viewer seperate for -pv and -pvc
+##       options.
+##-----------------------------------------------------------------------
+
+## default document processing programs.
+$latex  = 'latex';
+$bibtex  = 'bibtex';
+$slitex  = 'slitex';
+$makeindex  = 'makeindex';
+$dvips  = 'dvips';
+$dvips_landscape = 'dvips -tlandscape';
+$dviselect  = 'dviselect';
+$ps_previewer  = 'gv';
+$ps_previewer_landscape  = 'gv -swap';
+$dvi_previewer  = 'xdvi -s 4';
+$dvi_previewer_landscape = 'xdvi -s 4 -paper a4r';
+$dvi_cont_previewer  = 'xtex';
+$dvi_cont_previewer_landscape  = 'xtex';
+$lpr  = 'lpr';
+$tmpdir = '/usr/tmp';
+$pscmd = 'ps -x';  # This works for SunOs.  Solaris should just be 'ps'
+
+## default flag settings.
+$bibtex_mode = 0;	# is there a bibliography needing bibtexing?
+$index_mode = 0;	# is there an index needing makeindex run?
+$landscape_mode = 0;	# default to portrait mode
+$sleep_time = 2;	# time to sleep b/w checks for file changes in -pvc mode
+$banner = 0;            # Non-zero if we have a banner to insert
+$banner_scale = 220;    # Original default scale
+$banner_intensity = 0.95;  # Darkness of the banner message
+$banner_message = 'DRAFT'; # Original default message
+$dvi_filter = '';	# DVI filter command
+$ps_filter = '';	# Postscript filter command
+
+## Read rc files.
+# Read system rc file.
+$rcfile = '/usr/local/lib/latexmk/LatexMk';
+if ( -e $rcfile )
+{
+  # Read the system rc file
+  do "$rcfile";
+}
+
+# Read user rc file.
+$rcfile = "$ENV{'HOME'}/.latexmkrc";
+if ( -e $rcfile )
+{
+  # Read the user rc file
+  do "$rcfile";
+}
+
+# Read rc file in current directory.
+$rcfile = "latexmkrc";
+if ( -e $rcfile )
+{
+  # Read the user rc file
+  do "$rcfile";
+}
+
+
+## Process command line args.
+@the_file_list = ( );
+while ($_ = $ARGV[0])
+{
+  shift;
+  if (/^-c$/)      { $cleanup_mode = 1; }
+  elsif (/^-C$/)   { $cleanup_mode = 1; $cleanup_full_mode = 1; }
+  elsif (/^-d$/)   { $banner = 1; }
+  elsif (/^-f$/)   { $force_mode = 1; }
+  elsif (/^-F$/)   { $force_include_mode = 1; }
+  elsif (/^-g$/)   { $go_mode = 1; }
+  elsif (/^-h$/)   { &print_help; }
+  elsif (/^-i$/)   { $generate_and_save_includes = 1; }
+  elsif (/^-I$/)   { $force_generate_and_save_includes = 1; }
+  elsif (/^-l$/)   { $landscape_mode = 1; }
+  elsif (/^-pvc$/) { $preview_continuous_mode = 1; }
+  elsif (/^-pv$/)  { $preview_mode = 1; }
+  elsif (/^-ps$/)  { $postscript_mode = 1; }
+  elsif (/^-p$/)   { $printout_mode = 1; }
+  elsif (/^-s$/)   { $slide_mode = 1; }
+  elsif (/^-v$/)   { warn "\nLatexMk $version_num\n"; exit; }
+  elsif (/^-r$/)   { if ( $ARGV[0] eq '' ) {
+		      warn "LatexMk: No RC file specified\n"; &print_help; }
+		     if ( -e $ARGV[0] ) {
+		      do "$ARGV[0]"; } else {
+		      die "LatexMk: RC file [$ARGV[0]] does not exist\n"; }
+		     shift; }
+  elsif (/^-bm$/)   { if ( $ARGV[0] eq '' ) {
+		      warn "LatexMk: No message specified\n"; &print_help; }
+		     $banner = 1; $banner_message = $ARGV[0];
+		     shift; }
+  elsif (/^-bi$/)   { if ( $ARGV[0] eq '' ) {
+		      warn "LatexMk: No intensity specified\n"; &print_help; }
+		     $banner_intensity = $ARGV[0];
+		     shift; }
+  elsif (/^-bs$/)   { if ( $ARGV[0] eq '' ) {
+		      warn "LatexMk: No scale specified\n"; &print_help; }
+		     $banner_scale = $ARGV[0];
+		     shift; }
+  elsif (/^-dF$/)   { if ( $ARGV[0] eq '' ) {
+		      warn "LatexMk: No dvi filter specified\n"; &print_help; }
+		     $dvi_filter = $ARGV[0];
+		     shift; }
+  elsif (/^-pF$/)   { if ( $ARGV[0] eq '' ) {
+		      warn "LatexMk: No ps filter specified\n"; &print_help; }
+		     $ps_filter = $ARGV[0];
+		     shift; }
+  elsif (/^-/)     { warn "LatexMk: $_ bad option\n"; }
+  else             { @the_file_list = ( @the_file_list, $_ ); }
+}
+@ARGV = @the_file_list;
+
+# Check we haven't selected mutually exclusive modes.
+# Note that -c overides all other options, but doesn't cause
+# an error if they are selected.
+if (($printout_mode && ( $preview_mode || $preview_continuous_mode ))
+    || ( $preview_mode && $preview_continuous_mode ))
+{
+  warn "LatexMk: Conflicting options (-p, -pv, -pvc) selected\n";
+  &print_help;
+}
+
+
+# If seleced a previewer mode, make sure one and only one filename was specified
+if ($preview_mode || $preview_continuous_mode)
+{
+  if (($ARGV[0] eq '') || ($ARGV[1] ne ''))
+  {
+    warn"LatexMk: Need to specify one and only one filename for previewer mode\n";
+    &print_help;
+  }
+}
+
+# If no files specified, try and find some
+if ($ARGV[0] eq '')
+{
+  @ARGV=<*.tex $texfile_search>;
+}
+# If still no files, exit.
+if ($ARGV[0] eq '')
+{
+  warn "LatexMk: No file name specified\n";
+  &print_help; ## print_help function exits.
+}
+
+# If landscape mode, change modes
+if ( $landscape_mode )
+{
+  $dvips = $dvips_landscape;
+  $dvi_previewer = $dvi_previewer_landscape;
+  $dvi_cont_previewer = $dvi_cont_previewer_landscape;
+  $ps_previewer = $ps_previewer_landscape;
+}
+
+# Process for each file.
+foreach $filename ( @ARGV )
+{
+  ## remove extention from filename if was given.
+  if ( &find_basename($filename, $root_filename, $texfile_name) )
+  {
+    die "LatexMk: Could not find file [$texfile_name]\n";
+  }
+
+  if ($cleanup_mode)
+  {
+    ## Do clean if necessary
+    &cleanup;
+    if ($cleanup_full_mode)
+    {
+      &cleanup_full;
+    }
+  }
+  else
+  {
+    ## Make file. ##
+    ## Find includes.
+    $includes = ''; 
+    $read_depend = 0;  # True to read depend file, false to generate it.
+    $depfile = "$root_filename.dep";
+
+    ## Figure out if we read the dependency file or generate a new one.
+    if ( ! $force_generate_and_save_includes )
+    {
+      if ( $generate_and_save_includes )
+      {
+	if ( -e $depfile )
+	{
+	  # Compare timestamp of dependency file and root tex file.
+	  $dep_mtime = &get_mtime("$depfile");
+	  $tex_mtime = &get_mtime("$texfile_name");
+	  if ( $tex_mtime < $dep_mtime )
+	  {
+	    $read_depend = 1;
+	  }
+	}
+      }
+      elsif ( -e $depfile )  # If dependency file already exists.
+      {
+	$read_depend = 1;
+      }
+    }
+
+    if ( $read_depend )
+    {
+      # Read the dependency file
+      open(depfile) || die "LatexMk: Couldn't open dependency file [$root_filename.dep]\n";
+      while(<depfile>) { eval; }
+      close(depfile);
+    }
+    else
+    {
+      # Generate dependency file.
+      # get search paths for includes.
+      $psfigsearchpath = '.';
+      $TEXINPUTS = $ENV{'TEXINPUTS'};
+      if (!$TEXINPUTS) { $TEXINPUTS = '.'; }
+      $BIBINPUTS = $ENV{'BIBINPUTS'};
+      if (!$BIBINPUTS) { $BIBINPUTS = $TEXINPUTS; }
+
+      &scan_for_includes("$texfile_name"); 
+      &update_depend_file;
+    }
+
+    ## put root tex file into list of includes.
+    $includes .= " $texfile_name";
+
+    ## before munging, save existing .aux file.
+    ## - if latex bombs, kill .aux, restore this backup to get back most
+    ## useful bib/ref info.
+    system("cp -p $root_filename.aux $root_filename.aux.bak > /dev/null 2>&1");
+
+    #************************************************************
+
+    &make_dependents("$includes");
+    if ($slide_mode) 
+    { 
+      &make_slitex_dvi; 
+    }
+    else
+    {
+      &make_latex_dvi;
+    }
+    &make_dvi_filtered;
+    &make_preview_continous;
+    &make_postscript;
+    &make_preview;
+    &make_printout;
+  }
+}
+
+#************************************************************
+#### Subroutines
+#************************************************************
+
+sub make_latex_dvi
+{
+  $changed_dvi = 0 ;		# flag if anything changed.
+  ## get initial last modified times.
+  $tex_mtime = &get_latest_mtime($includes);
+  $aux_mtime = &get_mtime("$root_filename.aux");
+  $bbl_mtime = &get_mtime("$root_filename.bbl");
+  $ilg_mtime = &get_mtime("$root_filename.ilg");
+  $ind_mtime = &get_mtime("$root_filename.ind");
+
+  ## - if no dvi file, or .aux older than tex file or bib file, run latex.
+  if ( $go_mode || !(-e "$root_filename.dvi")
+    || ($aux_mtime < $tex_mtime)
+    || ($aux_mtime < $bbl_mtime)
+    || ($aux_mtime < $ilg_mtime)
+    || ($aux_mtime < $ind_mtime)
+    || !(-e "$root_filename.aux"))
+  {
+    warn "------------\nRunning first $latex [$texfile_name]\n------------\n";
+    &backup_toc;
+    $return = system("$latex $texfile_name"); 
+    $changed_dvi = 1;
+
+    if (!$force_mode && $return)
+    {
+      &exit_msg('Latex encountered an error',1);
+    }
+
+    if  ($index_mode)
+    {
+      warn "------------\nRunning $makeindex [$root_filename]\n------------\n";
+      $return = system("$makeindex $root_filename");
+
+      if (!$force_mode && $return)
+      {
+        &exit_msg('Makeindex encountered an error');
+      }
+      $ilg_mtime = &get_mtime("$root_filename.ilg");
+      $ind_mtime = &get_mtime("$root_filename.ind");
+    }
+  }
+
+  $bib_mtime = &get_latest_mtime($bib_files);
+  ## if no .bbl or .bib changed since last bibtex run, run bibtex.
+  if ($bibtex_mode && (&check_for_bad_citation || !(-e "$root_filename.bbl")
+     || ($bbl_mtime < $bib_mtime)))
+  {
+    warn "------------\nRunning $bibtex [$root_filename]\n------------\n";
+    $return = system("$bibtex $root_filename"); 
+    $bbl_mtime = &get_mtime("$root_filename.bbl");
+  }
+
+  if ($bibtex_mode && &check_for_bibtex_errors)
+  {
+    if (!$force_mode)
+    { 
+      # touch a .bib file so that will rerun bibtex to fix errors.
+      @split_bib_files = split(' ',$bib_files);
+      system("touch $split_bib_files[0]");
+      &exit_msg('Bibtex reported an error'); 
+    }
+  }
+
+  ## now, if need to, rerun latex up to twice to generate valid .dvi 
+  ## w/ citations resolved.
+
+  $dvi_mtime = &get_mtime("$root_filename.dvi");
+  if ( ($dvi_mtime <= $bbl_mtime) || &check_for_reference_change 
+     || ($dvi_mtime <= $ilg_mtime)
+     || ($dvi_mtime <= $ind_mtime)
+     || (&check_toc))
+  {
+    warn "------------\nRunning second $latex [$texfile_name]\n------------\n";
+    &backup_toc;
+    $return = system("$latex $texfile_name"); 
+    $changed_dvi = 1;
+  }
+
+  if (!$force_mode && $return)
+  {
+    &exit_msg('Latex encountered an error',1);
+  }
+
+  if (&check_for_reference_change || &check_toc)
+  {
+    warn "------------\nRunning third $latex [$texfile_name]\n------------\n";
+    &backup_toc;
+    $return = system("$latex $texfile_name"); 
+    $changed_dvi = 1;
+  }
+
+  if (!$force_mode && &check_for_bad_reference)
+  {
+    &exit_msg('Latex could not resolve all references');
+  }
+
+  if (!$force_mode && &check_for_bad_citation)
+  {
+    &exit_msg('Latex could not resolve all citations or labels');
+  }
+
+  return(1);
+}
+
+#************************************************************
+
+sub make_slitex_dvi
+{
+  $tex_mtime = &get_latest_mtime($includes);
+  $dvi_mtime = &get_mtime("$root_filename.dvi");
+  if ( $go_mode || !(-e "$root_filename.dvi") || ($dvi_mtime < $tex_mtime) )
+  { 
+    warn "------------\nRunning $slitex [$texfile_name]\n------------\n";
+    $return = system("$slitex $texfile_name"); 
+  }
+  if (!$force_mode && $return)
+  {
+    &exit_msg('Slitex encountered an error');
+  }
+}
+
+#************************************************************
+
+sub make_dvi_filtered
+{
+  return if ( length($dvi_filter) == 0 );
+  warn "------------\nRunning $dvi_filter [$root_filename]\n------------\n";
+  system("$dvi_filter < $root_filename.dvi > $root_filename.dviF");
+}
+
+#************************************************************
+# Finds the basename of the root file
+# Arguments:
+#  1 - Filename to breakdown
+#  2 - Where to place base file
+#  3 - Where to place tex file
+#  Returns non-zero if tex file exists
+sub find_basename
+{
+  local($base_name,$ch,$ext,$base_path);
+
+  $ch = '';
+  $ext = '';
+  $base_path = $_[0];
+  while (( $ch ne '.' ) && ( $ch ne '/' ) && ( $base_path ne '' ))
+  {
+    $ext = $ch . $ext;
+    $ch = chop $base_path;
+  }
+  if (( $ch eq '.' ) && ( $base_path ne '' ))
+  {
+    ## Found extention stuff
+    $_[2] = $base_path . '.' . $ext;
+  }
+  else
+  {
+    ## No extention
+    $base_path = $_[0];
+    $_[2] = $_[0];
+  }
+  $ch = '';
+  $base_name = '';
+  while (( $ch ne '/' ) && ( $base_path ne '' ))
+  {
+    $ch = chop $base_path;
+    if ( $ch ne '/' )
+    {
+      $base_name = $ch . $base_name;
+    }
+  }
+  $_[1] = $base_name;
+  if ( ! -e $_[2] )
+  {
+    ## File does not exist, try adding a ".tex" extention
+    if ( -e "$_[2].tex" )
+    {
+      # Adding the extention works, so put the extention back on the
+      # basename
+      $_[1]  = $_[2];
+      $_[2] .= '.tex';
+      return(0);
+    }
+    return(1);
+  }
+  return(0);
+}
+
+#************************************************************
+
+sub make_dependents
+{
+  local($file,$dep,$base_name,$ch,$toext,$fromext,$proptoext,$must,$func_name,$return);
+
+  foreach $file (split(' ',$_[0]))
+  {
+    $ch = '';
+    $toext = '';
+    $base_name = $file;
+    while (( $ch ne '.' ) && ( $ch ne '/' ) && ( $base_name ne '' ))
+    {
+      $toext = $ch . $toext;
+      $ch = chop $base_name;
+    }
+    if (( $ch eq '.' ) && ( $base_name ne '' ))
+    {
+      #Extracted proper extention.
+      foreach $dep ( @cus_dep_list )
+      {
+	($fromext,$proptoext,$must,$func_name) = split(' ',$dep);
+	if ( $toext eq $proptoext )
+	{
+	  # Found match
+	  if ( -e "$base_name.$fromext" )
+	  {
+	    # From file exists, now check if it is newer
+	    if (( ! (-e "$base_name.$toext" ))
+		|| ( &get_mtime("$base_name.$toext")
+		< &get_mtime("$base_name.$fromext") ))
+	    {
+	      warn "------------\nRunning $func_name [$base_name]\n------------\n";
+	      $return = &$func_name($base_name);
+	      if ( !$force_mode && $return )
+	      {
+		&exit_msg("$func_name encountered an error");
+	      }
+	    }
+	  }
+	  else
+	  {
+	    if ( !$force_mode && ( $must != 0 ))
+	    {
+	      &exit_msg("File '$base_name.$fromext' does not exist to build '$base_name.$toext'\n");
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+
+#************************************************************
+
+sub make_printout
+{
+  return if (!$printout_mode);
+  local ($ext);
+  if ( length($ps_filter) == 0 )
+  {
+    $ext = '.ps';
+  }
+  else
+  {
+    $ext = '.psF';
+  }
+  warn "------------\nPrinting using $lpr [$root_filename]\n------------\n";
+  system("$lpr $root_filename$ext");
+}
+
+#************************************************************
+
+sub make_postscript
+{
+  if ( ! $banner )
+  {
+    return if (!$postscript_mode && !$printout_mode);
+  }
+  local ($tmpfile,$header,$dvi_file);
+
+  # Figure out the dvi file name
+  if ( length($dvi_filter) == 0 )
+  {
+    $dvi_file = "$root_filename.dvi";
+  }
+  else
+  {
+    $dvi_file = "$root_filename.dviF";
+  }
+
+  # Do banner stuff
+  if ( $banner )
+  {
+    ## Make temp banner file
+    local(*INFILE,*OUTFILE,$count);
+
+    $tmpfile = "$tmpdir/latexmk.$$";
+    $count = 0;
+    while ( -e $tmpfile )
+    {
+      $count = $count + 1;
+      $tmpfile = "$tmpdir/latexmk.$$.$count";
+    }
+    if ( ! open(OUTFILE, ">$tmpfile") ) {
+      die "LatexMk: Could not open temporary file [$tmpfile]\n"; }
+    print OUTFILE "userdict begin /bop-hook{gsave 200 30 translate\n";
+    print OUTFILE "65 rotate /Times-Roman findfont $banner_scale scalefont setfont\n";
+    print OUTFILE "0 0 moveto $banner_intensity setgray ($banner_message) show grestore}def end\n";
+    close(OUTFILE);
+    $header = "-h $tmpfile";
+  }
+  else
+  {
+    $header = '';
+  }
+
+  $ps_mtime = &get_mtime("$root_filename.ps");
+  $dvi_mtime = &get_mtime("$dvi_file");
+  if (( $ps_mtime < $dvi_mtime ) || $banner )
+  {
+    warn "------------\nRunning $dvips [$root_filename]\n------------\n";
+    system("$dvips $header $dvi_file -o $root_filename.ps");
+  }
+
+  if ( $banner )
+  {
+    unlink("$tmpfile");
+  }
+
+  ## Do we have postscript filtering?
+  if ( length($ps_filter) != 0 )
+  {
+    warn "------------\nRunning $ps_filter [$root_filename]\n------------\n";
+    system("$ps_filter < $root_filename.ps > $root_filename.psF");
+  }
+}
+
+#************************************************************
+# run appropriate previewer.
+
+sub make_preview
+{
+  return if (!$preview_mode);
+  $viewer = $dvi_previewer;
+  $ext = '.dvi';
+  if ($postscript_mode)
+  {
+    $viewer = $ps_previewer;
+    $ext = '.ps';
+    if ( length($ps_filter) != 0 )
+    {
+      $ext = '.psF';
+    }
+  }
+  else
+  {
+    if ( length($dvi_filter) != 0 )
+    {
+      $ext = '.dviF';
+    }
+  }
+  warn "------------\nStarting previewer: $viewer $root_filename$ext\n------------\n";
+  exec("$viewer $root_filename$ext");
+  warn "LatexMk: Could not start previewer [$viewer $root_filename$ext]";
+  exit;
+}
+
+sub backup_toc
+{
+  if ( -e "$root_filename.toc" )
+  {
+    system(
+      "cp -p $root_filename.toc $root_filename.toc.bak > /dev/null 2>&1");
+  }
+}
+
+#************************************************************
+# Compare the toc file with the backup.  If they differ then
+# return non-zero.
+sub check_toc
+{
+  local($return);
+
+  if ( -e "$root_filename.toc" )
+  {
+    if ( -e "$root_filename.toc.bak" )
+    {
+      $return = system(
+	"diff $root_filename.toc.bak $root_filename.toc > /dev/null 2>&1");
+    }
+    else
+    {
+      $return = 1;
+    }
+  }
+  else
+  {
+    $return = 0;
+  }
+  return($return);
+}
+
+#************************************************************
+# arg1 = name
+
+sub find_process_id
+{
+  local(@command, $lookingfor);
+  @ps_output = `$pscmd`;
+  shift(@ps_output);  # Discard the header line from ps
+  foreach (@ps_output)
+  {
+#    s/\s+/ /g;  #Compress multiple spaces.
+    ($pid,$tt,$stat,$time,@command) = split(' ',$_);
+    if ("@command" eq "$_[0]")
+    {
+      return($pid);
+    }
+  }
+  return(0);
+}
+
+#************************************************************
+
+sub make_preview_continous
+{
+  return if (!$preview_continuous_mode);
+  #
+  local ($dvi_file);
+  # get the value of SIGUSR1, defaults to SPARC value.
+  if (!(do 'signal.ph'))
+  {
+    eval 'sub SIGUSR1 {30;}';
+  }
+  # Figure out the dvi file name
+  if ( length($dvi_filter) == 0 )
+  {
+    $dvi_file = "$root_filename.dvi";
+  }
+  else
+  {
+    $dvi_file = "$root_filename.dviF";
+  }
+  # note, we only launch a previewer if one isnt already running...
+  # otherwise we'll send reopen signals to the existing previewer.
+  if ($previewer_pid = &find_process_id("$dvi_cont_previewer $dvi_file"))
+  {
+    warn "------------\nReattached to existing previewer, pid=$pid\n------------\n";
+    kill &SIGUSR1,$previewer_pid;
+  }
+  else
+  {
+    if (!($previewer_pid = fork))
+    {
+      # in forked child, close off from parent so previewer runs on
+      # after parent 'latexmk' dies.
+      setpgrp($$,0);
+      warn "------------\n$dvi_cont_previewer $dvi_file\n------------\n";
+      exec("$dvi_cont_previewer $dvi_file");
+      warn "LatexMk: Failed to exec file viewer\n";
+      exit;
+    }
+  }
+  # Loop forever, rebuilding .dvi as necessary.
+  while ( 1 )
+  {
+    sleep($sleep_time);
+    if ($slide_mode) 
+    { 
+      &make_slitex_dvi; 
+    }
+    else
+    {
+      &make_latex_dvi;
+    }
+    if ($changed_dvi)
+    {
+      kill &SIGUSR1,$previewer_pid;
+    }
+  }
+}
+
+#************************************************************
+
+sub get_mtime
+{
+  local ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,
+			$ctime,$blksize,$blocks) = stat($_[0]);
+  $mtime;
+}
+
+#************************************************************
+
+sub check_for_reference_change
+{
+  local($logfile) = "$root_filename.log";
+  open(logfile) || die "LatexMk: Could not open log file to check for reference check\n";
+  while(<logfile>)
+  { 
+    if (/Rerun to get/) { return 1; } 
+  }
+  0;
+}
+
+#************************************************************
+
+sub check_for_bad_reference
+{
+  local($logfile) = "$root_filename.log";
+  open(logfile) || die "LatexMk: Could not open log file to check for bad reference\n";
+  while (<logfile>)
+  {
+    if (/LaTeX Warning: Reference[^\001]*undefined./) { return 1; } 
+  }
+  0;
+}
+
+#************************************************************
+# check for citation which latex couldnt resolve.
+
+sub check_for_bad_citation
+{
+  local($logfile) = "$root_filename.log";
+  open(logfile) || die "LatexMk: Could not open log file to check for bad citation\n";
+  while (<logfile>)
+  {
+    if (/LaTeX Warning: Citation[^\001]*undefined./) { return 1; }
+  }
+  0;
+}
+
+#************************************************************
+# check for citation which bibtex didnt find.
+
+sub check_for_bibtex_errors
+{
+  local($logfile) = "$root_filename.blg";
+  open(logfile) || die "LatexMk: Could not open bibtex log file error check\n";
+  while (<logfile>)
+  {
+    if (/Warning--/) { return 1; }
+    if (/error message/) { return 1; }
+  }
+  0;
+}
+
+#************************************************************
+# cleanup
+# - erases all generated files, exits w/ no other processing.
+
+sub cleanup
+{
+  unlink("$root_filename.aux");
+  unlink("$root_filename.aux.bak");
+  unlink("$root_filename.bbl");
+  unlink("$root_filename.blg");
+  unlink("$root_filename.log");
+  unlink("$root_filename.ind");
+  unlink("$root_filename.idx");
+  unlink("$root_filename.ilg");
+  unlink("$root_filename.toc");
+  unlink("$root_filename.toc.bak");
+  unlink("$root_filename.lof");
+  unlink("$root_filename.lot");
+  unlink("$root_filename.dep");
+  unlink("texput.log");
+  unlink("texput.aux");
+
+  # .aux files are also made for \include'd files
+  foreach $include (split(' ',$includes))
+  { 
+    $include =~ s/\.[^\.]*$/.aux/;
+    unlink($include);
+  }
+  # Do any other file extentions specified
+  foreach $ext (split(' ',$clean_ext))
+  {
+    unlink("$root_filename.$ext");
+  }
+}
+
+#************************************************************
+sub cleanup_full
+{
+  unlink("$root_filename.dvi");
+  unlink("$root_filename.ps");
+  unlink("$root_filename.dviF");
+  unlink("$root_filename.psF");
+  unlink("texput.dvi");
+  # Do any other file extentions specified
+  foreach $ext (split(' ',$clean_full_ext))
+  {
+    unlink("$root_filename.$ext");
+  }
+}
+
+#************************************************************
+sub print_help
+{
+  warn "LatexMk $version_num: Automatic LaTeX document generation routine\n\n";
+  warn "Usage: latexmk [latexmk_options] [filename ...]\n\n";
+  warn "  LatexMk_options:\n";
+  warn "   -bm <message> - Print message across the page when converting to postscript\n";
+  warn "   -bi <intensity> - Set contrast or intensity of banner\n";
+  warn "   -bs <scale> - Set scale for banner\n";
+  warn "   -c 	- clean up (remove) all nonessential files\n";
+  warn "   -C 	- clean up (remove) all nonessential files\n";
+  warn "          including dvi and postscript files\n";
+  warn "   -d   - Print `DRAFT' across the page when converting to postscript\n";
+  warn "   -dF <filter> - Filter to apply to dvi file\n";
+  warn "   -f 	- force continued processing past errors\n";
+  warn "   -F 	- Ignore non-existent files when making dependencies\n";
+  warn "   -g 	- process regardless of file timestamps\n";
+  warn "   -h 	- print help\n";
+  warn "   -i 	- rescan for includes if depenancy file older than tex file\n";
+  warn "   -I 	- force rescan for includes\n";
+  warn "   -l   - force landscape mode\n";
+  warn "   -ps 	- generate postscript\n";
+  warn "   -pF <filter> - Filter to apply to postscript file\n";
+  warn "   -p   - print document after generating postscript\n";
+  warn "   -pv  - preview document\n";
+  warn "   -pvc - preview document and continuously update\n";
+  warn "   -r <file> - Read custom RC file\n";
+  warn "   -s   - set slide mode\n";
+  warn "   -v   - display program version\n";
+  warn "   filename = the root filename of LaTeX document\n";
+  warn "\n  -p, -pv and -pvc are mutually exclusive\n";
+  warn "  -h, -c and -C overides all other options.\n";
+  warn "  -pv and -pvc require one and only one filename specified\n";
+  warn "  Contents of RC file specified by -r overrides options specified\n";
+  warn "    before the -r option on the command line\n";
+
+  exit;
+}
+
+#************************************************************
+# - stats all files listed in first arg, returns most recent modify time of all.
+
+sub get_latest_mtime
+{
+  local($return_mtime) = 0;
+  foreach $include (split(' ',$_[0]))
+  {
+    $include_mtime = &get_mtime($include);
+    if ($include_mtime >  $return_mtime)
+    {
+      $return_mtime = $include_mtime;
+    }
+  }
+  $return_mtime;
+}
+
+#************************************************************
+# - looks recursively for included & inputted and psfig'd files and puts
+#   them into $includes.
+# - note only primitive comment removal: cannot deal with escaped %s, but then,
+#	when would they occur in any line important to LatexMk??
+
+sub scan_for_includes
+{
+  warn "------------\nGenerating Dependency File [$root_filename]\n------------\n";
+  &scan_for_includes_($_[0]);
+}
+
+sub scan_for_includes_
+{
+  local(*FILE,$orig_filename,$full_filename1,$full_filename2);
+  if (!open(FILE,$_[0])) 
+  {
+    warn "LatexMk: could not open input file [$_[0]]\n";
+    return;
+  }
+  while(<FILE>)
+  {
+    ($_,$junk) = split('%',$_);		# primitive comment removal.
+    if (/\\include[{\s]+([^\001\040\011}]*)[\s}]/)
+    {
+      $full_filename = $1;
+      $orig_filename = $full_filename;
+      $full_filename1 = &find_file($full_filename,$TEXINPUTS,'1');
+
+      if (( $full_filename1 eq '' ) || ( ! -e $full_filename1 ))
+      {
+        $full_filename2 = &find_file("$full_filename.tex",$TEXINPUTS,'1');
+        if (( $full_filename2 ne '' ) && ( -e $full_filename2 ))
+        {
+          $full_filename = $full_filename2;
+        }
+        else
+        {
+          $full_filename = $full_filename1;
+        }
+      }
+      else
+      {
+        $full_filename = $full_filename1;
+      }
+
+      if ($full_filename)
+      {
+      	$includes .= "$full_filename ";
+	if ( -e $full_filename )
+	{
+	  warn "	Found include for file [$full_filename]\n";
+	  &scan_for_includes_($full_filename);
+	}
+        else
+        {
+          if ( $orig_filename =~ /^\// )
+          {
+            warn "LatexMk: Could not find file [$orig_filename]\n";
+          }
+          else
+          {
+            warn "LatexMk: Could not find file [$orig_filename] in path [$TEXINPUTS]\n";
+            warn "         assuming in current directory ($full_filename)\n";
+          }
+        }
+      }
+      else
+      {
+        if ( ! $force_include_mode )
+        {
+          if ( $orig_filename =~ /^\// )
+          {
+            die "LatexMk: Could not find file [$orig_filename]\n";
+          }
+          else
+          {
+            die "LatexMk: Could not find file [$orig_filename] in path [$TEXINPUTS]\n";
+          }
+        }
+      }
+    }
+    elsif (/\\input[{\s]+([^\001\040\011}]*)[\s}]/)
+    {
+      $full_filename = $1;
+      $orig_filename = $full_filename;
+      $full_filename1 = &find_file($full_filename,$TEXINPUTS,'1');
+
+      if (( $full_filename1 eq '' ) || ( ! -e $full_filename1 ))
+      {
+	$full_filename2 = &find_file("$full_filename.tex",$TEXINPUTS,'1');
+	if (( $full_filename2 ne '' ) && ( -e $full_filename2 ))
+	{
+	  $full_filename = $full_filename2;
+	}
+	else
+	{
+	  $full_filename = $full_filename1;
+	}
+      }
+      else
+      {
+	$full_filename = $full_filename1;
+      }
+
+      if ($full_filename)
+      {
+	$includes .= "$full_filename ";
+	warn "added '$full_filename'\n";
+	if ( -e $full_filename )
+	{
+	  warn "	Found input for file [$full_filename]\n";
+	  &scan_for_includes_($full_filename);
+	}
+	else
+	{
+	  if ( $orig_filename =~ /^\// )
+	  {
+	    warn "LatexMk: Could not find file [$orig_filename]\n";
+	  }
+	  else
+	  {
+	    warn "LatexMk: Could not find file [$orig_filename] in path [$TEXINPUTS]\n";
+	    warn "         assuming in current directory ($full_filename)\n";
+	  }
+	}
+      }
+      else
+      {
+	if ( ! $force_include_mode )
+	{
+	  if ( $orig_filename =~ /^\// )
+	  {
+	    die "LatexMk: Could not find file [$orig_filename]\n";
+	  }
+	  else
+	  {
+	    die "LatexMk: Could not find file [$orig_filename] in path [$TEXINPUTS]\n";
+	  }
+	}
+      }
+    }
+    elsif (/\\blackandwhite{([^\001\040\011}]*)}/ || /\\colorslides{([^\001}]*)}/)
+    {
+      $slide_mode = 1;
+      $full_filename = $1;
+      if ($1 =~ m/\./)
+      {
+        $full_filename = &find_file($full_filename,$TEXINPUTS);
+      }
+      else
+      {
+        $full_filename = &find_file("$full_filename.tex",$TEXINPUTS);
+      }
+      if ($full_filename)
+      {
+      	$includes .= "$full_filename ";
+	if ( -e $full_filename )
+	{
+	  warn "	Found slide input for file [$full_filename]\n";
+	  &scan_for_includes_($full_filename);
+	}
+      }
+    }
+    elsif (/\\psfig{file=([^,}]+)/ || /\\psfig{figure=([^,}]+)/)
+    {
+      $full_filename = &find_file($1,$psfigsearchpath);
+      if ($full_filename)
+      {
+      	$includes .= "$full_filename ";
+	if ( -e $full_filename )
+	{
+	  warn "	Found psfig for file [$full_filename]\n";
+	}
+      }
+    }
+    elsif ( /\\epsfbox{([^}]+)}/ || /\\epsfbox\[[^\]]*\]{([^}]+)}/ ||
+	    /\\epsffile{([^}]+)}/ || /\\epsffile\[[^\]]*\]{([^}]+)}/ ||
+	    /\\epsfig{file=([^,}]+)/ || /\\epsfig{figure=([^,}]+)/ )
+    {
+      $full_filename = &find_file($1,$TEXINPUTS);
+      if ($full_filename)
+      {
+      	$includes .= "$full_filename ";
+	if ( -e $full_filename )
+	{
+	  warn "	Found epsf for file [$full_filename]\n";
+	}
+      }
+    }
+    elsif (/\\documentstyle[^\000]+landscape/)
+    {
+      warn "	Detected landscape mode\n";
+      $landscape_mode = 1;
+    }
+    elsif (/\\bibliography{([^}]+)}/)
+    {
+      $bib_files = $1;
+      $bib_files =~ tr/,/ /;
+      $bib_files = &find_file_list($bib_files,'.bib',$BIBINPUTS);
+      warn "	Found bibliography files [$bib_files]\n";
+      $bibtex_mode = 1;
+    }
+    elsif (/\\psfigsearchpath{([^}]+)}/)
+    {
+      $psfigsearchpath = $1;
+    }
+    elsif (/\\makeindex/)
+    {
+      $index_mode = 1;
+      warn "        Detected index mode\n";
+    }
+  }
+}
+
+#************************************************************
+# given filename and path, return full name of file, or die if none found.
+# when force_include_mode=1, only warn if an include file was not
+# found, and return 0 (PvdS).
+
+sub find_file
+{
+  if ( $_[0] =~ /^\// )
+  {
+    if ($force_include_mode)
+    {
+	if ( $_[2] eq '' )
+	{
+	  warn "LatexMk: Could not find file [$_[0]]\n";
+	}
+	return("$_[0]");
+    }
+    else
+    {
+	if (-e $_[0])
+	{
+	  return("$_[0]");
+	}
+	die "LatexMk: Could not find file [$_[0]]\n";
+    }
+  }
+  foreach $dir (split(':',$_[1]))
+  {
+    if (-e "$dir/$_[0]")
+    {
+      return("$dir/$_[0]");
+    }
+  }
+  if ($force_include_mode)
+  {
+	if ( $_[2] eq '' )
+	{
+	  warn "LatexMk: Could not find file [$_[0]] in path [$_[1]]\n";
+	  warn "         assuming in current directory (./$_[0])\n";
+	}
+	return("./$_[0]");
+  }
+  else
+  {
+	if ( $_[2] ne '' )
+	{
+	  return('');
+	}
+  	die "LatexMk: Could not find file [$_[0]] in path [$_[1]]\n";
+  }
+}
+
+#************************************************************
+# given space sep list of filenames, a file suffix, and a path, return list of 
+# full names of files, or die w/ warning if not found.
+# When $force_include_mode=1, don't die and don't append the file names (PvdS).
+
+sub find_file_list
+{
+  local($tmp_file,$return_list) = '';
+  foreach $file (split(' ',$_[0]))
+  {
+    $tmp_file = &find_file("$file$_[1]",$_[2]);
+    if ($tmp_file)
+    {
+    	$return_list .= $tmp_file . " ";
+    }
+  }
+  $return_list;
+}
+
+#************************************************************
+sub exit_msg
+{
+  warn "\n------------\n";
+  warn "LatexMk: $_[0].\n";
+  warn "-- Use the -f option to force complete processing.\n";
+  if ($_[1])
+  {
+    warn "LatexMk: restoring last $root_filename.aux file\n";
+    system("cp -p $root_filename.aux.bak $root_filename.aux > /dev/null 2>&1");
+  }
+  exit;
+}
+
+#************************************************************
+
+sub update_depend_file
+{
+  warn "Writing dependency file [$root_filename.dep]\n";
+  $rcfile = ">$root_filename.dep";
+  open(rcfile) || die "LatexMk: Unable to open dependency file [$rcfile] for updating\n";
+  print rcfile '$includes = \'' . "$includes';\n";
+  print rcfile '$bib_files = \'' . "$bib_files';\n";
+  if ($slide_mode)
+  {
+    print rcfile '$slide_mode = 1;' . "\n";
+  }
+  if ($bibtex_mode)
+  {
+    print rcfile '$bibtex_mode = 1;' . "\n";
+  }
+  if ($index_mode)
+  {
+    print rcfile '$index_mode = 1;' . "\n";
+  }
+  close rcfile;
+}

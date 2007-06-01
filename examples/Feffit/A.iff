@@ -1,0 +1,22 @@
+
+macro  m1
+    echo " m1 start"
+    echo " First arg: " , $1
+    echo " m1 done "
+end macro
+
+
+macro  m2
+    echo " m2 start"
+    echo " A is " , $1
+    echo " B is " , $2
+    m1 $1
+    echo " m2 done "
+end macro
+
+macro  m3 
+    echo " m3 start"
+    m2  A B
+    echo " m3 done "
+end macro
+

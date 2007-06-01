@@ -1,0 +1,148 @@
+#!/bin/sh
+##
+## simple ifeffit configuration shell script:
+## tasks:
+##   set prefix for installation
+##   get version number from Changelog
+##   get array size
+##   write maxpts.h and sys.h for ifeffit library
+##
+
+package='ifeffit'
+prefix='/usr/local'
+pgdir='/usr/local/pgplot'
+xlibs='-L/usr/X11R6/lib -lX11'
+rllibs='-L/usr/lib/ -lreadline -lncurses'
+lddlflags_p5='-shared'
+arraysize='large'
+
+sys=`uname -s`
+
+case "$sys" in
+   darwin | Darwin )
+           prefix='/sw'
+           pgdir='/sw/lib/pgplot'
+	   xlibs='-L/usr/X11R6/lib -lX11 -framework Foundation -framework AppKit'
+           rllibs='-L/usr/lib/ -L/sw/lib/ -lreadline -lncurses'
+           lddlflags_p5='-flat_namespace -bundle -undefined suppress -L/usr/local/lib -framework Foundation -framework AppKit'
+	   ;;
+   linux | Linux )
+           prefix='/usr/local'
+           pgdir='/usr/local/pgplot'
+	   xlibs='-L/usr/X11R6/lib -lX11'
+           rllibs='-L/usr/lib/ -lreadline -lncurses'
+           lddlflags_p5='-shared'
+	   ;;
+esac
+
+srcdir='../lib'
+cright="Copyright (c) 2002 Matt Newville, Univ of Chicago"
+
+changelog='../../ChangeLog'
+version=`grep '* Version' $changelog | head -1| sed 's/[ ]*\* Version[ ]*//g' | sed 's/:.*//g'`
+
+
+# get command line options
+for opt ; do
+  option=''
+  case "$opt" in
+    -*=*) 
+         optarg=`echo "$opt" | sed 's/[-_a-zA-Z0-9]*=//'` 
+         option=`echo "$opt" | sed 's/=.*//' | sed 's/-*//'`
+         ;;
+    *) 
+         option=`echo "$opt" | sed 's/^-*//'`
+         optarg= 
+         ;;
+  esac
+  case "$option" in
+    prefix)          prefix=$optarg ;;
+    arraysize)       arraysize=$optarg ;;
+    pgplot_dir)      pgdir=$optarg ;;
+    help)        cat<<EOF
+ Usage: configure [options] 
+ Options: 
+   --prefix=PREFIX            base directory for installation [$prefix]
+   --arraysize=ARRAYSIZE      tiny,small,medium,large,huge    [$arraysize]
+   --pgplot_dir=PGPLOT_DIR    directory for PGPLOT            [$pgdir]
+   --xlibs=XLIBS              link directive for X            [$xlibs]
+EOF
+    exit 0
+    ;;
+
+   *) 
+       echo " unknown option "  $opt
+       exit 1
+        ;; 
+  esac
+done
+
+##
+## set arraysize to maxpts.h
+case $arraysize in
+  huge)   size=16384 ;;
+  medium) size=4096  ;;
+  small)  size=2048  ;;
+  tiny)   size=1024  ;;
+  large)  size=8192  ;;
+  *)      size=4096  ;;
+esac
+
+
+current=`cat $srcdir/arrsize.dat`
+maxpts_h="$srcdir/maxpts.h"
+if test "x$current" == "x$size" && [ -f $maxpts_h ] ; then \
+  x=1
+else
+   echo "c{maxpts.h  -*-fortran-*- "                  > $maxpts_h
+   echo "         integer  maxpts, maxsize_array"    >> $maxpts_h
+   echo "         parameter(maxsize_array =  $size)" >> $maxpts_h
+   echo "         parameter(maxpts = maxsize_array)" >> $maxpts_h
+   echo "c}"                                         >> $maxpts_h
+   echo "$size" > $srcdir/arrsize.dat
+fi
+
+##
+## write sys.h
+
+sys_h="$srcdir/sys.h"
+echo "c{sys.h  -*-fortran-*- "                      > $sys_h
+echo "c system and build specific stuff goes here" >> $sys_h
+echo "c to be included in iff_config.f"            >> $sys_h
+echo "       sysdir = '$prefix/share/$package'"    >> $sys_h
+echo "       pgdev  = '/xserve'"                   >> $sys_h
+echo "       inifile= 'startup.iff  .ifeffit'"     >> $sys_h
+echo "       build = '$version'//"                 >> $sys_h
+echo "     $   ' $cright'"                         >> $sys_h
+echo "c}"                                          >> $sys_h
+
+##
+## 
+
+makefile='Makefile'
+echo '# This is an AUTOMATICALLY configured Makefile ' > $makefile
+echo '# running configure will OVERWRITE this file!!!' >>$makefile
+echo '' >>$makefile
+echo '#installation prefix' >>$makefile
+echo "prefix        = $prefix" >>$makefile
+echo "# where pgplot library?" >>$makefile
+echo "PG_DIR        = $pgdir" >>$makefile
+echo "" >>$makefile
+echo "# how do I link with Xlib?" >>$makefile
+echo "X_LIBS        = $xlibs" >>$makefile
+echo "" >>$makefile
+echo "# set the load library flags (perl 5.8.0 specific??)" >>$makefile
+echo "LDDLFLAGS_P5  = $lddlflags_p5" >>$makefile
+echo "# set readline flags" >>$makefile
+echo "READLINE_LIBS = $rllibs" >>$makefile
+
+cat makefile.in >> $makefile
+
+
+echo "===" 
+echo "===  $package $version Configuration Results for $sys:"
+echo "===  linking to PGPLOT in directory $pgdir" 
+echo "===" 
+echo "===  You may want to check the Makefile"
+echo "==="
+echo "===  then type 'make' then 'make install'" 

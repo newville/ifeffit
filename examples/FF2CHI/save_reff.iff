@@ -1,0 +1,25 @@
+path(index  = 001,
+     feff   = ../feff/feffcu01.dat,
+     label  = "Cu metal first neighbor", 
+     s02    = 1.0, 
+     sigma2 = 0.001, 
+     e0     = 0.01      )
+
+path(index=002, feff=../feff/feffcu02.dat, s02 =1.0)
+path(index=003, feff=../feff/feffcu03.dat, s02 =0.8)
+
+
+ff2chi(1,   group=f1)
+
+set (reff_1 = reff , deg_1 = degen)
+
+ff2chi(2,   group=f2)
+set ( reff_2 = reff, deg_2 = degen)
+
+ff2chi(3,   group=f3)
+set ( reff_3 = reff, deg_3 = degen)
+
+ff2chi(1,2,3,group=feff) 
+
+show  reff_1, reff_2, reff_3, deg_1, deg_2, deg_3
+

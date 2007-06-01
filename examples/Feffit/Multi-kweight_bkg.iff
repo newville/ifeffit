@@ -1,0 +1,17 @@
+read_data (file=../data/cu10k.chi, group=a,label='k chi')
+guess(a=0.9, e=0, d=0, s=0)
+path(1, feff=../feff/feff0001.dat, s02=a, e0=e, delr=d, sigma2=s)
+
+
+feffit(1, chi=a.chi,  k=a.k, 
+       kmin = 2, kmax=18, dk=5, kwindow='kaiser', 
+       rmin = 1, rmax=3, do_bkg=true,
+       kweight=2, kweight=4, kweight=1, group=b)
+
+newplot a.r, a.chir_mag
+plot    b.r, b.chir_mag
+
+set correl_min =0.5
+show @correlations
+show @variables
+show  chi_square,r_factor,n_idp, n_varys, epsilon_k

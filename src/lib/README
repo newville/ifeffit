@@ -1,0 +1,14 @@
+#
+# This directory contains data files needed for Ifeffit to work well.
+#
+# directories and files contained here are:
+#
+# startup.iff   ifeffit startup file, loaded upon initialization.
+#               this is an ideal to put site-wide macro definitions
+#
+# config/       files describing the ifeffit build, especially useful
+#               for building extensions to ifeffit after installation.
+#
+# cldata/       data file needed for the f1f2() calculations of the 
+#               anomalous scattering coefficients based on the work of
+#               Cromer-Libermann.

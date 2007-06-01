@@ -1,0 +1,36 @@
+#
+#   example of phase-corrected FTs using phase-shifts
+#   from FEFF calculations
+# 
+
+# read path
+# path(1, ../feff/feff0001.dat, label ='Path 1')
+
+
+read_data(../data/cu150k.chi , group=no_pc, type=chi)
+set pad.chi  = no_pc.chi
+set caps.chi = no_pc.chi
+set full.chi = no_pc.chi
+
+kmin=2, kmax=18, dk=1,kweight=2
+
+# no phase-correction
+fftf(no_pc.chi)
+
+# phase-shifted FT with central-atom phase-shift only
+# fftf(caps.chi,pc_feff_path=1,pc_caps)
+
+# fftf(full.chi,pc_feff_path=1)
+
+# pad
+fftf(pad.chi,pc_edge = 'cu k')
+
+newplot(no_pc.r, no_pc.chir_mag, xmax=8, key='No Phase-Shift',key_x=0.7, 
+        title= 'Comparison of Phase-Corrected FTs using data from a FEFF path')
+   plot(pad.r, pad.chir_mag,   key='Feff Table')
+#    plot(caps.r, caps.chir_mag, key='CAPS Feff.dat')
+#    plot(full.r, full.chir_mag, key='FULL Feff.dat')
+
+
+
+

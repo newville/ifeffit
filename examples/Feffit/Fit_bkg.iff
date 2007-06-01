@@ -1,0 +1,33 @@
+
+
+
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+guess  s02   = 1.
+guess  e0    = 1.
+guess  ss2   = 0.002
+guess  dr    = 0.001
+
+path(index  = 1, 
+     feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first neighbor", 
+     s02    = s02, 
+     sigma2 = ss2,
+     delr   = dr, 
+     e0     = e0 )
+
+fftf(real = data.chi)
+feffit(chi = data.chi, k=data.k,group = fit, 1, 
+      kmin=2,kmax=17,rmin=1,rmax=2.9,dk=2,kweight=2,
+      do_bkg=true)
+
+
+show @arrays
+show @variables
+
+newplot fit.k, fit.kbkg
+
+write_data(file = 'bkg.dat ', fit.k, fit.kbkg, bkg01_01,
+             , bkg01_02, bkg01_03, bkg01_04, bkg01_05)
+
+save(bkg.sav)

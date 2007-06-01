@@ -1,0 +1,290 @@
+%%#fixtex% for html/pdf   -*-latex-*-  
+\section{The Basics of {\ifeffit}} \label{Ch:Basics}
+
+{\ifeffit} is a command-based program. That is, you tell {\ifeffit} to do
+something, it does that and then waits for you to tell it what to do next.
+The commands that {\ifeffit} accepts are simple statements (there are no
+loops or conditional statements) useful for data manipulation, and
+especially for XAFS analysis.  Most commands tell {\ifeffit} to manipulate
+arrays of numerical data.  There are commands for reading arrays from
+files, writing arrays to files, plotting arrays, doing simple mathematical
+manipulation of arrays, and more XAFS-specific commands such as
+background-spline removal and Fourier transforms.  It can also fit XAFS
+data using theoretical standards from {\feff} with complex modeling
+abilities and automated error analysis.  This chapter gives a quick
+overview of {\ifeffit} with a simple annotated example.  Much of this
+material is also covered in {\IFFtut}.
+
+\subsection{Starting the program} \label{Ch:Basics-starting} 
+
+Typing {\tt{ifeffit}} at the system command prompt will start the basic
+{\ifeffit} command-line program.  You should get a set of messages and a
+command prompt that looks like this:
+
+{\small\begin{verbatim}
+  Ifeffit 1.2.7  Copyright (c) 2005 Matt Newville, Univ of Chicago
+                   command-shell version 1.1 with GNU Readline
+  Ifeffit>
+\end{verbatim}}
+\noindent
+At this point, you're ready to start typing {\ifeffit} commands at the
+prompt.  If you don't get such a prompt, the installation on your machine
+is probably corrupted. Detailed installation instructions are available
+with the {\ifeffit} distribution.
+
+\subsection{A Sample Run} \label{Ch:Basics-sample} 
+
+We start with a fairly complete example (see the tutorial for a more gentle
+introduction). Let's say you have some raw data from a beamline in a
+plain-text column format, and you want to convert it to $\mu(E)$, do a
+background subtraction, and then a Fourier Transform to see what the data
+looks like in $R$-space.  Though a very practical request, it's really
+quite a bit of data processing, so this is a fairly intense example.
+Here's what the session might look like:
+
+{\small{
+%%#VerbSBox%
+\begin{VerbSBox}
+ Ifeffit> read_data(file=Cu.dat, type=raw, group= cu)
+ Ifeffit> cu.energy  = cu.1 * 1000.0
+ Ifeffit> cu.xmu     = ln(cu.2 / cu.3)
+ Ifeffit> spline(energy = cu.energy, xmu = cu.xmu, 
+ Ifeffit>        rbkg=1.1, kweight=1., kmin=0)
+ Ifeffit> plot(cu.energy, cu.xmu)
+ Ifeffit> plot(cu.energy, cu.bkg, xmin=8850, xmax=9300,  
+ Ifeffit>                         color=red)
+ Ifeffit> kweight = 2.0,  cu.chi_kw = cu.chi * cu.k^kweight
+ Ifeffit> newplot(cu.k,  cu.chi_kw)
+ Ifeffit> fftf(real = cu.chi, kmin = 2.0, kmax = 13.0, 
+ Ifeffit>      dk = 1.0, kweight=2)
+ Ifeffit> newplot(cu.r, cu.chir_mag, xmax=8)
+ Ifeffit> $title1 = "Test: writing out  k, chi, chi*k"
+ Ifeffit> $title2 = "   data from Cu.dat,   rbkg = 1.0"
+ Ifeffit> write_data(file = Out.chi,  cu.k, cu.chi, 
+ Ifeffit>            cu.chi_kw, $title1, $title2)
+\end{VerbSBox}
+%%#VerbSBox%
+}}\noindent 
+
+One important aspect of {\ifeffit} is that you can save commands into a
+file and execute all commands in that file at one time.  By saving the
+above commands into the file {\file{process.iff}}, we could simply type
+{\tt{load process.iff}} at the {\ifeffit} command line.  These two methods
+of running these commands are completely equivalent.
+
+We'll now go through each of these lines in detail.  At times there may be
+{\emph{too}} much detail here.  If so, please go through the {\textsl{The
+    {\ifeffit} Tutorial}} and be patient.
+
+\begin{verbatim}
+ Ifeffit> read_data(file=Cu.dat, type=raw, group= cu)
+\end{verbatim}
+\noindent
+This command reads in data arrays from the ASCII column file
+{\file{Cu.dat}}.  The arguments {\tt{type=raw}} and {\tt{group=cu}} help
+{\cmnd{read\_data()}} name the arrays it reads in.  Because arrays are often
+read in and processed together, it is convenient to give them names that
+are related.  Arrays names always have two parts -- a prefix and suffix,
+with a dot '.' in between.  The prefix gives the group name, and the suffix
+explains what the data contains.  Here, {\tt{cu}} is used as the group name
+(prefix).  The type {\tt{raw}} is the simplest type, so the suffixes will
+just be the column index.  To make a long story short, we just read in the
+arrays {\tt{cu.1}}, {\tt{cu.2}}, and {\tt{cu.3}}.
+
+\begin{verbatim}
+ Ifeffit> cu.energy  = cu.1 * 1000.
+ Ifeffit> cu.xmu     = ln(cu.2 / cu.3)
+\end{verbatim}
+\noindent
+Presumably, we know what the contents of our data file. For this
+{\file{Cu.dat}} file, the column contained energy in keV, the second
+contained $I_0$ and the third $I$, for absorption data measured in
+transmission.  There might have been more columns in the file, but this is
+all we need at this point. {\ifeffit} prefers to think about energy in eV
+not keV, so we make an array {\tt{cu.energy}} that has energy in eV, and
+then we calculate $\mu(E)$ and call that {\tt{cu.xmu}}.  Note
+that the math here is done on all elements of the array.
+
+\begin{verbatim}
+ Ifeffit>  spline(energy = cu.energy, xmu = cu.xmu, 
+ Ifeffit>         rbkg=1.1,kweight=1.,kmin=0)
+\end{verbatim}
+\noindent
+This computes the background spline $\mu_0(E)$ for our $\mu(E)$ using the
+{\autobk} algorithm.  The argument {\tt{energy = cu.energy}} names the
+array to use as the energy values, and {\tt{xmu = cu.xmu}} names the
+$\mu(E)$ array.  {\tt{rbkg=1.1}} sets the value of $R_{\rm bkg}$, while
+{\tt{kweight=1.}} sets the $k$-weighting, and {\tt{kmin=0}} sets the value
+of $k_{\rm min}$.
+
+Like many other commands, {\cmnd{spline}} uses, modifies, and (if necessary)
+creates several arrays and scalars.  The complete list of what
+{\cmnd{spline}} uses is listed in section~{\ref{Ch:Command:spline}}.  For now a
+partial list will do: {\cmnd{spline}} sets the arrays {\tt{cu.bkg}} to
+contain $\mu_0(E)$, {\tt{cu.k}} to contain the $k$ values, and
+{\tt{cu.chi}} to contain $\chi(k)$.  Several scalar values (including
+{\tt{rbkg}}, {\tt{kweight}}, {\tt{kmin}}, and {\tt{e0}}) are also set by
+{\cmnd{spline}}.  You can see the values of these variables with the
+{\cmnd{show}} command -- try {\tt{show(e0, kmax)}} for example.
+
+\begin{verbatim}
+ Ifeffit>  plot(cu.energy, cu.xmu)
+\end{verbatim}
+\noindent
+This plots $\mu(E)$.  That is a plot window should appear and a trace of
+$\mu(E)$ should be drawn on it.  If this does not happen, please consult
+the installation instructions.  The {\cmnd{plot}} command has many optional
+arguments, but here we're just giving the array names for the ordinate
+{\tt{cu.energy}} and the abscissa {\tt{cu.xmu}}.
+
+% Actually, we could have even dropped the group name in the argument.  This
+% is a common feature -- When a command expects to read an array name and
+% doesn't find a name with a '.' in it, it uses the name given as the suffix
+% and uses the default group name (which gets set by all array-processing
+% commands,  so is likely to be set already).  This means that we could have
+% typed {\tt{plot(energy, xmu)}} and gotten the same plot.
+
+\begin{verbatim}
+ Ifeffit>  plot(cu.energy, cu.bkg, xmin= 8850, xmax= 9300, 
+ Ifeffit>       color=red)
+\end{verbatim}
+\noindent
+This adds a plot of $\mu_0(E)$ to the previous plot.  
+We specify the x range of the
+plot with {\tt{xmin = 8850, xmax = 9300}} to look at just the near-edge
+region, and explicitly give the color to use for $\mu_0(E)$.  Note that
+overplotting is the default behavior.  See section~{\ref{Ch:Command:plot}} for
+all the plotting options, and chapter~{\ref{Ch:Plot}} for even more
+information about plotting with {\ifeffit}.
+
+\begin{verbatim}
+ Ifeffit>  kweight = 2.0,  cu.chi_kw = cu.chi * cu.k^kweight
+\end{verbatim}
+\noindent
+This sets the value of {\tt{kweight}} and uses the new value to create the
+array {\tt{cu.chi\_kw}} which contains $k^2\chi(k)$.  Note that multiple
+``set variable'' commands were put on a single line.
+
+\begin{verbatim}
+ Ifeffit>  newplot(cu.k,  cu.chi_kw)
+\end{verbatim}
+\noindent
+This plots the $k$-weighted $\chi(k)$ that we just calculated.
+{\cmnd{newplot}} is a variation of {\cmnd{plot}} command that reinitializes
+the plot, so that it won't be plotted over the current window (which was
+still showing $\mu(E)$ and $\mu_0(E)$).
+
+\begin{verbatim}
+ Ifeffit>  fftf(real = cu.chi, kmin = 2.0, kmax = 13.0, 
+ Ifeffit>        dk = 1.0, kweight=2)
+\end{verbatim}\noindent
+This does the forward XAFS Fourier transform of $\chi(k)$.  The argument
+{\tt{real = cu.chi}} tells {\cmnd{fftf}} to use {\tt{cu.chi}} (which is the
+un-$k$-weighted $\chi(k)$ from {\cmnd{spline}}) as the real part of the
+function to Fourier transform.  We could have said {\tt{imag = cu.chi}} to
+use $\chi(k)$ as the imaginary part.  This is, to some extent, a matter of
+convention -- see {\XAIBook} for more details.
+
+The Fourier transform window was specified with the parameters {\tt{kmin}},
+{\tt{kmax}}, and {\tt{dk}}.  The $k$-weight parameter for the Fourier
+transform will be read from the variable {\tt{kweight}}, which we just
+defined as 2.  {\cmnd{fftf}} creates arrays {\tt{cu.r}} for $R$, and
+{\tt{cu.chir\_re}}, {\tt{cu.chir\_im}}, and {\tt{cu.chir\_mag}} for the
+real part, imaginary part, and magnitude of $\tilde\chi(R)$, among other
+things.
+
+\begin{verbatim}
+ Ifeffit>  newplot(cu.r, cu.chir_mag, xmax = 8)
+\end{verbatim}\noindent
+Now we plot $|\chi(R)|$, explicitly limiting the $R$-range to $8
+{\rm{\AA}}$.  By default, the $R$-based arrays from {\cmnd{fftf}} will 
+extend to $10 {\rm{\AA}}$.
+
+\begin{verbatim}
+ Ifeffit>  $title1 = "Test: writing out  k, chi, chi*k"
+ Ifeffit>  $title2 = "   data from Cu.dat,   rbkg = 1.1"
+\end{verbatim}\noindent
+Here we define a pair of {\emph{text string}} variables, which always have
+names starting with a dollar sign.  These are useful for doing
+things like
+\begin{verbatim}
+ Ifeffit>  write_data(file = out.chi,  cu.k, cu.chi, 
+ Ifeffit>             cu.chi_kw, $title1, $title2,e0,rbkg)
+\end{verbatim}\noindent
+in which we save the $\chi(k)$ and $k$-weighted $\chi(k)$ data to the file
+{\file{out.chi}}.  The rest of the arguments list the arrays, text strings,
+and scalars to write to the output file.  Text strings will be written
+first, then the scalars, and finally the data arrays will be written, all
+given in the order listed.  This ends the annotated example.
+
+
+\subsection{The {\texttt{show}} and {\texttt{print}}  Commands} 
+\label{Ch:Basics-show} 
+
+Two very important commands that you definitely want to know about were
+left out of the above example.  These are the {\cmnd{show}} and
+{\cmnd{print}} commands, which will write out information about Program
+Variables, including their values.  The {\cmnd{show}} command takes a
+simple list of program variables, like this:
+\begin{verbatim}
+ Ifeffit>  show e0, kmin, $title1, cu.chi
+\end{verbatim}\noindent
+%%%-------------------------------------------------------------------------$ 
+and will print something like 
+\begin{verbatim} 
+ e0            =  8982.315 
+ kmin          =  2.000000
+ $title1       = Test: writing out  k, chi, chi*k
+ cu.chi        = 302 pts [ -0.3232080 : 1.233829 ]
+\end{verbatim}  
+%%%----------------------------------------$ 
+\noindent
+{\cmnd{show}} doesn't print out entire arrays but gives just enough
+information (the number of points, and the minimum and maximum value) to
+convince you that an array exists.  The {\cmnd{show}} command can also be
+used to show all current scalars, arrays, and strings.  You can read more
+about the {\cmnd{show}} command in section~{\ref{Ch:Command:show}}.
+
+Whereas the {\cmnd{show}} command will only report about existing variables,
+and will not do any processing, the {\cmnd{print}} command is a bit more
+literal, printing out the {\emph{values}} of variables or expressions.
+That is, {\tt{print(e0)}} will just print the numerical value of {\tt{e0}}
+to the screen:
+\begin{verbatim}
+ Ifeffit>  print e0
+      8982.315
+ Ifeffit>  print "sqrt(25) + 1.001"
+       6.00100
+\end{verbatim}\noindent
+Note that in the last example, the math expression was enclosed in double
+quotes.  This (or equivalently, enclosing braces ``\{\}'') tells {\ifeffit}
+to evaluate the expression, instead of printing it literally, and tells
+{\ifeffit} where the expression ends.  Using single quotes would print
+the expression literally:
+\begin{verbatim}
+ Ifeffit>  print 'sqrt(25) + 1.001 = ', "sqrt(25) + 1.001"
+   sqrt(25) + 1.001 =  6.00100
+\end{verbatim}\noindent
+You can also {\cmnd{print}} out several expressions at once:
+\begin{verbatim}
+ Ifeffit>  print "sqrt(25) + 1.001", "pi / 2"
+       6.001000      1.570796  
+\end{verbatim}\noindent
+Using {\cmnd{print}} for arrays (or an expression that gives an array) will
+print all the values of the arrays:
+\begin{verbatim}
+ Ifeffit>  print indarr(4)/5
+     0.2000000     0.4000000     0.6000000     0.8000000  
+\end{verbatim}
+
+Section~{\ref{Ch:Structure-info}} gives a more complete description of all
+the ways of getting information back from {\ifeffit}.  We'll come back to
+{\cmnd{show}} and {\cmnd{print}} in section~{\ref{Ch:Structure-Logging}},
+where the ability to change where these outputs are printed will be
+discussed.
+
+At this point, you may find it useful to repeat the above example session
+mixing in {\cmnd{show}} or {\cmnd{print}} commands after every line, and
+plotting some of the other arrays.  That should give you enough of a feel
+for {\ifeffit} to be able to use it for simple data processing and allow
+you to use the rest of this document as a reference guide.

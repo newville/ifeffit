@@ -1,0 +1,64 @@
+#
+# This will generate a table of PGPLOT point types
+# 
+
+
+p.x = ones(2) - 1.0
+p.y = ones(2) + 1.6
+
+# hardwided grid lines
+lx.x = range(0,2,0.5)
+lx.y = ones(5)
+
+ly.x = ones(6) 
+ly.y = range(0,2.5,0.5)
+
+newplot( (p.x-0.8), (p.y+0.8), xmin=0, xmax=2, ymin=0, ymax=2.0,
+        nogrid, labelsize=0.001)
+
+
+plot text='\fn 1 \fn The Sans Serif Font', text_x=0.1, text_y=1.8, textsize=2.5
+		
+plot text='\fn 2 \fr The Roman Font', text_x=0.1, text_y=1.6
+		
+		
+plot text='\fn 3 \fi The Italic Font', text_x=1.1, text_y=1.8
+		
+plot text='\fn 4 \fs The Script Font', text_x=1.1, text_y=1.6
+
+
+
+plot(text = "Greek letters (\\ga ... \\gz):" , text_x= 0.1, text_y = 1.4)
+
+
+plot(text = "\ga \gb \gc \gd \ge \gf \gg  ",
+      text_x= 1.2, text_y = 1.4)
+plot(text = "\gh \gi \gj \gk \gl \gm \gn \go \gp \gq \gr \gs \gt \gu \gv \gw \gx \gy \gz",
+      text_x= 0.2, text_y = 1.2)
+
+
+ plot(text = "Common XAFS Symbols:",          text_x= 0.1, text_y = 1.0)
+
+ plot(text = "\\gm(E)",                       text_x= 0.2, text_y = 0.8)
+ plot(text = "\gm(E)",                        text_x= 1.2, text_y = 0.8)
+
+ plot(text = "|\\gx(R)| (\\A\\u-3\\d)",       text_x= 0.2, text_y = 0.6)
+ plot(text = "|\gx(R)| (\A\u-3\d)",           text_x= 1.2, text_y = 0.6)
+
+ plot(text = "k\\u2\\d\\gx(k) (\\A\\u-2\\d)", text_x= 0.2, text_y = 0.4)
+ plot(text = "k\u2\d\gx(k) (\A\u-2\d)",       text_x= 1.2, text_y = 0.4)
+
+ plot(text = "\\gs\\u2\\d (\\A\\u2\\d)",      text_x= 0.2, text_y = 0.2)
+ plot(text = "\gs\u2\d (\A\u2\d)",            text_x= 1.2, text_y = 0.2)
+
+
+
+
+
+
+
+
+
+
+
+

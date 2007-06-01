@@ -1,0 +1,41 @@
+#
+# simple autobk-like spline with ifeffit
+#
+ read_data(file = ../data/cu.xmu, label = 'energy xmu', group = dat)
+ spline(energy= dat.energy, xmu= dat.xmu, kweight=1,rbkg=1.1)
+
+
+
+path(1,file =../feff/feffcu01.dat)
+path(1, s02 = amp, e0  = e0, delr=dr,sig2=sig2)
+
+guess e0 = 0
+guess amp  = 1
+guess dr = 0
+guess sig2 = 0
+
+ff2chi(1,group=pth1)
+pth1.chik = pth1.k * pth1.chi
+newplot pth1.k, pth1.chik
+
+
+kmin=3,kmax=18,dk=2,kweight=2
+
+dat.chik = dat.k * dat.chi
+plot dat.k, dat.chik
+fftf(dat.chi)
+fftf(pth1.chi)
+
+pause
+
+newplot  dat.r, dat.chir_mag
+plot  pth1.r,  pth1.chir_mag
+
+
+feffit(chi=dat.chi, 1, rmin=1.5, rmax=2.8,group=fit)
+
+newplot  dat.r, dat.chir_mag
+  plot  fit.r, fit.chir_mag, xmax=6
+
+show @variables
+show @group=dat

@@ -1,0 +1,83 @@
+
+macro plot_path 1 "color=black"
+ ff2chi($1,  group=p$1)
+ fftf(real = p$1.chi)
+ plot( p$1.r,  -p$1.chir_mag, $2)
+end macro
+
+macro plot_fit
+ newplot( data.r, data.chir_mag,xmin=0.,xmax=5)
+ ff2chi(1-3, group=fit) 
+ fftf(real =  fit.chi)
+ plot(fit.r, fit.chir_mag)
+end macro
+
+
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+path(index  = 1, 
+     feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first neighbor", 
+     s02    = s02, 
+     sigma2 = ss2,
+     delr   = dr, 
+     e0     = e0 )
+
+kmin = 2, kmax=17 
+dk1 = 1, dk2=1
+rmin = 1.5, 
+rmax =2.9
+rmax_out = 10
+
+macro guess_vars 
+  unguess
+  guess  s02   = 1.
+  guess  e0    = 1.
+  guess  ss2   = 0.002
+  guess  dr    = 0.001
+end macro
+
+macro fit_old
+  guess_vars   
+  feffit(1-3, chi = data.chi, k=data.k,  group = fit, 
+       kweight=4, data_set = 1 , data_total=3)
+
+   set dx.chi = join(slice(data.chi,1,nofx(data.k,kmax)+3),0.00)
+  feffit(1-3, chi = dx.chi, k=data.k,  group = fit, 
+       kweight=0, data_set = 2 , data_total=3)
+
+  feffit(1-3, chi = data.chi, k=data.k,  group = fit, 
+       kweight=2, data_set = 3 , data_total=3)
+
+end macro
+
+
+macro fit_new
+  guess_vars
+  data_total=1
+  data_set  =1
+  feffit(1-3, chi = data.chi, k=data.k,  group = fit, 
+       kweight=2,  kweight=0, kweight=4)
+end macro
+
+
+macro show_fit
+   print 'fit took ', &fit_iteration, ' iterations'
+   show @variables, chi_square, r_factor, epsilon_k, epsilon_k, n_idp
+   correl(e0,dr,print)
+   correl(s02,ss2,print)
+   plot_fit
+end macro
+
+
+
+
+
+# 
+echo ' OLD '
+fit_old
+show_fit
+pause 
+echo ' NEW '
+fit_new
+show_fit

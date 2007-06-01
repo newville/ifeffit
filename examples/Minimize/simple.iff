@@ -1,0 +1,23 @@
+##
+## construct a lorenztian as the derivative of atan
+##
+set  c1 = 11.223344
+set  w1 = 123.45
+
+my.en = range(-150,250,0.25)
+my.at = 4 * atan((my.en - c1)/w1)
+set my.x = deriv(my.at)
+
+guess cen =  2.
+guess wid = 18.4
+
+my.loren = abs(wid) /((my.en - cen)^2 + (wid)^2)
+
+my.resid = my.loren - my.x
+minimize(my.resid)
+
+plot my.en , my.resid, key='residual'
+plot my.en , my.loren, key='best-fit'
+
+show @variables
+

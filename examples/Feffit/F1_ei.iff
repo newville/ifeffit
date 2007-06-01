@@ -1,0 +1,57 @@
+# &print_level = 10
+
+macro plot_path 1 "color=black"
+ ff2chi($1,  group=p$1)
+ fftf(real = p$1.chi)
+ plot( p$1.r,  -p$1.chir_mag, $2)
+end macro
+
+macro plot_fit
+ newplot( data.r, data.chir_mag,xmin=0.,xmax=7)
+ ff2chi(1-6, group=fit) 
+ fftf(real =  fit.chi)
+ plot(fit.r, fit.chir_mag)
+# plot(fit.r, abs(data.chir_mag-fit.chir_mag),xmax=6)
+end macro
+
+
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+guess  ei  = 0.1
+guess  e0    = 1.
+guess  ss2   = 0.002
+guess  dr    = 0.001
+guess  s02   =0.9
+
+path(index  = 1, 
+     feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first neighbor", 
+     ei    = ei,
+     s02   = s02,
+     sigma2 = ss2,
+     delr   = dr, 
+     e0     = e0 )
+
+
+kmin = 2, kmax=17, kweight=2, dk1 = 1, dk2=1
+rmin = 1.5, rmax =2.9
+rmax_out = 10
+
+fftf(real = data.chi,k=data.k)
+
+feffit(chi = data.chi, k=data.k,group = fit, 1)
+
+show @variables, chi_square, r_factor
+
+
+newplot(data.r, data.chir_mag, color = blue, style=solid, xmax = 6)
+plot( fit.r,  fit.chir_mag, color = red, style = dashed)
+
+# pause
+ plot_path "1"  "color=black"
+ plot_path "2"  "color=blue"
+ plot_path "4"  "color=blue"
+ plot_path "5"  "color=red"
+
+print 'fit took ', &fit_iteration, ' iterations'
+

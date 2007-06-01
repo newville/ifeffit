@@ -1,0 +1,12 @@
+set dat.x   = range(1,50,1)
+set dat.y   = 3.2 * sin(0.2 + dat.x*pi/10) + cos(dat.x*pi/100)* 0.03
+
+set dat.err = ones(50) * 0.2
+
+guess ( m = 1 , b = 0.1,c =0.1)
+
+fit.y  = m * sin( dat.x * pi*b + c)
+fit.resid = fit.y - dat.y
+minimize(fit.resid, uncertainty = dat.err)
+show @variables, chi_square
+

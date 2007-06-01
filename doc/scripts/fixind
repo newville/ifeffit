@@ -1,0 +1,18 @@
+#!/usr/bin/perl -w
+# fix index entries for reference manual 
+
+
+$file = $ARGV[0]; 
+open(IND, "$file") or die " no file $file\n";
+while (<IND>) {
+    s/\\tt[ ]+/\\tt/o;
+    print ;
+}
+
+
+
+
+
+
+
+

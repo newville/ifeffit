@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+#  This file will test how to build pgplot.  Essentially, 
+#  this looks for where libpgplot is, where the X libs are,
+#  and whether to use '-lpng -lz' for the PNG device.
+#
+
+#  first, the PGPLOT directory and PGPLOT library are found 
+#  look for library file
+
+# where to look for pgplot directory: last one found will be used!
+pgdirs="/usr/lib /usr/local/lib /usr/share/pgplot /usr/local/pgplot /Applications/Ifeffit/pgplot $1"
+xdirs="/usr/X11/lib /usr/lib/X11 /usr/lib/X11R5 /usr/X11R5/lib /usr/lib/X11R6 /usr/X11R6/lib"
+xd=""
+
+# set default, in case we find nothing:
+cwd=`pwd`
+def="$cwd/src/pgstub/libnopgplot.a"
+
+
+basedir="NONE"
+for d in $pgdirs; do
+    if [ -d $d ] ; then
+       if [ -f $d/grfont.dat ]      ; then basedir=$d ; fi
+       if [ -f $d/libpgplot_iff.a ] ; then libdir=$d  ; fi
+       if [ -f $d/libpgplot.a  ]    ; then libdir=$d  ; fi
+    fi 
+done
+
+# if we can't find the basedir, give up
+if test "$basedir" = NONE  ; then echo $def ; exit ; fi
+
+# now we look for the files makefile and grexec.f
+# in the pgplot directory, and parse them to figure out how to
+# link to PGPLOT.  The makefile is much more reliable, but we
+# can probably guess from grexec.f
+
+out=""
+
+mfile=$basedir/makefile
+ffile=$basedir/grexec.f
+
+if [ -f $mfile ] ; then
+  out="$out -L$libdir"
+  l1=`grep "^PGPLOT_LIB=" $mfile| sed 's/PGPLOT_LIB=-L\`pwd\`//' | sed 's/PGPLOT_LIB=//'`
+  l2=`grep "^LIBS="  $mfile  | sed "s/LIBS=//"`
+  lline="$l1 $l2"
+  for i in $lline ; do 
+    echo $i | grep -q '^-L'  ; stat=$?
+    if [ $stat == 0 ] ; then # this is a '-L' word, check that directory exists
+      if [ -d `echo $i | sed "s/-L//"` ] ; then  out="$out $i" ;  fi
+    else 
+      out="$out $i"
+    fi
+  done
+else
+  if [ -f $ffile ] ; then
+    out="-L$libdir -lpgplot"
+    grep " CALL PNDRIV" $ffile >/dev/null 2>&1;
+    if [  $? ] ; then out="$out -lpng -lz" ;   fi
+    grep " CALL XWDRIV" $ffile >/dev/null 2>&1;
+    if [  $? ] ; then  
+       for d in $xdirs; do
+          if [ -d $d ] ; then
+             if [ -f $d/libX11.so ] ; then xd=$d ; fi
+             if [ -f $d/libX11.a  ] ; then xd=$d ; fi
+          fi 
+       done
+       out="$out -L$xd -lX11"
+    fi
+  else
+    out=$def
+  fi
+fi
+
+echo $out

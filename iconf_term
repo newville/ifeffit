@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+#  This file will test how to build readline support into ifeffit.
+#  Essentially, this looks for libtermcap.a, and sets LIBTERMCAP_LIB
+#  accordingly.
+
+# where to look for termcap libs
+dirnames="/usr/local/ /usr/ /sw/ /opt/ /usr/local/gnu/ /usr/gnu/ /gnu/ /"
+libnames='lib64 lib'
+termlibs='ncurses termcap curses'
+DIR=''
+LIB=''
+found='n'
+
+find_lib() {
+  if [ -f $1/lib$2.a ] ; then 
+       DIR=$1 
+       LIB=$2
+   fi	
+}
+
+for base in $dirnames; do
+    for xlib in $libnames; do
+      tdir=$base$xlib
+      if [ -d $dir ] ; then
+         for tcap in $termlibs ; do 
+            find_lib $tdir $tcap
+            if [ "x$DIR" != "x" ] ; then found='y'; break ; fi
+         done 
+         if [ "$found" = "y" ] ; then break; fi 
+         find_lib $tdir/termcap termcap
+         if [ "x$DIR" != "x" ] ; then found='y'; break ; fi
+      fi
+   done 
+   if [ "$found" = "y" ] ; then break; fi 
+done
+
+echo -L$DIR -l$LIB
+

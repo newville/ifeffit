@@ -1,0 +1,55 @@
+
+macro plot_fit data fit ''
+  newplot( $1.r, $1.chir_mag,xmin=0.,xmax=7,$3)
+  plot($2.r, $2.chir_mag,key='fit')
+  show @variables, r_factor, chi_square
+  pause 
+end macro
+
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+guess  s02   = 1.
+guess  e0    = 1.
+guess  ss2_1 = 0.002
+guess  ss2_2 = 0.002
+guess  ss2_3 = 0.002
+guess  dr_1  = 0.001
+guess  dr_2  = 0.01
+guess  dr_3  = 0.01
+
+path(index  = 1, 
+     feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first neighbor", 
+      s02    = s02,  e0=e0,  sigma2 = ss2_1,     delr   = dr_1)
+
+path(2,  ../feff/feffcu02.dat,    
+    s02 = s02, e0 = e0,   sigma2  = ss2_2,      delr=dr_2)
+path(3,  ../feff/feffcu03.dat,    
+    s02 = s02, e0 = e0,   sigma2  = ss2_3,      delr=dr_3)
+
+kmin = 2, kmax=17, kweight=2, dk1 = 3, dk2 = 3
+$kwindow = kaiser
+rmin = 1.6, rmax =4
+
+ff2chi(1,2,3, group=x3)
+fftf(x3.chi)
+
+ff2chi(1, group=x1)
+fftf(x1.chi)
+
+feffit(chi = data.chi, k=data.k,group = fit, 1-99,
+         data_set=1, data_total=1, kweight =2 )
+ 
+plot_fit
+
+set  ss2_2 = 0.002
+set  dr_2  = 0.01
+set  ss2_3 = 0.002
+set  dr_3  = 0.01
+set  rmax  = 3.0
+
+feffit(chi = data.chi, k=data.k,group = fit, 1,
+       data_set=1, data_total=1, kweight =2 )
+
+
+plot_fit

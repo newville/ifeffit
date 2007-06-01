@@ -1,0 +1,30 @@
+
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+guess  s02   = 1.
+guess  e0    = 1.
+guess  ss2   = 0.002
+guess  dr    = 0.001
+
+path(index  = 1,  feff   = ../feff/feffcu01.dat, 
+     s02    = s02, 
+     sigma2 = ss2,
+     delr   = dr, 
+     e0     = e0 )
+
+kmin = 2, kmax=17, kweight=2
+dk1  = 1, dk2=1
+
+rmin = 1.5, rmax =4.4
+
+feffit(chi = data.chi, k=data.k,group = fit, 1, fit_space=r)
+
+show @variables, chi_square, r_factor
+print 'fit took ', &fit_iteration, ' iterations'
+
+newplot( data.r, data.chir_mag,xmin=0.,xmax=7)
+
+# ff2chi(1, group=fit) 
+# fftf(real =  fit.chi)
+plot(fit.r, fit.chir_mag)
+

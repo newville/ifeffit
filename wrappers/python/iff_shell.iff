@@ -1,0 +1,7 @@
+x = 1
+show x
+my.x = 
+show @arrays
+help
+help shell
+! ls

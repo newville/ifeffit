@@ -1,0 +1,5 @@
+macro t1
+
+  load t2.iff
+  show @arrays
+end macro

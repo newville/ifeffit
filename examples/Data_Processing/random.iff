@@ -1,0 +1,24 @@
+#
+# tests of random() command and distributions
+
+macro stats m.x
+  "simple statistics for an array"
+  mean     = vsum($1)/npts($1)
+  variance = vsum($1*$1)/npts($1)  - mean*mean
+  std_dev  = sqrt(variance)
+  print ' npts, max, min,  mean, std_dev'
+  print  npts($1), ceil($1), floor($1), mean, std_dev 
+end macro
+
+
+random(npts=4000, output=my.x, dist=normal,sigma=2.)
+echo 'my.x : normal-distribution of random numbers, sigma=2:'
+stats my.x
+
+random(npts=4000,output=my.x, dist=gauss,sigma=2.)
+echo 'my.x : gaussian-distribution of random numbers, sigma=2:'
+stats my.x
+
+random(npts=4000,output=my.x, dist=uniform)
+echo 'my.x : uniform-distribution of random numbers:'
+stats my.x

@@ -1,0 +1,43 @@
+
+xmin= 0
+xmax= 10
+step_data  = 0.1
+step_knots = 2.
+
+
+dat.x = range(xmin,xmax,step_data)
+
+random(npts=npts(dat.x), output=dat.noise, dist=normal,sigma=0.01)
+
+dat.y = 9*gauss(dat.x, 6, 2.5) + dat.noise
+
+dat.y = 9*loren(dat.x, 6, 2.5) + dat.noise
+dat.y = 9*atan(dat.x) + dat.noise
+
+newplot dat.x, dat.y, style=linespoints2
+
+guess c1 = 1.0
+guess c2 = 1.0
+guess c3 = 1.0
+guess c4 = 1.
+guess c5 = 1.0
+guess c6 = 1.0
+
+knots.x = range(xmin,xmax,step_knots)
+knots.y = join(join(join(join(join(c1,c2),c3),c4),c5),c6)
+
+plot knots.x, knots.y, style=linnespoints2
+
+dat.fit = splint(knots.x,knots.y,dat.x)
+
+fit.resid = dat.fit - dat.y
+
+minimize(fit.resid)
+
+show @variables
+
+plot dat.x, dat.fit
+
+plot knots.x, knots.y, style=points2
+show @arrays
+

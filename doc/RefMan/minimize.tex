@@ -1,0 +1,91 @@
+\section{Fitting Non-XAFS Data with {\ifeffit}} \label{Ch:Minimize}
+
+{\index{Minimization}}
+Well, fitting XAFS data to {\feff} calculations is OK, but sometimes you
+just want to fit a simple line, polynomial, or Gaussian to some data.  This
+can be done using the {\texttt{minimize}} command, which gives a simple but
+powerful interface to a non-linear least-squares fitting routine.  There
+are a few implementation quirks, but this general approach is definitely
+sufficient to fit simple functions to data, and to add a set of known XANES
+spectra to fit an unknown spectrum.  This chapter will describe the
+{\texttt{minimize}} command and give a few examples of its use.
+{\indexcmd{minimize}}
+
+When fitting data, the general idea is to minimize some function in the
+least-squares sense. Usually the function to minimize is the difference
+between the data and a parameterized model describing the data.  This
+function to be minimized is sometimes called the {\emph{residual}} of the
+fit.  In keeping with that spirit, the {\tt{minimize}} function in
+{\ifeffit} takes a residual vector that you define, and adjusts the defined
+variables until this residual is minimized.  An example complete would look
+like this:
+
+{\small{
+%\begin{latexonly}
+ \begin{Sbox}\begin{minipage}{5.00truein}
+%\end{latexonly}
+\begin{Verbatim}
+ read_data(file=my.dat, group= data, label= "x y")
+ guess (a0 = 1, a1 = 2, a2 = 0.012)
+ fit.y     = a0 + a1 * data.x + a2 * data.x^2
+ fit.resid = fit.y - data.y
+ minimize(fit.resid)
+\end{Verbatim}
+%\begin{latexonly}
+ \end{minipage}\end{Sbox}\setlength{\fboxsep}{2mm}{%
+ \begin{flushright}\shadowbox{\TheSbox}\end{flushright}}
+%\begin{latexonly}
+}}\noindent
+Here we read in the data, rename the default array names to more convenient
+names.  The model function {\tt{fit.y}} is defined as a simple quadratic
+polynomial, with the three coefficients defined as variables.  The residual
+is then simply the difference of model and data, and the variables are
+optimized to minimize the sum of the squares of {\texttt{fit.resid}}.
+Really, that's pretty much all there is to it.  {\tt{minimize}} is
+remarkably simple and powerful.
+
+There are a few bells and whistles to the {\tt{minimize}} command.
+Sometimes you'll want to fit a limited portion of an array, say just over
+some peak.  Of course, you could edit the data to only include the portion
+of the data you want to fit.  But {\tt{minimize}} gives an alternative to
+this: you can specify the {\emph{ordinate}} (or $x$-array) corresponding to
+the data you're fitting, and a minimum and/or maximum values for the
+$x$-array.  In the above example, we could have said
+
+\begin{verbatim}
+  minimize(fit.resid, x = data.x, xmin = 3., xmax=10.)
+\end{verbatim}
+\noindent
+to limit the fitting range.
+
+A fit is generally of limited use without some idea of the uncertainties in
+the fitted parameters.  Many otherwise bright people seem to ignore this,
+and believe they can judge the reliability of fitted parameters by the
+overall quality of a fit --usually by some visual inspection.  Well, a
+reliable estimate of uncertainties in fitted parameters is a bit more
+involved than that.  In general, it's difficult to get a reasonable
+estimate without a good estimate of the uncertainties in the data itself.
+This is further discussed in {\XAIBook} and in standard data analysis
+texts.  For now, the important point is that if you have a good estimate of
+the uncertainties in the data, you can use them to determine the
+uncertainties in the fitted parameters.  To do this, you can specify an
+{\emph{array}} of uncertainties in the data -- the same length as the data
+and residual itself, of course.  To use such an array, the
+{\tt{uncertainty}} keyword will be helpful:
+\begin{verbatim}
+  read_data(file=my.dat, group= data, label= 'x y dy')
+  guess (a0 = 1, a1 = 2, a2 = 0.012)
+  fit.y     = a0 + a1 * data.x + a2 * data.x^2
+  fit.resid = fit.y - data.y
+
+  minimize(fit.resid, uncertainty = data.dy)
+\end{verbatim}
+\noindent
+As with the {\tt{feffit}} function, this will create scalars for the
+estimated uncertainties in the fitted variables with names based on the
+variable name itself.  In this case, the created variables
+{\tt{delta\_a0}}, {\tt{delta\_a1}}, and {\tt{delta\_a2}} will hold the
+estimated uncertainties.
+
+At this writing, restraints and multiple-data-set fits are not supported in
+{\cmnd{minimize}}.   This will probably change in the future.

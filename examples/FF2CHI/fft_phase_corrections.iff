@@ -1,0 +1,29 @@
+#
+#   example of phase-corrected FTs using phase-shifts
+#   from FEFF calculations
+# 
+
+read_data(../data/cu150k.chi , group=c, type=chi)
+set d.chi = c.chi
+set e.chi = c.chi
+
+kmin=2, kmax=18, dk=1,kweight=2
+
+# no phase-correction
+fftf(c.chi)
+
+# read path
+path(1, ../feff/feff0001.dat, label ='Path 1')
+
+# phase-shifted FT with central-atom phase-shift only
+fftf(d.chi,pc_feff_path=1, pc_caps=1)
+
+# phase-shifted FT with full phase-shift
+fftf(e.chi,pc_feff_path=1, pc_full=1)
+
+
+newplot(c.r, c.chir_mag, xmax=8, key='No Phase-Shift',key_x=0.7, 
+        title= 'Comparison of Phase-Corrected FTs using data from a FEFF path')
+   plot(d.r, d.chir_mag, key='Central Atom Phase-Shift')
+   plot(e.r, e.chir_mag, key='Full Phase-Shift')
+

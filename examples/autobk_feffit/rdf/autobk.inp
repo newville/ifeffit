@@ -1,0 +1,5 @@
+# very simple autobk.inp
+title   = basic autobk test
+data    = cu_rdf.xmu, 1
+output  = cu.chi
+

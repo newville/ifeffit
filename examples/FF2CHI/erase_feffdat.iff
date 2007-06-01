@@ -1,0 +1,14 @@
+#
+# Currently (1.0067, Feb 5, 2002), erasing feff paths does 
+# not work properly. 
+#
+set ss2 = 0
+path(1,  ../feff/feff0001.dat, label ='Path 1', sigma2=ss2)
+path(2,  ../feff/feff0002.dat, label ='Path 2', sigma2=ss2)
+path(11, ../feff/feff0001.dat, label ='Path 11', sigma2=ss2)
+path(12, ../feff/feff0003.dat, label ='Path 12', sigma2=ss2)
+
+show @paths
+
+# erase @path=2
+

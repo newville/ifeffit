@@ -1,0 +1,328 @@
+
+Ifeffit Installation Instructions
+=================================
+
+This file describes building and installing Ifeffit from source code on
+Unix and Unix-like systems.  The essential steps are:
+
+  1. Download and unpack the distribution file.
+  2. Install the PGPLOT library if needed, or decide to build 
+     Ifeffit without native graphics. 
+  3. Configure the building procedure for ifeffit for your system, 
+     specifying whether to use PGPLOT graphics, where to install 
+     the package, and which of the optional interfaces for Python, 
+     Perl, and Tcl to install.
+  4. Build the Ifeffit library and executable programs.
+  5. Install the library and executables.
+  6. Build and Install optional wrappers for perl and python, 
+     and their associated scripts.
+  7. Post-Installation configuration.
+
+At it's simplest, the process will look something like this:
+
+ ~> <get http://cars9.uchicago.edu/ifeffit/src/ifeffit/ifeffit.tar.gz>
+ ~> gunzip -c ifeffit.tar.gz | tar xf -
+ ~> cd ifeffit-1.2.8
+ ~> <verify PGPLOT>
+ ~> ./configure
+ ~> make
+ ~> make install
+
+
+If PGPLOT is not already installed, you'll need to install it __BEFORE__
+configuring Ifeffit.
+
+ ~> ./PGPLOT_install 
+
+-------------------------------------
+Special Note on Root/Non-Root access:
+-------------------------------------
+
+If you have root access to the system you're installing Ifeffit on, I
+recommend doing all installation steps as root.  If you're an old pro
+at installing Unix software or particularly paranoid about doing things
+as root, the configure and make steps above can be done as a non-root
+user.  If you do not have root access to the machine you're installing
+Ifeffit on, pay particular attention to the '--prefix' arguments to the
+PGPLOT_install and configure steps below, as you'll need write access to
+these directories.
+
+More detailed instructions follow. 
+
+1. Download and Unpack the Ifeffit tar file
+-------------------------------------------
+The Ifeffit source distribution is available from
+  http://cars9.uchicago.edu/ifeffit/
+
+Download the latest source kit, and unpack it:
+   ~> gunzip -c ifeffit.tar.gz | tar xf -
+   ~> cd ifeffit-1.2.7
+
+If your system does not have gunzip, you may need to install it.
+
+2. Install and Configure the PGPLOT library
+-------------------------------------------
+Ifeffit uses the PGPLOT library for plotting graphics.  This is a
+separate package that must be installed before building Ifeffit.  The
+Ifeffit configuration process (step 3) must be able to find the
+installed PGPLOT library, or else Ifeffit will be built without
+plotting graphics (everything else will still work).
+
+If you are upgrading from an earlier version of Ifeffit, there should
+be no need to re-install the PGPLOT library.
+
+The PGPLOT library is not bundled with or distributed with the Ifeffit
+distribution, and you must download it yourself. PGPLOT can be found
+at http://astro.caltech.edu/~tjp/pgplot/
+
+The PGPLOT_install shell script included with Ifeffit will attempt to
+download and install the package for you.  This script assumes the
+final location of the PGPLOT library will be /usr/local/pgplot. It
+assumes to be running as root, and presumes a linux system.  It may
+work for other cases, but has not been fully tested.  To use this
+script, type 
+  ~> ./PGPLOT_install
+
+PGPLOT_install assumes you want to install the PGPLOT library to
+/usr/local/pgplot, which probably requires the installation to be 
+done as root.  To install the PGPLOT library in another location,
+you can specify the installation directory explicitly:
+
+  ~> ./PGPLOT_install --prefix=/home/me/pgplot
+
+Further details can be found in README.PGPLOT. 
+
+You can also do a manual installation of PGPLOT, following the PGPLOT
+installation instructions in install-unix.txt carefully.  This will
+work on most Unix systems, but is not the simplest installation.
+Please consult the README.PGPLOT file in the Ifeffit distribution for
+more details.
+
+I'd like the ./PGPLOT_install script to work for everyone, so if you 
+have problems with it, please consult me.
+
+
+3. Configure the building procedure for your system
+--------------------------------------------------
+Type './configure', or 'sh configure'.
+
+Configure takes several options.  The most important are:
+ 
+   --prefix
+   --with-arraysize=[small,medium,large]
+   --with-pgplot / --without-pgplot
+  
+The full set of options can be listed with './configure --help'
+ 
+== --prefix
+
+The --prefix option specifies which directory should be used to install
+the Ifeffit package.  By default, the prefix is /usr/local, which will
+install executable programs (ifeffit, autobk, and possibly gifeffit) in
+/usr/local/bin, and ifeffit data files to /usr/local/share/ifeffit.
+
+== --with-arraysize=[tiny,small,medium,large]
+
+This switch sets the largest array size (ie, number of elements) in the
+ifeffit library.  Since ifeffit is written in statically-typed Fortran,
+this upper limit is fixed when the library is built.  This limit directly
+effects the amount of memory needed to run the program.  Currently the
+values for arraysize and the corresponding maximum array size are:
+    tiny     2048 point arrays 
+    small    4096 point arrays 
+    medium   8192 point arrays
+    large   16384 point arrays
+
+The default is currently '--with-arraysize=medium '.  This will cause the
+command-line version to occupy up to ~20Mb of memory while running.  For
+machines with less than 64Mb of RAM, it may be necessary to modify the
+default size.  For most EXAFS analysis problems, arrays of size 2048 are
+plenty long enough, and using '--with-arraysize=tiny' will be adequate.
+For some analyses, particularly DAFS-related, using larger arrays is
+better, and sometimes it's just convenient to be able to use much larger
+arrays.  For machines with more that 128Mb of RAM, I've not seen any
+problems with '--with-arraysize=large'.
+  
+
+== --with-pgplot, --without-pgplot, --with-pgplot-link
+
+These options tell the configuration script:
+  --with-pgplot=/dir        location of the PGPLOT directory
+  --without-pgplot          do not use PGPLOT, no graphics version.
+  --with-pgplot-link='L...' exactly how to link with the PGPLOT lib.
+
+If the PGPLOT library has been installed using PGPLOT_install, there
+should be no need to explicitly set any of these. 
+
+The --with-pgplot option specifies the location of the PGPLOT
+library file, libpgplot.a.  You can explicitly specify the location
+like this:  
+  --with-pgplot=/usr/local/pgplot/
+
+You can also explicitly tell Ifeffit to build _without_ the PGPLOT
+library, by saying
+  --without-pgplot
+
+You can also fully specify how the linker should link to the PGPLOT library
+with something like
+
+  --with-pgplot-link='-L/usr/local/pgplot -lpgplot -lpng -lz -L/usr/X11R6/lib -lX11'
+
+This should not be necessary. 
+
+The Ifeffit configuration will look for PGPLOT and try to determine how to
+use it.  See README.PGPLOT for more details, or run the shell script
+   iconf_pgplot
+
+to find out how Ifeffit will think PGPLOT is configured on your system.
+
+4. Build the Ifeffit library and executable programs
+----------------------------------------------------
+Type 'make'.  
+
+This will build the ifeffit library, a simple command-line interface,
+and the latest versions of autobk, feffit, and diffkk.
+
+5. Install the Package
+----------------------
+Type 'make install'.  
+
+This will install the following files, using 'prefix' as specified during
+configuration (/usr/local/ by default):
+
+  prefix/bin/ 
+             ifeffit            - interactive, command-line program
+             autobk             - XAFS background removal program
+             feffit             - XAFS fitting program
+             feff6l             - ab initio XAFS calculation program
+             diffkk             - convert XAFS to anomalous scattering
+                                  factors
+  prefix/lib/
+             libifeffit.a       - main Ifeffit library
+             libnopgplot.a      - dummy PGPLOT library
+  prefix/include
+             ifeffit.h          - header for C interfaces
+  prefix/share/ifeffit/
+             startup.iff        - system-wide ifeffit startup file
+             config/ifeffit.h   - header for C interfaces
+             config/Makefile.PL - Perl Makefile.PL 
+             config/setup.py    - Python Setup file
+             config/TclSetup.in - Tcl Setup and Build instructions
+             config/Config.mak  - description of libraries to use
+                                  to build with the current configuration 
+                                  suitable for Makefile
+             cldata/*.dat       - data files for Cromer-Libermann 
+                                  f' and f'' data
+             fefftab/*.dat      - data files for Feff Tables
+
+
+
+6. Building and Installing the Optional Wrappers for Python, Perl, and Tcl
+-----------------------------------------------------------------------
+
+The scripting-language wrappers for the Ifeffit library are useful for
+developing high-level applications.  Even if you aren't planning on using
+them directly, you may want to use some application that requires one of
+these wrappers, including the several GUIs that exist for Ifeffit.
+
+All the files needed to build each of the wrappers should be under the
+wrapper directory: wrapper/perl, wrapper/python, and wrapper/tcl.
+
+These extensions are not automatically built with ifeffit, and must be
+built after Ifeffit is installed.  Please copy the appropriate
+configuration file generated during the Ifeffit build and installed into
+$prefix/share/ifeffit/config.
+
+6.1  Python wrapper
+
+  This will install the Python interface to Ifeffit, and gifeffit, a GUI
+  program. It is assumed that python 1.52 or higher is installed on your
+  system, and that the Tkinter module is installed:
+  
+    ~>cd wrappers/python
+    ~>cp $prefix/share/ifeffit/config/setup.py .
+    ~>python setup.py install
+
+  Some pre-installed versions of python on some linux distributions do not
+  come with enough python development tools to build extensions.  For such
+  cases (RedHat6.1, I believe), you should find and install the
+  'python-dev' package, or build python from sources.
+
+6.2  Perl wrapper
+
+  This will install the Perl interface to Ifeffit, but not any of the perl
+  applications such as Athena, Atoms, or Artemis.  Please get those from
+  Bruce Ravel's website.  It is assumed that perl5.003 or higher is
+  installed:
+
+    ~>cd wrappers/perl
+    ~>cp $prefix/share/ifeffit/config/Makefile.PL .
+    ~>perl Makefile.PL ; make ; make install
+
+6.3  Tcl wrapper
+
+  The tcl wrapper can be built like this:
+
+    ~>cd wrappers/tcl
+    ~>cp $prefix/share/ifeffit/config/TclSetup.in .
+    ~>sh Build
+
+  I don't know of a standard way to install Tcl modules...
+
+7. Post-Installation Customization
+----------------------------------------------------
+Once Ifeffit is installed, you [as a normal, non-root user] should be able
+to run the command-line program ifeffit, and (if installed) the GUI
+gifeffit.  There are a few customizations you may want to perform.
+
+First, you'll need to set an environmental variable for the PGPLOT graphics
+to work.  The environmental variable PGPLOT_DIR needs to point to the
+PGPLOT installation directory, probably /usr/local/pgplot, unless you used
+some other '--prefix' setting during PGPLOT_install.  If you're using the
+csh or tcsh shell, this looks like
+  ~> setenv PGPLOT_DIR /usr/local/pgplot
+for bash, the syntax is
+  ~> export PGPLOT_DIR=/usr/local/pgplot
+
+You'll probably want to put these in your startup file (.cshrc for csh,
+.profile or .bashrc for bash). 
+
+By default, the 'X Server' PGPLOT graphics device is used. This creates a
+persistent PGPLOT window that remains after you exit ifeffit, and can be
+used in later ifeffit sessions.  If you'd prefer a graphics window that
+goes away as soon as you exit the program, you can set the environmental
+variable PGPLOT_DEV to '/xwin'.  If you're using csh shell, this looks like 
+  ~> setenv PGPLOT_DEV /xwin
+for bash, the syntax is
+  ~> export PGPLOT_DEV=/xwin
+
+If you would like to pre-define some ifeffit macros, put them in the file
+.ifeffit in your home directory.  This file will be 'load'ed at startup,
+just after the system-wide macros (from ....share/ifeffit/startup.iff as
+installed above).
+
+
+
+---------------
+Test Procedures
+---------------
+(Currently a work-in-progress)
+
+The test programs src/test/ifftest1 and src/test/ifftest2 are designed to
+test the core functionality of the ifeffit library and interpreter and the
+ability to use the library from Fortran and C programs.  These tests should
+be run from the src/test directory, and will report success and failure of
+the primitive functionality.
+
+The programs do not test of the reasonableness of backgrounds generated by
+the spline command, and so on, only if the interpreter and commands can be
+executed without error.
+
+In addition to these compiled test programs, the examples in the examples/
+directory provide a means of testing the 'reasonableness' of the behavior
+of Ifeffit. 
+
+
+--Matt Newville <newville@cars.uchicago.edu>
+
+Last update Mar-31-2005

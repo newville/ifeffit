@@ -1,0 +1,97 @@
+ \BOOKMARK [1]{section.1}{Introduction}{}
+ \BOOKMARK [1]{section.2}{The Basics of IFEFFIT}{}
+ \BOOKMARK [2]{subsection.2.1}{Starting the program}{section.2}
+ \BOOKMARK [2]{subsection.2.2}{A Sample Run}{section.2}
+ \BOOKMARK [2]{subsection.2.3}{The show and print Commands}{section.2}
+ \BOOKMARK [1]{section.3}{Structure and Syntax of IFEFFIT}{}
+ \BOOKMARK [2]{subsection.3.1}{Scalars, Arrays, and Strings}{section.3}
+ \BOOKMARK [2]{subsection.3.2}{Dynamic Variables: Set, Def, and Sync}{section.3}
+ \BOOKMARK [2]{subsection.3.3}{Fitting Variables: Guess}{section.3}
+ \BOOKMARK [2]{subsection.3.4}{Mathematical Syntax and Operations}{section.3}
+ \BOOKMARK [2]{subsection.3.5}{Commands}{section.3}
+ \BOOKMARK [2]{subsection.3.6}{Keyword/Value Pairs}{section.3}
+ \BOOKMARK [2]{subsection.3.7}{Getting information back from IFEFFIT}{section.3}
+ \BOOKMARK [1]{section.4}{Input and Output Files}{}
+ \BOOKMARK [2]{subsection.4.1}{Reading ASCII Column Files}{section.4}
+ \BOOKMARK [2]{subsection.4.2}{Writing ASCII Column Files}{section.4}
+ \BOOKMARK [2]{subsection.4.3}{IFEFFIT PAD Format for Save and Restore Files}{section.4}
+ \BOOKMARK [1]{section.5}{Plotting with IFEFFIT}{}
+ \BOOKMARK [2]{subsection.5.1}{Basic Plotting}{section.5}
+ \BOOKMARK [2]{subsection.5.2}{Colors}{section.5}
+ \BOOKMARK [2]{subsection.5.3}{Line Styles, Line Widths, and Other Attributes}{section.5}
+ \BOOKMARK [2]{subsection.5.4}{Text Strings and Labels}{section.5}
+ \BOOKMARK [2]{subsection.5.5}{Configuring PGPLOT}{section.5}
+ \BOOKMARK [2]{subsection.5.6}{X-Windows Graphics}{section.5}
+ \BOOKMARK [2]{subsection.5.7}{PostScript and GIF Graphics}{section.5}
+ \BOOKMARK [1]{section.6}{Fitting XAFS Data with FEFF Calculations}{}
+ \BOOKMARK [2]{subsection.6.1}{Defining Paths}{section.6}
+ \BOOKMARK [2]{subsection.6.2}{Creating chi(k) data with ff2chi}{section.6}
+ \BOOKMARK [2]{subsection.6.3}{Building a Fitting Model}{section.6}
+ \BOOKMARK [2]{subsection.6.4}{Executing a Fit}{section.6}
+ \BOOKMARK [2]{subsection.6.5}{Estimating the uncertainties in fitted variables}{section.6}
+ \BOOKMARK [2]{subsection.6.6}{Post-Fitting Tasks}{section.6}
+ \BOOKMARK [2]{subsection.6.7}{Simultaneous Fitting of Multiple Data Sets}{section.6}
+ \BOOKMARK [1]{section.7}{Fitting Non-XAFS Data with IFEFFIT}{}
+ \BOOKMARK [1]{section.8}{Commands}{}
+ \BOOKMARK [2]{subsection.8.1}{chi_noise}{section.8}
+ \BOOKMARK [2]{subsection.8.2}{color}{section.8}
+ \BOOKMARK [2]{subsection.8.3}{comment}{section.8}
+ \BOOKMARK [2]{subsection.8.4}{cursor}{section.8}
+ \BOOKMARK [2]{subsection.8.5}{def}{section.8}
+ \BOOKMARK [2]{subsection.8.6}{echo}{section.8}
+ \BOOKMARK [2]{subsection.8.7}{erase}{section.8}
+ \BOOKMARK [2]{subsection.8.8}{exit}{section.8}
+ \BOOKMARK [2]{subsection.8.9}{feffit}{section.8}
+ \BOOKMARK [2]{subsection.8.10}{ff2chi}{section.8}
+ \BOOKMARK [2]{subsection.8.11}{fftf}{section.8}
+ \BOOKMARK [2]{subsection.8.12}{fftr}{section.8}
+ \BOOKMARK [2]{subsection.8.13}{findee}{section.8}
+ \BOOKMARK [2]{subsection.8.14}{guess}{section.8}
+ \BOOKMARK [2]{subsection.8.15}{history}{section.8}
+ \BOOKMARK [2]{subsection.8.16}{load}{section.8}
+ \BOOKMARK [2]{subsection.8.17}{macro}{section.8}
+ \BOOKMARK [2]{subsection.8.18}{minimize}{section.8}
+ \BOOKMARK [2]{subsection.8.19}{newplot}{section.8}
+ \BOOKMARK [2]{subsection.8.20}{path}{section.8}
+ \BOOKMARK [2]{subsection.8.21}{pause}{section.8}
+ \BOOKMARK [2]{subsection.8.22}{plot}{section.8}
+ \BOOKMARK [2]{subsection.8.23}{pre_edge}{section.8}
+ \BOOKMARK [2]{subsection.8.24}{print}{section.8}
+ \BOOKMARK [2]{subsection.8.25}{quit}{section.8}
+ \BOOKMARK [2]{subsection.8.26}{read_data}{section.8}
+ \BOOKMARK [2]{subsection.8.27}{rename}{section.8}
+ \BOOKMARK [2]{subsection.8.28}{reset}{section.8}
+ \BOOKMARK [2]{subsection.8.29}{restore}{section.8}
+ \BOOKMARK [2]{subsection.8.30}{save}{section.8}
+ \BOOKMARK [2]{subsection.8.31}{set}{section.8}
+ \BOOKMARK [2]{subsection.8.32}{show}{section.8}
+ \BOOKMARK [2]{subsection.8.33}{spline}{section.8}
+ \BOOKMARK [2]{subsection.8.34}{sync}{section.8}
+ \BOOKMARK [2]{subsection.8.35}{write_data}{section.8}
+ \BOOKMARK [2]{subsection.8.36}{zoom}{section.8}
+ \BOOKMARK [1]{section.9}{Macros in IFEFFIT}{}
+ \BOOKMARK [1]{section.10}{Scripting in IFEFFIT}{}
+ \BOOKMARK [2]{subsection.10.1}{Which language to use?}{section.10}
+ \BOOKMARK [2]{subsection.10.2}{The Fortran and C interface to IFEFFIT}{section.10}
+ \BOOKMARK [3]{subsubsection.10.2.1}{function ifeffit()}{subsection.10.2}
+ \BOOKMARK [3]{subsubsection.10.2.2}{function put_scalar()}{subsection.10.2}
+ \BOOKMARK [3]{subsubsection.10.2.3}{function get_scalar()}{subsection.10.2}
+ \BOOKMARK [3]{subsubsection.10.2.4}{function put_string()}{subsection.10.2}
+ \BOOKMARK [3]{subsubsection.10.2.5}{function get_string()}{subsection.10.2}
+ \BOOKMARK [3]{subsubsection.10.2.6}{function put_array()}{subsection.10.2}
+ \BOOKMARK [3]{subsubsection.10.2.7}{function get_array()}{subsection.10.2}
+ \BOOKMARK [3]{subsubsection.10.2.8}{function get_echo()}{subsection.10.2}
+ \BOOKMARK [3]{subsubsection.10.2.9}{function get_info()}{subsection.10.2}
+ \BOOKMARK [2]{subsection.10.3}{The IFEFFIT Perl Module}{section.10}
+ \BOOKMARK [2]{subsection.10.4}{Using IFEFFIT from Tcl}{section.10}
+ \BOOKMARK [2]{subsection.10.5}{Using IFEFFIT from Python}{section.10}
+ \BOOKMARK [1]{section.11}{Examples}{}
+ \BOOKMARK [2]{subsection.11.1}{Common XAFS Analysis Tasks with IFEFFIT}{section.11}
+ \BOOKMARK [2]{subsection.11.2}{Some non-XAFS tasks with IFEFFIT}{section.11}
+ \BOOKMARK [2]{subsection.11.3}{Autobk 3.01}{section.11}
+ \BOOKMARK [1]{section.A}{Installation}{}
+ \BOOKMARK [1]{section.B}{Using the Command-Line Version}{}
+ \BOOKMARK [1]{section.C}{Glossary of Program Variables}{}
+ \BOOKMARK [2]{subsection.C.1}{Scalar Naming Conventions}{section.C}
+ \BOOKMARK [2]{subsection.C.2}{Array Naming Conventions}{section.C}
+ \BOOKMARK [2]{subsection.C.3}{Fourier transform Conventions}{section.C}

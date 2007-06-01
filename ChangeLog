@@ -1,0 +1,1474 @@
+2005-09-28  Matt Newville  <newville@cars.uchicago.edu>
+	* Version 1.2.9:  
+
+	- added warning when a user-defined 'fitting variable' is accessed
+	  as a 'global variable' by an internal command by
+	  getsca('var_name').
+	
+
+2005-09-14  Matt Newville  <newville@cars.uchicago.edu>
+	* Version 1.2.8:  
+
+	- fixed configure script looking for curses/termcap libraries.
+
+	- many changes in Windows distribution.
+
+	- fixed bug in iff_shell.c so that it now works correctly on
+          64-bit linux. Also added '-fPIC' to FFLAGS arguments in
+	  Makefiles so that wrappers build on 64bit linux systems.
+
+	- add '--with-64bit' to PGPLOT_install so that pgplot may be 
+	  built on 64bit linux.
+
+	- changed (fixed??) background refinement in feffit() to have 
+	  the spline range extend over a wider k-range.
+
+
+2005-04-07  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.2.7:  
+	- add &status variable to hold many status flags from commands.
+	  The &status variable will hold an integer:  
+	     1   being a warning (including 'unknown keyword' for commands)
+	     2   something caused the command to stop prematurely
+	     3   a more serious error, generally including hitting an
+                internal limit, but also including 'file not found'
+		
+          examples:
+	     math syntax errors    ('a/*b')   sets &status to 2
+             math evaluation erors ('log(0)') sets &status to 2
+	     unknown group or no x-array in most commands  sets &status to 2
+
+	Notes: 
+	  1. &status value is NOT reset at each command (so that warnings
+  	     persist through macros, for example), and need to be reset by
+  	     the user. 
+	  2. the &status value will never be lowered, so that the most
+	     serious of &status levels is reflected.
+	
+	The whole &status mechanism is designed primarily for
+	wrappers  where this sequence is easy enough to encapsulate: 
+  	    execute command
+	    check &status
+	    react to &status (and maybe look at echo buffer at this point)
+            reset &status to 0
+
+	- added math function 'penalty(x,lo_val,hi_val)' which returns:
+	
+	     0                 for  lo_val <= x <= hi_val
+	     abs(x-lo_val)     for  x < lo_val
+	     abs(x-hi_val)     for  x > hi_val
+
+        this is useful for setting a restraint on a parameter so that it
+	is preferred to fall within a given range.  The penalty function
+	gives a more gentle penalty than   
+	    max(lo_val,min(x,hi_val))
+	and is better suited for chi-square sums (and will allow
+	uncertainties to be estimated).	 
+	
+	- fixed bug in iff_wrdata.f so that up to 99 arrays can be written
+	with the write_data() command.  This value is set in consts.h as
+	max_outarr and exposed as the scalar '&max_output_cols'.
+
+        - upgraded readline library to readline 5.0	
+	
+2004-07-08  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.2.6: assorted bug fixes, improvements
+
+	- fixed important bug in feffit() and ff2chi() that could end up 
+          with polluted path lists. Doing a second fit in a session using 
+          fewer paths would use some leftover paths. The path list is now 
+          initialized properly.
+
+	- reading of feff.inp in feff6 now uses iread() so that
+          feff6 no longer fails because of line endings that don't match
+          the standard for that platform.  
+	
+	- plot markers and arrows now support color, with 
+	   plot_arrow(...,color=red)
+	   plot_marker(...,color=blue)
+
+	- location of the plot legend now more customizable using
+	  one of two equivalent methods:
+	    plot(...., key='data', key_x=0.9, key_y0=0.9,key_dy=0.1)
+	  or setting
+  	    &plot_key_x = 0.9
+	    &plot_key_y0 = 0.9
+	    &plot_key_dy = 0.1
+	  where 'key_x' is the x-location of the legend 'key_y0' is the
+          y-location of the first key, and 'key_dy' is the vertical offset
+	  between keys.
+
+2004-01-22  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.2.5: bug fixes, improved feff path lists, fixed
+	problems with spline() clamps, restraints in feffit(), altered
+	screen messages for autobk/feffit/feff6, and added random()
+	command to generate arrays of random numbers.
+
+	- path lists for feffit(), ff2chi(), erase(), and show() can now 
+	range over undefined paths, so that 
+	   feffit(1-100,...)  
+	will use all *currently defined* paths between 1 and 100
+	(inclusive), even if only paths 2, 8, and 55 are defined.  Here
+	are some related changes: 
+
+	  o path indices are strictly checked to be in the range 1..9999.
+
+	  o since the maximum path index is 9999, the list '1-9999' means
+	    'all defined paths'.  This can be abbreviated as 'all', as in:
+  	        ff2chi(all,group=ff)
+	    which will sum all curently defined paths. 
+
+	  o erase(@paths) and erase(@path=all) are now equivalent, both 
+	    erasing all defined paths. 
+   
+	  o when erasing a path, the feff data associated with a path will
+	    be freed (if it's not in use by another path) so that new feff
+	    paths can be used.
+
+	  o the formatting of the output of 'show @path' and 'show @paths'
+	    has changed.  R is now reported (not just reff and delr), each
+	    parameter is listed on its own line, and the path parameters 
+	    3rd, 4th, ei, and dphase are reported only if defined.
+
+	
+	- added random() command, to generate an array of random numbers,
+	using uniform, gaussian, or normal distributions.  syntax is:
+	    random(output=my.random, npts=200, dist=normal, sigma=2.)
+
+	where sigma will be (approximately) the standard deviation of the
+	normal and gaussian distributions, or the scale of the uniform
+	distribution. Sigma is 1 unless explicitly set. You can optionally
+	reset the seed of the random number generator with the seed
+	keyword.  The gaussian and normal distribution appear very
+	similar, and can both be used to simulate noise in data.
+	
+	- chi_noise() now generates 'kmax_suggest', an estimate of the
+	maximum usable k-value for the data, based on the estimated noise
+	in the data.  In early tests, this appears to be a reasonable
+	estimate for 'noisy data', and a bit pessimistic for clean data.
+	Please use this value as a guide.
+
+	- clamps in spline() now try to bring chi() to zero at kmax/emax
+	and kmin/emin instead af last and first data point.
+
+	- an error in feffit() for how multiple restraints were applied
+	has been fixed. multiple restraints can now be applied and mixed
+	freely with multiple k-weights and multiple data sets.
+
+	- improved screen messages printed by autobk/feffit/feff6:
+	  o replaced all print* statements with 'call echo()'
+	  o messages 'echo'ed to the screen are now 'tee'd to the
+	    run files autobk/feffit/feff6.run
+	  o replace all 'stop' statements with a 'call echo()' and 
+	    the creation of an error file autobk/feffit/feff6.err.
+	    If this file exists after a run of autobk/feffit/feff6,
+	    then an error did occur; after successful runs, the error
+	    file will not exist.
+	   
+	
+2003-10-28  Matt Newville  <newville@cars.uchicago.edu>, with Charlotte's help
+
+	* Version 1.2.4: a long list of bug fixes, increases in limits,
+	  and other improvements
+
+	- n_varys now correctly reported by feffit()
+
+	- increased many limits on string sizes, now generally 256
+	  characters for most internal strings and for text variables.
+
+	- increased number of paths to 256 and feff files to 512, and 
+	  eliminated the distinction between 'total number of paths' 
+	  and 'total number of paths for a particular data set'.
+
+	- added program variables &n_guess, &n_scalars, &n_arrays,
+	  &n_scalars_set, &n_scalars_def, &n_arrays_set, &n_arrays_def,
+	  and &n_strings that contain the number of each kind of variable
+	  currently in use, and the variables &max_scalars, &max_arrays,
+	  &max_strings, &max_paths, &max_varys, and &max_data_sets to
+	  contain the maximun number of each of these kinds of data.
+	
+	- added show @limits to show all the '&n_*' and '&max_*' variables
+	  above plus current memory limits in &maxpts and &heap_free.
+	  
+	- changed autobk, feffit, and feff6 to take command-line argument
+	  for input file:
+	    autobk my_inpfile.inp
+	  and so on.  autobk and feffit name their log according to the
+	  input file name.
+	  
+	- fixed annoying bug that ignored entire lines that included an
+	  EOF character, which might (on many unixes) be a valid last line
+	  of a file.
+
+	- rewrote handling of repeated x-values when automatically sorting
+          data. Previously, data points with x(i) == x(i+1) were attempted
+	  to be averaged.  Now, the value of x(i+1) is increased slightly
+	  (typically 1% of x(i+2)-x(i)). This fixed odd behaviour of
+	  spline() when handed strangely ordered data by athena.
+
+	- amended $column_label output of read_data() to be able to handle
+	  column labels longer than a single string can hold (256
+	  characters, currently).  The scalar ncolumn_label now holds the 
+	  number of text strings used.   The first string is held in 
+	  both $column_label and $column_label1.  Additional text strings 
+	  of $column_label2, ..., $column_label9 are used, as needed.
+
+	- added provisional f1->f2 capabilities to diffkk.  This passes a
+	  very simple test, but is not very well-tested at this point, and 
+	  may require some tweaks.  Consider it a test version, and report
+	  problems!
+	
+2003-09-15  Matt Newville  <newville@cars.uchicago.edu>	
+
+	* Version 1.2.3: bug fixes
+
+	- setting path_index now correctly makes the selected
+	  path 'the current path', and causes re-evaluation of
+          defined variables and path parameters according to 
+	  that path's values for reff, degen, etc.
+
+	- fixed error with spline() not passing pre1,pre2 to
+	  pre_edge() correctly.
+	
+2003-08-21  Matt Newville  <newville@cars.uchicago.edu>	
+
+	* Version 1.2.2: bug fixes, build improvements
+
+	bugs:
+	- fixed error with k-space feffit() fitting so that 
+          k-weighting is now really used!!
+
+	- fixed error with using reff in defined math expressions
+
+	- increased size of math expressions to 256 operations/values.
+
+	- changed restraint mechanism to work slightly better with 
+	  multiple data	sets
+
+	- fixed error in read_data() that allowed core-dumps when 
+	  reading files larger than the maximum array size.
+
+	build improvements:
+
+	- switched configure to use autoconf 2.53, including 'newer'
+	  automated searches for fortran libraries, setting default f77
+	  compiler to g77, which should help builds on Mac OS X.
+	
+	- removed fortran subdirectory -- an existing, working fortran 
+	  compiler is needed to build ifeffit.
+	
+	- fixed iconf_pgplot to check that PGPLOT directories listed
+	  in the PGPLOT make really exist (and are directories) before
+	  including them in the link arguments.
+
+        - upgraded to readline 4.3
+
+        - upgraded python installation to use Pmw 1.1
+		
+2003-05-19  Matt Newville  <newville@cars.uchicago.edu>	
+
+	* Version 1.2.1: bug fixes:
+
+	- precision error in feff6/rdinp.f prevented the
+	  pathfinder from working (completely MN's fault 
+	  -- not original to feff6!!!)
+
+	- fixed bug in writing output fit arrays in feffit()
+	  for multiple-k-weight fits, and with do_bkg=true.
+
+	- slightly outdated Ifeffit.py had been included in 
+	  1.2.0, only noticed when building the Windows version.
+
+2003-05-14  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.2.0: declared this version as the first 
+	'stable' version of the 1.2 series, 
+
+	bug fixes since 1.0077:
+
+	- extraneous print statements in iff_set.f removed.
+	- background function '*.kbkg' was not correctly computed 
+	for output in feffit()
+	
+2003-04-30  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0077: several changes and improvements, ranging
+	from bug fixes to significant enhancements:
+	
+	- plot() now interprets 'key=""' correctly to mean to not show a
+	legend key.
+
+	- plot(reset) now works, resetting the color and style tables to
+	the original values.
+
+	- read_data() no longer automatically sorts on the first column
+	(or any other column) by default, but rather leaves data as read
+	unless explicitly sorted.
+
+	- fixed incorrect reporting of a parsing non-error (and some
+	related mistakes) on several math expression idioms involving
+	nested multi-argument functions, as in this deglitching gem, which
+	now works as expected to remove the data point closest to x=badx:
+	  new.x = join(slice(old.x,1,badx-1),slice(old.x,badx+1,npts(old.x)))
+	  new.y = join(slice(old.y,1,badx-1),slice(old.y,badx+1,npts(old.y)))
+	
+	- spline() and bkg_cl() now uses a new rebinning/interpolation
+	algorithm to convert data from chi(E) to chi(k).  For
+	finely-spaced energy data such as from QEXAFS measurements, this
+	algorithm averages over all energy points within the corresponding
+	k range, given by [k-kgrid/2k,k+kgrid/2).  Where no points lie
+	within the k-range, a 3-point interpolation using the closest
+	points is used.  The 'interp' keyword to spline() and bkg_cl()
+	have been deprecated and are silently ignored.
+	
+	- The rebin() function (which works like other interpolation
+	functions) now uses this rebinning/averaging algorithm as well.
+
+	- f1f2() now looks up and uses the 'known core-width of an edge'
+	by default.  That is, if the atom given has an edge energy in the
+	supplied energy range, the corresponding core-width is used.
+
+	- Other minor improvements were made to f1f2(), and especially in
+	the lorenztian convolution so that it works more reliably for
+	large, uneven arrays.
+
+	- Cromer-Libermann data updated to have slightly more significant
+	digits, which seems to be important to avoid 'weird points', which
+	often showed up exacly at absorption edges.
+	
+	- feffit() and minimize() now list 'bad variables' after a fit for
+	which error bars could not be estimated.
+
+	- feffit() now produces correct chi(R) data when input chi(k) data
+	is not on a k=0.05Ang^-1 grid.
+
+	- feffit(bkg=true) now works with multiple-data-set fits.
+	
+	- feffit() now "correctly" sums the number of independent points
+	for multiple-data sets as the sum of independent points in each
+	data set.  There is also a minimal checks whether the chi(k) data
+	is repeated in a single fit (check== is the name the same or is
+	the sum of squares of chi(k) over the fit k-range the same?).
+	
+	- feffit() now supports multiple-k-weights, with syntax
+    	    feffit(..., kweight=2, kweight=0, kweight=4,...)
+
+	which will use _all_ these k-weights (up to 5 allowed).  For
+	simple implementations of multiple-data-set fits on the same
+	dataset with only the kweight being different, the gives
+	numerically equivalent results.  Important caveats are that the
+	repored error bars _always_ reflect the fact that only 1 data set
+	is really is used, and that the rest of the k- and r-range
+	parameters are forced to be uniform.  There may be some subtle
+	differences when using other fitting add-ons, such as 'bkg=true'
+	(ie, only one bkg function will be used) or restraints.  Output
+	arrays generated for this form of multiple-k-weight fits will use
+	the FIRST kweight listed.
+	
+2003-01-21  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0076: several changes and improvements over the past months
+
+	fixed plotting bug in which all legends were not always shown, 
+	especially when making hard copies
+
+	added 'unguess' command which simply converts all 'guess'ed 
+	variables to 'set' values.  No arguments, no options.
+
+	added 'window' command to generate an FT window without actually
+	doing the FT.  requires an x array, but otherwise acts very much 
+	like fftf().
+	
+	fixed bug in reading 1-row data files.  The results are now
+	converted to scalars, with names of the form $group_prefix
+	
+        allow (consistently) '&', ':', and '?' in variable and group
+	names.
+	
+        added math functions for array manipulations:
+          x   = nofx(m.a,x0)     index of m.a with value closest to x0
+          m.x = join(m.a,m.b)    concatenate 2 arrays
+          m.x = slice(m.a,x0,x1) sub-array m.a[x0:x1], using fortran
+                                 array conventions (first element is 1).
+
+	many further tweaks to configuration procedure: 
+	  - the shell script iconf_iff now automatically builds 
+	    src/lib/sys.h and src/lib/maxpts.h at configure time. 
+	  - the shell script iconf_flib	now fixes the poorly sorted
+	    FLIBS on most Linux systems, that caused some problems with
+	    perl's MakeMaker
+	  - there is now a 'configure; make' procedure in src/macosx,
+	    with 'configure' now building a Makefile (which still might
+	    need tweaking). This uses 'uname -s' for setting
+	    darwin-specific code.  Aside from GNU Readline issues, this
+	    build procedure should work on many Unix systems.
+
+
+2002-11-12  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0075a: tweaked build procedure so that all
+	system-specific stuff is put into src/lib/sys.h, which is
+	built by the shell script iff_config.  
+
+	The MacOS X directory (src/macosx) now has its own version of this
+	script, and should now work. 
+
+2002-11-01  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0075: switched wrapper generation to swig1.3,
+	so that perl extension works with gcc3.2 (as on RedHat Linux 8.0)
+	The Tcl extension has not been updated.
+
+	added feff6 to source distribution
+
+	reworked meaning of 'erase @path' to only set path parameters
+	to '', and not destroy corresponding feff data, as this could
+	trash other paths.
+	
+	tweaked build procedure a little.
+	
+	
+2002-09-18  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0074: fixed bug in FFTs with phase-correction.
+
+	fixed bug in reporting of path parameters that values of sigma2
+	depending on debye() and eins() functions were not always shown
+	to be updated.
+
+	fixed bug in feffit (now version 2.98) in which parameters
+	depending on debye(t,th) or eins(t,th) were not always updated 
+	correctly when t and th were literal constants.  This
+	especially affected non-fits.
+
+2002-08-16  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0073: added 'interpolation options' to spline()
+	and bkg_cl(), with syntax 'interp=line', 'interp=quad', or
+	'interp=cubic' to change the final interpolation scheme for
+	converting data from chi(E) to chi(k)
+
+	The k-grid spacing (previously set at 0.05Ang-1) can now be
+	set as a build time option in config.h with the parameter
+	'qgrid'.  This and the length of the FFT arrays may
+	eventually become run-time parameters. Changing these values
+	should be considered as highly experimental.
+
+	changed default arraysize to 'medium' (ie, 4096 elements).
+	
+	fixed bug in call to 'coth' math function.
+
+	improved Grwin/PGPLOT on Windows to auto-raise the plotting
+	window on all plot, cursor, and zoom commands.
+	
+	improvements to GIFEFFIT.
+	
+2002-06-24  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0072: rewrote macro execution routine to remove 
+	the use of recursion, which was causing nested macros to
+	not work correctly on windows. 
+	
+        - some major changes to configuration and build procedure,
+	especially in that perl and python wrappers are no longer built
+	during 'configure; make', but must be made separately, and after
+	installation.
+
+	- added a &heap_free variable, which contains the number of
+	available array elements.  When this gets lower than the maximum
+	array length (typically 8192), bad things can start to happen.
+	Normally, &heap_free starts at 2**21 ~= 2million array elements.
+
+	- fixed some errors in 'erase()' so that now the constants pi and
+	etok cannot be erased, and 'erase @scalars' does not erase system
+	variables (ie, '&*').  Also sped up execution times for 
+	'erase @arrays'  and '@groups'.
+	
+	
+2002-04-02  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0071: changed configuration and some plotting
+	behavior, updated documentation
+
+	- PGPLOT_install will now install the PNG driver unless explicitly 
+	told to (with --no-png).  Similarly, the GIF driver can be turned
+	off with --no-gif.
+
+	- configure was changed to check which PGPLOT drivers are used and
+	to build the list of libraries to link with explicitly.  This runs
+	the shell script ./test_pgplot to spit out the 'link libraries'
+	for PGPLOT.  It is not extensively tested across unixes.
+	Specifically, it works with PGPLOT_install and with pre-built
+	PGPLOT lib on Mac OS X.
+
+	configure also now runs on Mac OS X, though the returned value for
+	FLIBS seems bad.  To fix this,
+	      ./configure --prefix=/sw
+	      make FLIBS='-lg2c'
+	is necessary.  This builds the C, and fortran libs and apps, but
+	the extensions seem to need to be built after the installation of
+	the main library.  This is still under investigation -- for now,
+	the build in src/macosx also works. 
+	
+	- the ifeffit variable $plot_devices now contains a list of all 
+	available plotting devices for the installation.
+
+	- error bars can be included in a plot: 
+	     plot( dat.x, dat.y, dy=dat.dy)
+
+        where dat.dy is the uncertainty in dat.y.  Error bars in x:
+	'dx=dat.dx' is also supported.
+
+	- the plot command now supports a 'one array' version:
+             plot (dat.z)
+	which will plot dat.z as the y- array against the _previous_
+	x-array, or against an dummy array of (1,2,..) if it is the 
+	first plot in a series.	 That is, 
+ 	     plot energy,xmu, group='data'
+	     plot bkg
+
+	now does what you would expect:
+ 	     plot (data.energy, data.xmu)
+ 	     plot (data.energy, data.bkg)
+	
+
+2002-03-05  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0070: feffit 2.97 now appears to work completely
+	and is included in build and installation.  Like autobk, this
+	is a 'transitional version' between the classic version and
+	a full 'ifeffit application', and keeping the outward appearance
+	of the 'classic version' and using the ifeffit libraries only
+	for the low-level numeric stuff. Feffit currently uses its own
+	version of 'the math parser' as well. 
+
+	- added special functions to make the generation of gaussian,
+	lorentzian, and pseudo-voight lineshapes easier:
+	    my.y = gauss(my.x, centroid, sigma)
+	    my.y = loren(my.x, centroid, sigma)
+	    my.y = pvoight(my.x, centroid, fwhm,eta)
+	
+	see documentation (soon to be updated!).
+	
+	- added 'group' keyword to save to give a specified group to 
+	include in the save file. If used, all groups must be listed:
+	   save(group=data,group=fit,...)
+	
+	- fixed zoom(show) to work again.
+	
+	- minor updates to gifeffit.
+	
+2002-02-18  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0069: added feff tables, made several 
+	changes to aid portability to Win32 and MacOS X(!), 
+
+	- included fefftab directory of Feff Tables.  Currently
+	these are only read by internal routines, and cannot 
+	(yet) be manipulated in the main interpreter.
+
+	- provisional (ie, not very well tested) support for
+	phase-corrected Fourier Transforms using feff tables.
+	    fftf(xx.chi, pc_edge = 'Ni K')
+	for example.
+
+	- added 'force_read' keyword to path() to force the 
+	re-reading of a feffNNNN.dat file (in case it may have
+	changed	since it was last read).
+		
+	- improved behavior of load() command for files and/or
+	directories with spaces in their names (use quotes!!),
+	and force surrounding quotes on startup file (for Win32 
+	startup file of C:\Program Files\ifeffit\startup.iff)
+	  
+	- addded 'macosx' directory and Makefile to build for
+	MacOS X while avoiding 'configure;make'.  This relies 
+	heavily on installin of Fink tools for MacOS X. See 
+	README.MACOSX and src/macosx/README for details.
+	
+	Build instructions are effectively reduced to 
+	  'cd src/macosx; view Makefile; make'
+
+	This Makefile might actually be a useful starting point
+	for other Unix and Unix-like systems that have some Unix
+	tools in place but does not 'configure' correctly.
+	
+	- tweaked iff_shell.c to better link against a known 
+	installation of readline 4.2 (for MacOS X).  Enough linux
+	distributions still distribute 2.2 that it's just easier
+	to always build a known version under 'normal build'.	
+
+	- feffit is now included in the build tree (src/feffit),
+	compiles as fully double precision, and uses some of the 
+	routines in src/lib/.  But this version of feffit is still
+	SEVERELY BROKEN at the moment.  Please don't use it and 
+	complain about it!!
+	
+
+2002-02-07  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0068: bug fixes
+
+	- fixed severe parse error for expressions containing min() 
+	and max() functions.
+
+	- fixed error (yet another!) in setting of path degeneracy.
+	Really, this should work now.
+	
+
+2002-01-27  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0067: several additions
+
+	- changed cursor / zoom routines from pgplot's pgcurs to pgband,
+	showing 'zoom box' on zoom, and allowing vertical lines or 
+	cross-hairs for cursor selection.  Seems to not work on Win32.
+
+	- added additional plotting commands: plot_marker(), plot_text(),
+	plot_arrow(), each of which draw to the plot window:
+	   plot_text(x,y, text_string)
+	which is equivalent to
+	   plot (text_x=x, text_y=y, text=text_string)
+
+	   plot_marker(x,y, marker_number)
+        arrows can have adjustable size, barb fraction, and angle of
+	arrowhead, or no head at all:
+	   plot_arrow(x1,y1,x2,y2, size=3, barb=0.4, angle=45)
+	   plot_arrow(x1,y1,x2,y2, no_head)
+
+	- added storage of and access to the central-atom phase-shift for
+	a feff path.  The command get_path() will now generate arrays for
+	k, amp, phase, lambda and cphase with the 'do_arrays' keyword.
+
+	- fftf() phase-corrected FTs now use a specified feff path, and
+	either the full phase-shift or central-atom phase-shift:
+	   fftf(...., pc_path = path_index, pc_caps / pc_full )
+	
+	- added 'sort' keyword to read_data to sort the data so that a 
+	selected column (by column number only) is monotonically 
+	increasing.
+
+	- improved spline() and pre_edge() handling of unsorted data
+	(sorting it internally) and for data in keV.
+
+2002-01-07  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0066: bug fixes
+
+	more complete enforcement of '&maxpts' internally.  Now 
+	writing 'maxpts.h' at configure time and using as an 
+	include file for almost all array size definitions. 
+	
+	switched python module from using compile.py to using 
+	distutils for build process.
+		
+	changed return of the C library function iff_scaval from *double
+	to a plain double.   ifftest2.c changed accordingly.
+
+	changed rule for determining comment lines in data files from "a
+	comment character in the first character on a line" to "a comment
+	character in the first non-blank and non-tab character on a line".
+	comment characters can be '#%;' or a user-defined character. 
+	
+2002-01-01  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0065: provisional fixing of multiple bugs and annoyances:
+
+	added '&maxpts' internal scalar to give maximum array size.  This
+	can now be used by perl/python modules to generate arrays.
+
+	fixed severe bug in Ifeffit.pm causing get_scalar to not work
+	(exit status of C's get_scalar had changed to 0 for success). 
+
+	fixed errors in ifftest2.c, and in iff_scaval()
+	
+	added initialization string to perl/python modules so that the
+	interpreter is ensured to be initialized when loaded.
+
+	improved the auto-scaling of the optional standard used in
+	spline() -- it was essentially hardwired previously.  Also added 
+	a keyword for 'r1st' -- distance beyond rbkg for first-shell
+	amplitude matching. Added simple examples for using standard in
+	spline() and for using end-point clamps.
+
+	moved this ChangeLog back to root directory, altered BuildBuild to 
+	use it from root position for library build.
+
+	updated athena version to 
+
+	removed plotting from diffkk executable, so that it can compile
+	simply under --with-f2c compile option.	
+	
+2001-10-17  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0064: provisional (tested, but not completely) support
+        for multiple-data-set fitting in feffit(). This appears easier 
+	than I originally thought, and more useful than trying to support
+	a hybrid stand-alone feffit.  Fixed lots of little problems 
+	with path definitions along the way.	
+		
+	diffkk() command still incomplete 
+	
+2001-10-05  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0063: preliminary support for diffkk standalone
+	(unstable but can be made to work) and for dkk() function in
+	math parser (the diffkk command inside ifeffit proper is not 
+	yet working right).
+
+	fixed a few bugs, including 'show @paths' possibly showing
+	the wrong reff/degen values.
+
+	several updates to reference doc
+
+	improved _fortran_ interface with ifeffit.inc file.
+	
+2001-09-07  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0062: several minor changes, mostly to improve
+	documentation and python interface.
+
+	updated athena version to B Ravel's latest.
+
+	added provisional inclusion of diffkk into the ifeffit build
+	system (working, poorly tested -- no plotting as of yet).
+
+2001-07-09  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0061: added B Ravel's athena perl GUI program, 
+	fixed bug in handling screen echo with log files.
+
+2001-07-06  Matt Newville  <newville@cars.uchicago.edu>	
+	
+        * Version 1.0060: improved C interface, adding functions
+	iff_strval() and iff_scaval() to return pointers to ifeffit
+	strings and scalars.  Also, now allowing '#' characters in
+	iff_put_string() calls. 
+	
+	improved lorenztian and gaussian convolution functions
+	to allow non-evenly spaced data to be properly convolved.
+
+	turned off default startup message from library -- now
+	assumed to be handled by calling program
+
+	eliminated need for PGPLOT_DEV environmental variable, by
+	defaulting to the '/xserve' persistent window and to '/gw'
+	for Win32 systems.
+
+	added  --with-arraysize=[tiny, small, medium, large] to 
+	configure for customizing the maximum array size (which 
+	dominates the amount of memory required).  The default is
+	'medium', which allows arrays of up to 8192 elements, and 
+	uses around ~16Mb of RAM for a typical 'spline()' and ~22Mb 
+	for a typical 'feffit()' execution.  For now, I consider this 
+	to be much more efficient than necessary.
+		
+2001-06-08  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0059: added options for different sizes for
+	different plot quantities (labels, markers, on-panel
+	text). 
+
+	
+2001-06-05  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0058:  fixed deep, weird parse error
+	essentially rewrote subroutine bkeys() to be somewhat
+	more sensible at dealing with nested parens and quotes.
+
+	print now treats '...' and "..." differently: "..."
+	will evaluate the enclosed string, '...' will not.  No
+	other commands are affected by this change.
+	
+	added 'key' keyword to plot() which gives a primitive 
+	gnuplot-like legend.
+	
+	worked on reference manual some.
+
+	added '.norm' output to spline(), which was redefining
+	edge_step after a pre_edgg() call, but not updating the
+	'.norm' array.
+
+	
+2001-06-01  Matt Newville  <newville@cars.uchicago.edu>	
+
+        * Version 1.0057:  several bug fixes and changes, including:
+
+	updated PAD library to avoid sign errors on crays, and to
+	be in sync with version used in Feff
+
+	updated use of restraints in feffit(), added keywords
+	restraint (and restraint_01 through restraint_09). Not fully
+	tested or documented, but appears to work in test cases.
+
+	added command 'bkg_cl()' to do pre-edge subtraction, and
+	normalization based on fit of data to Cromer-Libermann data.
+	Not fully tested or documented, but appears to work.
+
+	upgraded to GNU Readline4.2, made several improvements
+	in build system for non-linux Unix systems.
+
+	still puzzling over bug report for improper path parameter
+	values (based on old definitions?)
+
+2001-04-13  Matt Newville  <newville@cars.uchicago.edu>	
+
+	* Version 1.0056:  debye bugfix, win32 update.
+
+	fixed several related bugs associated with debye(), eins(),
+	and 'path_index' that were preventing debye() and eins()
+	to be correctly evaluated at all times. 'path_index'
+	stores user-chosen path index for a path, and is used by many
+	internal functions and commands, including debye() and eins(). 
+
+	switched Win32 to GrWin 0.997, which now builds and runs
+	correctly, and fixes problems with cursor()/zoom() so that 
+	these now work on Win32.
+
+        Makefile is now generating installation location for gifeffit, 
+	instead of relying on a hardwired /usr/local/bin.
+	
+2001-04-11  Matt Newville  <newville@cars.uchicago.edu>	
+
+	* Version 1.0055: 
+
+	fixed several bugs discovered by building Win32 DLL, 
+	mostly due to array-bounds.  Win32 DLL and command-line
+	program are both now working again.
+
+	vastly improved mechanism to add an additional scalar
+	value to function-to-minimize in feffit/minimize.
+	
+2001-03-25  Matt Newville  <newville@cars.uchicago.edu>	
+
+	* Version 1.0054: bug fixes, improved build system
+	
+	fixed bug in minimize() that broke many fits.
+
+	fixed bug recently added to write_data() that
+	prevented 'string globs' ('$title_*') from working
+
+	fixed 'TERMLIB' setting for linking against readline.
+
+	reworked building of perl Makefile.PL, now using 
+	ExtUtils::F77 (included with distribution).
+
+	added --enable-python, --enable-perl, --enable-tcl, 
+	and --enable-all switches to configure to automate the 
+	building of the optional wrappers for these interpreted 
+	languages.   All are enabled by default. So farw this 
+	works, but there are still a few issues to work out: 
+	(support for python2.0, some hardwired install 
+	directories, untest for old installations, and no
+	installation directory of tcl extension).
+	
+2001-03-22  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0053: added range() function  in math parser
+	my.x = range(0.0, 1.0, 0.05) 
+
+	now creates an array of 21 elements: 0.0, 0.05, ..., 1.00
+
+	   range(start,stop,step)
+
+	array will go up to but  not exceed the value stop:
+	   range(1,2.2, 0.5)  -> 1.0, 1.5, 2.0
+	step can be negative, but it is an error for it to be zero.
+
+	minor fixes to script configurations and PGPLOT_install, 
+	tweaks of Ifeffit.pm.
+
+2001-03-10  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0052: misc fixes (working on tutorial)
+
+	improved behavior of 'print' so that it doesn't 
+	chokes on unparenthesized lists.  improved behavior
+	of 'show' so that output is better aligned.
+	
+	fixed bug preventing k-space feffit() from working
+
+	fixed bug in fft due to unitialized array data,
+	(seemed to only show up when mixing fftf and fftr),
+	set default limit of output for q-space data to 30Ang^-1.
+	
+	added support for scalars to write_data(), so that 
+	scalar names and values are written to header lines.
+	
+	worked on tutorial to point of calling it a completed
+	first draft.
+	
+2001-02-27  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0051: fixed minor bugs:
+
+	1. save files got broken in 1.0050: fixed.
+	2. one column data files can now be read.
+	3. added log10() function.
+	4. improved initialization of pre-edge/normalization routine.
+
+2001-02-26  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0050: fixed several bugs in implementation and
+	manipulation of single flat array structure for program data,
+	after a good bit (but not exhaustive) testing.
+
+	Arrays can now have up to 16384 elements in length, and smaller
+	arrays only use up as much room as they need (well maybe with a
+	little padding).  Erasure of arrays and re-defining arrays (the
+	tricky parts, for sure) seem to working fine, after a few days of
+	testing.    
+
+	Slight change in behavior for 'erased arrays': if an array is
+	defined to depend soley on another array, and that dependency 
+	is erased, the dependent array will now be erased as well (since 
+	it's size is now 1: all 1-element arrays are now erased).
+	That is
+	   a.x = indarr(1000)
+	   a.y = sin(a.x/20)
+	   erase a.x
+	will also cause a.y to be erased.  Note that 
+	   a.z = sin((a.x + b.x)/30)
+	will not be erased -- it still depends on the living b.x.	
+
+	add &sync_level to control how often sync() is called behind 
+	the scenes == still experimental and not fully implemented, but
+	with the larger array sizes, repeated definitions of arrays
+	can be notably slow.
+
+	allow 'load save_file' to work as expected (that is to restore 
+	the file) -- this allows save_files to be specified on the
+	command line list of files to load at start up:
+	   ~> ifeffit data.sav process.iff
+	
+2001-02-22  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0049: non-release version, converted to a single
+	flat array / linked-list structure for program array data.
+	This is partially tested, but seems to work well, and allows
+	arrays up to 16384 elements.   Not well-tested for complex
+	dependencies (with lots of sync() calls) or numerous arrays, 
+	for a full buffer (2**20 doubles in all of arrays).
+
+	added src/test directory with test programs in Fortran and C
+	src/test/ifftest1  (Fortran) and src/test/ifftest2  (C)
+	
+
+2001-02-20  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0048: altered read_data to use a temporary
+	buffer and then set program arrays from this.  This allows
+	the number of arrays read in to be different than the number 
+	of arrays on a single line, which is useful for large data 
+	sets or much of the data in the Lytle database.  
+	 
+	  read_data(file=file, narrays=2)
+
+	will force two arrays to be filled, even if each line contains
+	8 columns:
+          x y x y x y x y
+	  x y x y x y x y
+
+	
+2001-02-20  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0047: fixed several minor problems, 
+	especially determination of path list of feffit/ff2chi
+	and feffit()'s auto-execution of chi_noise()
+	
+	added no_header keyword to write_data() to suppress all
+	title lines.	
+
+2001-02-19  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0046: moving steadily towards internal
+	rearrangement of array data to allow arbitrary length
+	arrays, moved nearly all array access in iff_* commands 
+	to function calls, changing many of the routines in 
+	misc_arr.f
+
+	re-implemented use of CVS (and now checked-in properly!)
+
+	partial (incomplete) rearrangement of examples/
+	several minor code tweaks.
+	
+2001-02-12  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0045: fixed bug in call of chi_noise
+
+	fixed bug in isnum() incorrectly evaluating some 
+	expressions as numerical constants.
+
+	fixed bug in minimize() (genfun.f) recently introduced
+	that killed minimization of data that did not have 
+	estimated uncertainties included
+	
+2001-01-29  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0044: some progress on improving 
+	array layout and implementation
+
+	tested (and several buglets fixed) portability of 
+	build to Solaris and Alpha (with f2c), neither 
+	using PGPLOT yet.  Also worked on improving the
+	PGPLOT_install script as well.
+
+2001-01-27  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0043: several minor changes to installation,
+	configuration and scripting front-ends.   Most notably,
+	PGPLOT_install greatly expanded.
+
+	changed ifeffit() startup behavior to be able to
+	completely suppress screen echo's, even of copyright 
+	notice, by giving initial call as ifeffit('&quiet').
+	
+2000-12-12  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0042: fixed bug in iff_fft code of
+	unitialiazed arrays that could, under certain 
+	circumstances, give bad results.
+
+	add '&pause_ignore' system variable for whether to 
+	ignore pause statements -- the '-x' command-line 
+	switch in the ifeffit shell now uses this.
+
+	improved support and compatiblity with stand-alone 
+	autobk code (autobk version 2.92).
+	
+2000-12-08  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0041: put environmental variables for history 
+	file and size properly into shell command file.  
+
+	Improved several base-installation instruction files.
+
+	Expanded and organized macros and examples in examples/
+	directory.
+
+	fixed serious bug in arrays.h (tmparr dimensioned wrong).
+	
+	
+2000-12-07  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0040: fixed bug in spline() preventing reliable
+	user setting of e0
+	- fixed bug in autobk's call to pre_edge
+	- made tmparr() a global variable in arrays.h
+	- added check for ncurses,termlib, etc in configuration
+	
+2000-10-27  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0039: reworked startup and share directory
+          $(prefix)/share/ifeffit/
+	so that the core interpreter loads
+             $(prefix)/share/ifeffit/startup.iff
+	and 
+             $HOME/.ifeffit
+	itself on startup (if they exist).  This improves 
+	flexibility of configuration and consistency between 
+	different uses of ifeffit.
+
+	- added 'width' keyword to f1f2() command, and added 
+        convolve() function to math engine for convolution with
+	a lorenztian.
+	
+	- made python module class based so that it can initiate 
+	the core interpreter, thereby avoiding the bug of calling
+	put_arr() or put_scalar() before ifeffit() has been
+	initialized.
+
+	- put earlier checks on the use of trivial constants
+	in set/guess/define and iff_eval, to avoid filling 
+	the math engine's constant buffer 
+	
+	- added splint() function to math engine for natural 
+	cubic spline interpolation.  Should  probably adjust
+	fefinp and chipth to use cubic spline interpolation of
+	feff data, but not implemented yet.
+	
+2000-10-22  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0038: added cromer-libermann calculations of f', f''
+
+	-command f1f2() calculates f'(e) and f''(e) given an atomic
+	number and an array of energies.  The calculation uses small 
+	data files of the Cromer-Libermann parameters (not interpolation
+	tables).  The data files (in src/cldata) are installed to 
+             $(prefix)/share/ifeffit/cldata 
+	 and are read from the installed disk location by f1f2() for 
+	 use in the calculation.  The CL method is borrowed from 
+         Cowan/Brennan's version, but altered significantly.
+
+2000-10-15  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0037: macro execution for each fitting loop
+
+	-feffit and minimize now supports a 'macro' argument
+	which names a user-defined macro to execute at the end of each 
+	fitting iteration.  This allows the progress of the fit to be 
+	monitored by printing the current values of the variables or 
+	by plotting some part of data/fit.
+	
+
+2000-10-12  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0036: improved logging capabilities, correl()
+	
+	-log() command now opens/closes a log file to which
+	all echos can be sent:
+	    log(file = log_file)  to open log file
+	    ....                  all screen echos go to file
+	    log(close)            to close log file
+
+	with option:
+	    screen_echo = 0,1,2,3, 'tee', 'both', 'file'
+	to set the value of &screen_echo:
+	    0  save to echo buffer (for get_echo() from scripts)
+	    1  normal write to screen
+	    2  write to log file, not screen
+	    3  write to log file and screen
+
+	-correl() command turns elements of the fit correlation 
+	matrix into scalars:
+	    correl(x,y,out=correl_x_y)
+	where the first 2 arguments are the names of fitting 
+	variables and the third argument is the name of the scalar
+	to create holding this value (with default name correl_x_y)
+
+	-added 'norm_order' keyword to pre_edge() to set order of
+	polynomial for normalization constant.
+	
+2000-10-10  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0035: several minor fixes:
+	-gifeffit -- several tweaks, mostly about failing
+	to properly load and execute command files with blank lines. 
+	
+	-fixed BuildBuild to allow extra ":" on Version line (as above!)
+	
+	-fixed iff_show to show variable type for unfound variables
+
+	-improved some warning messages
+
+	-replaced repeated calls to lintrp() in chipth()  with 
+	 explicit call to hunt() and linear interpolation
+
+	-first working implementation of 'do_bkg=true' in command 
+         feffit() to fit 'additional background'.
+	
+	 	
+2000-10-03  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0034: fixed debye() and eins() to work correctly
+	with both scalar and array contexts -- both use the concept
+	of 'current path' from program variable 'path_index'.
+	
+	- fixed 'show  @paths' and 'show @path=N' to always (??)
+	show the real path information
+	
+2000-10-03  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0033: added erf(), erfc() and erfcx(), 
+	loggamma() special functions to math parser, and 
+	revised implementation of gamma() to be more 
+	consistent with other intrinsic functions. 
+	
+        - improved exit behavior: retracted message from 
+	'quit', made iff_load a function returning 1 immediately 
+	upon seeing 'quit' or 'exit' in a script, and improved
+	command-line program to honor such exits in scripts 
+	either loaded from the ifeffit prompt or named as a 
+	command-line argument.  That is, a 'quit' or an 'exit'
+	in a script will always truly exit the library and the 
+	command-line program, and return 1 to a calling program.
+
+	- encapsulated most [rdffdt not done yet] read() calls
+                read(lun,...) line
+	for reading from files calls with a call to function 
+	iread() that returns line length and includes a call to 
+	sclean to clean line-ending problems (dos/unix/mac) and 
+        other C v. fortran read problems.
+	
+2000-09-16  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0032:  added get_path() command for a 
+	simple conversion of path data to Program Variables. 
+	Not yet complete.
+
+2000-09-16  Matt Newville  <newville@cars.uchicago.edu>
+	* Version 1.0031:  added gamma function to math expressions.
+	also delayed putting up plot window until the first plot()
+	command.  altered 'quit' to print exit message.  Other:
+
+	- updated python installation to auto-install Pmw if needed
+
+	- updated command-line ifeffit to accept '!ls' as a valid
+	  shell escape, and to invoke a bash shell on a bare '!'.
+	
+2000-09-11  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0030:  added initialization of nerstp to 
+	iff_minimize and added maximum loop-count to fiterr to
+	avoid infinite-loop bug in minimize().
+	
+
+2000-09-10  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0029:  changed iff_plot to use pgopen/pgslct
+	  and no longer pgbeg/pgend.   'new' plots are now handled very
+	  differently.  This has several consequences --  most notably
+	  faster plotting.   The default-interactive-device (read from
+	  PGPLOT_DEV) is assumed to be the normal plotting device, and 
+	  any other device makes a single hardcopy (gif, ps, ...) of
+	  the current plot with a single 'plot' command.   The hardcopy
+	  file is closed immediately, and the default plot is 
+	  automatically reselected. 
+	  
+	  There is no longer a need to re-select the '/XSERVE' device. 
+
+	  This also means that plotting works correctly on Win32 systems  
+	  using the GrWin graphics libraray, at least with Cygwin 
+	  (see README.CYGWIN for details).  Testing of making an
+	  executable with DVF and linking as a Win32 library is still
+	  underway.   
+
+2000-09-07  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0028:  several minor fixes
+	     iff_show // macro show fixed small core-dump bug
+	     added 'show @macro=full' to list full macros
+
+	     added commmand log() which is show() with one
+	     pre-argument (optional keyword = 'file') of a file 
+	     name to write results to:
+      	      log(file= Macros.iff, @macros=full)
+	  
+	     will write all macros to Macros.iff
+	
+
+	     changed fiterr/gaussj call to try to stave off
+	     a bug pre-report.
+	
+
+2000-09-05  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0027: altered subroutine preedg() to pass back
+	coefficients of post-edge normalization curve.  the pre_edge(),
+	now saves thses to 'norm_c0, norm_c1, norm_c2', so that 
+	the curve can be reconstructed as:
+	 data.norm_curve =   norm_c0 + norm_c1 * data.energy
+	                   + norm_c2 * data.energy^2
+			   
+        autobk: (version 292a now)  now writes these coefficients
+	out to autobk.log.
+
+	ifeffit (version 1.0a): several improvements to this
+	command-line program (This is the C/ReadLine version that 
+	is auto-installed):
+	   better support for tab-completion
+           command history (including between sessions)
+           startup file ($HOME/.ifeffit:  ifeffit commands loaded
+	                   before anything else)
+           command line arguments:  
+	      files listed are 'load'ed as command files
+	      -x option means 'execute and exit'
+	   help more complete (though still not complete enough!)	
+	 
+2000-09-02  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0026: fixed bug in iff_save -- crashed on
+	restore of a non-existent file.
+
+2000-08-30  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0025: fixed bug in iff_rddata -- data files with
+	more that 2048 points were causing severe errors. No truncate
+	data -- should work on array() as a pointer-driven array.
+	
+	
+2000-08-24  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0024: fixed bug in fefinp that made defining 
+	a path with a non-existent feff.dat file cause _no_ feff
+	files from ever being read in.
+	
+2000-08-23  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0023: add sorting of energy/xmu arrays for spline,
+	with routine 'sort_xy'.  sort_xy is called in routine spline(),
+	and having repeated points causes a warning -- but the fit of 
+	the spline works (more or less: still an issue of how 
+	iff_spline should deal with the resulting bkg array).	
+		
+	Also: added iff_test and command '__test' for general testing
+	purposes.  
+
+2000-08-21  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0022: relaxed path parameter keywords in feffit
+
+2000-08-21  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0021: fixed errors (serious!) in sum_paths.f
+	and fitfun.f for getting Real(chi) and Imag(chi) for fit.
+	Also turned back on 'default params' for fft, ff2chi, and 
+	feffit commands 
+	
+2000-08-19  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0020: turned off all 'default params' from 
+	program variables in spline, pre_edge, fft, and feffit 
+	commands -- trying out __requiring__ all arguments to be
+	explicit.
+	
+2000-08-17  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0019: added 'norm' output to pre-edge
+	
+2000-08-15  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0018: added 'find_e0' to spline
+
+2000-06-12  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0017: altered iff_color to fix background 
+	color selection.
+
+2000-06-04  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0016: altered misc_arr.f again (prenam/fixnam)
+
+2000-06-01  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0015: added 'show' to zoom, fixed 'show' for cursor
+	
+2000-05-27  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0014: fixed return value for 'end macro' to be 0
+	in more situations.
+
+2000-05-21  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0013: fixed bug in 'fixnam' that was allowing
+	arrays named '1.x' to be created.  Now munged to '_1.x'
+
+	changed python install procedure to use 'compile.py' and
+	'install.py.
+
+2000-05-12  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0012: add 'linestyle' command to set plot
+	line style -- analogous to 'color' command.
+
+	rewrote C wrapper:  ifeffitc.c and ifeffit.h are now 
+	more complete, and have more C-like interface routines 
+	for iff_exec() [ie, ifeffit()], get_scalar(), etc.
+	All C/Fortran calling is now confined to ifeffitc.c, 
+	allowing all wrapper modules to use the C interfaces
+	without dealing with C/Fortran issues.  This was mostly
+	done to ease the Windows port, but may also simplify
+	porting in general.
+
+2000-05-11  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0011: updated several things in common blocks
+	to avoid warnings, changed lm_err() in minpack. Also played 
+	with pgplot calls -- having troubles with GrWin on WinNT --
+	some pgplot functionality of switching and closing devices
+	may be broken.
+
+2000-05-05  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0010: changed array indexing so that the 'magic
+	zero array' (ie, array that can be relied on to be full of 
+	zeros) is at maxarr, not zero.  Changed indexing of arrays 
+	from 0:maxarr to 1:maxarr, and several of the routines that 
+	use this. 
+
+2000-04-24  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0009: add '@group' and '@path's to 'erase'
+	in iff_erase.f.  Complete rewrite of iff_erase.f, not 
+	very well tested, but 'erase @group=x' does work (which
+	is what I needed today!).	
+
+2000-04-24  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0008: add 'notitles' option to iff_rddata, 
+	and made output $column_label string contain only the
+	array _suffixes_.  	
+	
+2000-04-14  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0007: rewrote iff_print to use buffer
+	string before executing echo/chrdmp.  Now works
+	from scripting languages when '&screen_echo = 0'.
+	
+	added sign() function to math parser, which returns
+	-1,0,1 based on sign of input.
+	
+2000-04-11  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0006: fixed bug in iff_show, verified build
+	with f2c.  Working of configure/autoconf
+
+2000-04-04  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0005: fixed 'trivial constant' parsing in 
+	iff_set, removed one more reference to 'info buffer'.
+
+	python module reworked, now with shell emulator
+	
+2000-04-03  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0004: removed all references to 'info buffer'
+	recovering from vacation, laptop theft.
+	
+2000-03-11  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0003: added construction of delta_VARS to 
+	iff_minimize, and tweaked (of all things!) gaussj.f --
+	minpack/fiterr now completely ported to C.
+
+2000-03-07  Matt Newville  <newville@cars.aps.anl.gov>
+
+	* Version 1.0002: now auto-building build.h, with version read
+	from this file, and Keyword/Hints read from Keywords.dat.
+	Save files upgraded to version 1.01, now recording IFeffit build
+	info in save files.
+	
+	
+2000-03-06  Matt Newville  <newville@cars.uchicago.edu>
+
+	*  Version 1.0001: Begin using ChangeLog for version numbers
+	and update notices, working towards building source configuration
+	options into 'build.h'.
+
+From OLD ChangeLog::
+
+2001-05-31 Matt Newville  <newville@cars.uchicago.edu>
+	* Version 1.0c: upgraded to Readline 4.2
+
+2000-09-07 Matt Newville  <newville@cars.uchicago.edu>
+	* Version 1.0b: just plain 1 beta -- the real changelog
+	is in src/lib/ChangeLog
+	
+2000-06-12  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0.2: updated autobk setup and build to be
+	fully compliant with stand-alone autobk (version 2.92)
+	
+2000-06-02  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0.1: second release of full distribution
+	- library much improved
+	- minor improvements to wrappers/python and wrappers/perl
+	- added examples/   directory with example scripts
+	
+2000-04-18  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.0.0: initial release of full distribution

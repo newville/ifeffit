@@ -1,0 +1,19 @@
+\begin{thebibliography}{1}
+
+\bibitem{TclBook}
+J.~K. Ousterhout, {\em {Tcl and the Tk Toolkit}} ({Addison-Wesley}, Menlo Park,
+  CA, 1994).
+
+\bibitem{LearningPerl}
+R.~L. Schwartz and T. Christianson, {\em {Learning Perl, 2nd Edition}}
+  ({O'Reilly}, Sebastopol, CA, 1997).
+
+\bibitem{CamelBook}
+L. Wall, T. Christianson, and R.~L. Schwartz, {\em {Programming Perl}}
+  ({O'Reilly}, Sebastopol, CA, 1997).
+
+\bibitem{LearningPython}
+M. Lutz and D. Ascher, {\em {Learning Python}} ({O'Reilly}, Sebastopol, CA,
+  1999).
+
+\end{thebibliography}

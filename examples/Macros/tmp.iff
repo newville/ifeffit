@@ -1,0 +1,6 @@
+  read_data(file = pu089.dat, prefix=my)
+  tmp.xafs  = my.5 * my.10 / (my.11 * my.8)
+  plot (my.1, tmp.xafs, xmax=18500)
+  $outfile  =  'xafs.dat'
+  $title    = 'ENERGY     XMU  I0   THETA'
+  write_data (file = 'xafs.dat', $title, my.1, tmp.xafs, my.8, my.2)

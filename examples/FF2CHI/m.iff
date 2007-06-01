@@ -1,0 +1,18 @@
+
+path(1, ../feff/feff0001.dat )
+
+get_path(1, prefix=p, do_arrays)
+show @arrays
+guess gamma  = 1
+guess off    = 2
+guess c      = 0
+set   d      = 2
+
+p.mod   =  off + p.k / (0.2625 * gamma)  + c / (p.k + d)
+p.resid = p.lambda - p.mod
+
+minimize(p.resid,x = p.k, xmin=3)
+show @variables
+
+newplot p.k  , p.lambda, ymin=0,ymax=50
+   plot p.k  , p.mod

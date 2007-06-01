@@ -1,0 +1,64 @@
+   reading  ../feff/feffcu01.dat
+  *** read_data: no file name given!!
+   feffit fitting   1 data sets
+   fitting ...
+   estimating uncertainties ...
+ done.
+   fit took    2.00000000  iterations
+ s02            =       0.929147082
+ e0             =       0.618778703
+ dr             =       0.000889316
+  macro rf  "A.dat", "group"
+    "simple raw read of a data file"
+      read_data($1, group=$2, type='raw')
+  end macro
+ rc             =       2.520000000
+ restr          =    252000.000     := (rc-rf)/dx
+ chi_square     =   0.635040023E+11
+ r_factor       =       0.030390588
+ n_idp          =      19.002929688
+   feffit fitting   1 data sets
+   fitting ...
+   estimating uncertainties ...
+ done.
+   fit took    1.00000000  iterations
+ s02            =       0.935383592
+ e0             =       0.637108973
+ dr             =       0.001016166
+  macro rf  "A.dat", "group"
+    "simple raw read of a data file"
+      read_data($1, group=$2, type='raw')
+  end macro
+ rc             =       2.550000000
+ restr          =    255000.000     := (rc-rf)/dx
+ chi_square     =   0.650250023E+11
+ r_factor       =       0.030370933
+ n_idp          =      19.002929688
+   feffit fitting   1 data sets
+   fitting ...
+   estimating uncertainties ...
+ done.
+   fit took    1.00000000  iterations
+ s02            =       0.935574283
+ e0             =       0.639269730
+ dr             =       0.001028091
+  macro rf  "A.dat", "group"
+    "simple raw read of a data file"
+      read_data($1, group=$2, type='raw')
+  end macro
+ rc             =       2.580000000
+ restr          =    258000.000     := (rc-rf)/dx
+ chi_square     =   0.665640023E+11
+ r_factor       =       0.030370913
+ n_idp          =      19.002929688
+   feffit fitting   1 data sets
+   fitting ...
+   estimating uncertainties ...
+ done.
+ s02            =      0.93252402 +/-      0.20022458
+ e0             =      0.53669091 +/-      2.70036681
+ ss2            =      0.00348015 +/-      0.00120917
+ dr             =      0.00056782 +/-      0.01188029
+ chi_square     =   17181.613769286
+ r_factor       =       0.195714512
+   fit took    4.00000000  iterations

@@ -1,0 +1,1969 @@
+%%#fixtex% for html/pdf   -*-latex-*-  
+
+%% hint:  seach for %_command_%  and %_revised_% 
+
+\section{Commands} \label{Ch:Commands} 
+
+This chapter lists all the commands available to {\ifeffit}.  As discussed
+in section~{\ref{Ch:Structure-commands}}, the basic syntax for 
+{\ifeffit} commands is
+\begin{verbatim}
+ Iff> command(key = value, key = value, key = value, ... ) 
+\end{verbatim}
+\noindent
+That is, each command recognizes a set of command arguments, usually given as
+keyword/value pairs, where the keyword itself determines what type of variable
+will be read from the {\emph{value}} field, and what the command will do with
+that value.  Some commands also use simple lists (comma delimited, but without
+the form {\emph{key = value}}) for some or all of their input arguments.
+
+Some commands read default values for their command parameters from the global
+set of Program Variables.  Such default values are always read {\emph{before}}
+the keyword/value arguments are read, so that explicitly using the
+corresponding argument will always overwrite the default value.  Many commands
+will write or change output values (scalars, arrays, and/or strings) to the
+global set of Program Variables.
+
+For each command, the following sections will list these attributes:
+`\begin{IFFcom}
+\item[Description] gives a brief description of the command.
+  This description does not include much information about the algorithm
+  used or when the use of the command would be appropriate for EXAFS
+  analysis.
+\item [Input Program Variables] lists the Program Variables
+  read as the default values of the command parameters.
+\item [Keywords/Values] describes the keywords for the command
+  parameters, usually with a table of keywords, default program variable used
+  for input, default value (if not given and default program variable is not
+  set), and a description of the parameter (\textbf{Keyword},
+  \textbf{Variable}, \textbf{Default}, and \textbf{Description} respectively).
+  Many commands have default keywords for the first few keywords -- these are
+  indicated by a leading superscript: {\tt{${}^{1}$file}} would mean that
+  {\tt{file}} was the default for the first keyword.
+\item [Output Program Variables] lists and describes the program
+ variables that are created or modified.    When arrays are created, they
+ are listed with the generic group name {\tt{\$GROUP}}, which will be
+ substituted by the current value of {\tt{\$group}}.
+\item [Notes] gives some additional information on the command, typically
+  pointing out the unusual program variables used. 
+\item [Examples] lists one or more examples of this command, though not
+  necessarily using every feature.
+\item [See also] lists similar commands and other places in this
+  {\textsl{Reference Guide}} 
+
+\end{IFFcom}
+\noindent
+
+Many of the {\ifeffit} commands use similar syntax, program variables, and
+conventions for their command arguments.  This is especially true for the
+input and output of scalars and data arrays, and for parameters used in
+background removal and Fourier transforms.  To this end, and for the sake of
+brevity and coherence, the glossary in Appendix~{\ref{App:Glossary}} contains
+more detailed description of the common program variables and conventions
+used.  Additional hints can usually be found in the \entryxlabel{Notes} section.
+
+
+%_command_% bkg_cl   
+%_revised_% 2003-01-25
+\relax\par\vfill
+\subsection{\texttt{bkg\_cl}}  \label{Ch:Command:bkg-cl}\indexcmd{bkg\_cl}
+
+\begin{IFFcom}
+\item[Description] Use values of x-ray scattering factors derived from the
+  Cromer-Libermann tables to estimate the pre-edge and normalization
+  constant for XAFS data.  The tabulated values for {$f''(E)$} are modified
+  by multiplying by a constant and adding a quadratic polynomial in energy
+  so that they best match the input XAFS data {\muE}.
+\item[Input Program Variables] 
+  {\tt{\$group}}.
+
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${energy} &               & & {energy array name} \\ 
+  ${}^{2}${xmu}    &               & & {xmu array name} \\ 
+  ${}^{3}${z}      &               & & {atomic number for element} \\ 
+  {group}          &{\tt{\$group}} & & {group name for output arrays} \\ 
+  {e0}             &             &   & {$E_0$, the energy origin} \\ 
+  {width}          &             &   & {energy convolution width for calculated {\muE}} \\ 
+  {edge\_step}     &             &   & {Edge Step} \\ 
+  {pre1}           &        &{-200.} & {pre-edge line lower limit} \\ 
+  {pre2}           &        &{-50.}  & {pre-edge line upper limit} \\ 
+  {norm1}          &        &{100.}  & {normalization line lower limit} \\ 
+  {norm2}          &        &{300.}  & {normalization line upper limit} \\ 
+  {norm\_order}    &        &{2.}    & {order of normalization polynomial}\\
+  {find\_e0}       &        &{F}     & {flag to force finding $E_0$} \\ 
+  {interp}         &        &{quad}  & {method to use for data interpolation} \\ 
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+
+\item[Output Program Variables] 
+
+  \begin{sloppypar}
+    Scalars:    {\tt{e0}}, {\tt{edge\_step}}, {\tt{pre1}}, {\tt{pre2}}, {\tt{norm1}},
+    {\tt{norm2}}, {\tt{pre\_slope}}, {\tt{pre\_offset}}, {\tt{norm\_c0}},
+    {\tt{norm\_c1}}, {\tt{norm\_c2}}, {\tt{\$group}}.
+  \end{sloppypar}
+  \begin{sloppypar}
+    Arrays:  {\tt{\$GROUP.pre}}, {\tt{\$GROUP.norm}}, {\tt{\$GROUP.k}}, and
+    {\tt{\$GROUP.chi}} for the data and 
+    {\tt{\$GROUP.f2}}, {\tt{\$GROUP.f2pre}},  and   {\tt{\$GROUP.f2norm}}
+    for the calculation.
+  \end{sloppypar}
+  
+\item[Notes] The Cromer-Libermann calculations have a sharp jump in $f''(E)$
+  at the absorption edge which generally needs to be broadened (here, by using
+  {\tt{width}}, in eV) to match {\muE} data.  
+  
+  The output pre-edge subtracted {muE} ({\tt{\$GROUP.pre}} and
+  {\tt{\$GROUP.norm}} for the normalized version) are probably the most
+  useful -- while {\tt{\$GROUP.k}} and {\tt{\$GROUP.chi}} may be completely
+  useless.  The output arrays for the calculation are chosen to match the
+  input {\muE} data ({\tt{\$GROUP.f2}}) and the pre-edge subtracted
+  ({\tt{\$GROUP.f2pre}}) and normalized ({\tt{\$GROUP.f2norm}}) data.
+  
+
+\item[Examples] {\hspace{0.25truein} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff>  bkg_cl(data.energy,data.xmu, z = 29)
+\end{verbatim}
+\item[See also] {\MNseealso{f1f2}},  {\MNseealso{spline}}, 
+  {\texttt{pre\_edge}} (Section~\ref{Ch:Command:pre-edge}).
+\end{IFFcom}
+
+%_command_% chi_noise
+%_revised_% 2002-03-31
+\relax\par\vfill
+\subsection{\texttt{chi\_noise}}
+    \label{Ch:Command:chi-noise}\indexcmd{chi\_noise}
+
+\begin{IFFcom}
+\item[Description] Estimates the measurement uncertainty of XAFS data.  The
+  estimates are made simply from the RMS value of the high-$R$ range of
+  $\chi(R)$, under the assumption that the EXAFS has died out substantially
+  above 15{\AA} or so.
+\item[Input Program Variables] FT parameters {\tt{kmin}}, {\tt{kmax}},
+  {\tt{kweight}}, {\tt{dk1}}, {\tt{dk2}}, {\tt{\$kwindow}}, and
+  {\tt{\$altwindow}}.
+
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^1${chi}&  &  & array of $\chi$ data to estimate noise of.\\
+  k          &  &  & array of $k$ data. \\
+  group      & {\tt{\$group}} & & group name for arrays. \\ 
+  kmin       & {\tt{kmin}} & 0& FT parameter  \\ 
+  kmax       & {\tt{kmax}} & 0& FT parameter.  \\ 
+  dk1        & {\tt{dk1}}  &  & FT parameter.  \\ 
+  dk2        & {\tt{dk2}}  &  & FT parameter.  \\ 
+  dk         &             &  & sets both {\tt{dk1}} and {\tt{dk2}}.\\  
+  kweight    & {\tt{kweight}} &  & FT parameter.  \\ 
+  kwindow    & {\tt{\$kwindow}}& & FT parameter.  \\ 
+  altwindow  &  &               & FT parameter.  \\ 
+  rwgt1      &  & 15. & lower $R$ bound of high $R$ range.  \\ 
+  rwgt2      &  & 25. & upper $R$ bound of high $R$ range.  \\ 
+\end{tabular}
+\noindent
+
+\item[Output Program Variables] {\tt{epsilon\_k}} will contain the
+  estimated uncertainty in $\chi(k)$, and {\tt{epsilon\_r}} will contain
+  the estimated uncertainty in $\chi(R)$.  {\tt{kmin}}, {\tt{kmax}},
+  {\tt{kweight}}, {\tt{dk1}}, {\tt{dk2}}, and {\tt{\$group}} will be
+  updated.
+\item[Notes]  In practice, {\tt{chi\_noise}} is rarely used directly, because
+  {\tt{feffit}} will automatically run this for you.  It is sometimes useful
+  to understand how the uncertainties are estimated.
+\item[Examples] {\hspace{0.25truein} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff>  chi_noise(data.chi,kmin=2,kmax=15,dk=1,kweight=2)
+\end{verbatim}
+\item[See also] {\MNseealso{feffit}}.
+\end{IFFcom}
+
+%_command_% color
+%_revised_% 2002-03-31
+\subfunc{color} %------
+\begin{IFFcom}
+\item[Description] Manipulate the plotting color table.  The color table is
+  used to set the default colors for the traces (x-y pairs) in a plot as
+  well as the background, foreground and grid colors.  Note that colors on
+  screen will not be affected until {\texttt{plot}} is re-executed.
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  {show}    &  &          & display color table\\
+  {fg}    &  & black    & foreground color\\
+  {bg}    &  & white    & background color\\
+  {grid}  &  & \#CCBEE0 & color of grid displayed on window\\
+  1       &  & blue     & first x-y trace\\
+  2       &  & red      & second x-y trace\\
+  3       &  & green    & third x-y trace\\
+  4       &  & black    & fourth x-y trace\\
+  5       &  & magenta  & fifth x-y trace\\
+  \vdots  &  &          & \vdots\\
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+ 
+\item[Output Program Variables] None.
+\item[Notes] The foreground color will be used for the outer box, tick marks,
+  and all text on plot.  The list of named colors can be found in the file
+  {\file{rgb.txt}} in the PGPLOT installation directory.
+\item[Examples] {\hspace{0.25truein} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff>  color (fg = white, bg = black)
+  Iff>  color (1 = red, 2 = '#33EEBB')
+\end{verbatim}
+\item[See also] {\MNseealso{linestyle}},{\MNseealso{plot}},
+  section~{\ref{Ch:Plot-Color}}. 
+\end{IFFcom}
+
+%_command_% comment
+%_revised_% 2002-03-31
+\subfunc{comment} %------
+
+\begin{IFFcom}
+\item[Description] Write a comment line to the command history buffer. 
+\item[Input Program Variables] None.
+\item[Keywords/Values]  None.
+\item[Output Program Variables]  None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> comment 'this next part requires four hands to play'
+\end{verbatim} \noindent %----
+\item[See also] {\MNseealso{history}}. 
+\end{IFFcom}
+
+%_command_% correl
+%_revised_% 2002-03-31
+\subfunc{correl} %------
+
+\begin{IFFcom}
+\item[Description] Converts selected values from the correlation matrix of
+  fitting variables into named program variables.
+\item[Input Program Variables] {\tt{correl\_min}}.
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} & \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^1${x} &  &    & name of first fitting variable \\
+  ${}^2${y} &  &    & name of second fitting variable \\
+  {out}     &  & (see notes)   & scalar name for result\\
+  {min}     & {\tt{correl\_min}} & 0.05  & minimum correlation to report\\
+  {print}   &  & F    & flag to print correlation values \\
+  {save}     &  & T  & flag to save correlation values to scalars \\
+  {no\_save} &  & F  & flag to NOT save correlation values to scalars \\
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+\item[Output Program Variables]  None.
+\item[Notes] If the {\tt{out}} argument is not given and if the {\tt{save}}
+  option is used, the output scalar containing the correlation will be named
+  {\tt{correl\_xx\_yy}} for variables {\tt{xx}} and {\tt{yy}}.
+  
+  The value {\tt{@all}} can be used for either or both of {\tt{x}} and
+  {\tt{y}} to tell the command to extract all the correlations for that
+  variables.
+
+  If the correlation value requested is smaller than the minimum reportable
+  correlation, then nothing is printed or saved.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> correl(x=e0,y=delr_1,print,no_save)
+     correl_e0_delr1 =  0.870124
+
+  Iff> correl(x=e0,y=delr_1,save,min=0.2)
+  Iff> print correl_e0_delr_1
+     correl_e0_delr1 = 0.870124
+
+  Iff> correl(x=e0,y=@all,print,min=0.6)
+     correl_e0_delr1  = 0.870124
+\end{verbatim}
+\item[See also] {\MNseealso{feffit}}, {\MNseealso{minimize}}.
+\end{IFFcom}
+
+
+%_command_% cursor
+%_revised_% 2002-03-31
+\subfunc{cursor} %------
+
+\begin{IFFcom}
+\item[Description] Select a point on the graphics screen, and get its x
+  and y values.  The point is typically selected with a left-click of the
+  mouse button.  The program will wait until the point is selected
+  before continuing.   Since the program will do nothing until input is
+  given, it is recommended that macros, scripts,  and programs inform the
+  user that input is expected.  
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+The following flags can be given to customize the behavior of
+{\cmnd{cursor}}:
+
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} &  \textbf{Description}\\
+  \noalign{\smallskip}
+  {show}       & print output string after selection\\
+  {last\_pos}  & start cursor at previously selected position\\
+  {cross-hair} & show cross-hair over full plot window\\
+  {horiz}      & show horizontal line over full plot window\\
+  {vert}       & show horizontal line over full plot window\\
+  {xrange}     & see section~\ref{Ch:Plot-cursor}\\
+  {yrange}     & see section~\ref{Ch:Plot-cursor}\\
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+
+\item[Output Program Variables] {\texttt{cursor\_x}}, and
+  {\texttt{cursor\_y}} contain the x and y positions of the cursor,
+  respectively.
+\item[Notes]  
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff>  cursor(show)
+      cursor_x =     2.05795    , cursor_y =    -3.34442
+\end{verbatim}
+\item[See also] {\MNseealso{plot}}, {\MNseealso{zoom}}, 
+Section~\ref{Ch:Plot-cursor}.
+\end{IFFcom}
+
+%_command_% def
+%_revised_% 2002-03-31
+\subfunc{def}  %--------
+
+\begin{IFFcom}
+\item[Description] define a Program Variable.  In contrast to {\cmnd{set}},
+  {\cmnd{def}} remembers the definition (ie, the mathematical formula) of
+  numerical Program Variables.  This is especially useful for complex math
+  expressions used in non-linear least squares fits.
+  
+\item[Input Program Variables] None.
+\item[Keywords/Values]  The keyword is taken as the name of the variable to
+  be assigned, and the Value is taken as the mathematical expression to use
+  for the definition. 
+\item[Output Program Variables]  None.
+  
+\item[Notes] {\cmnd{def}} is the default command and so is optional.  That
+  is, simply typing {\tt{a = b}} is equivalent to {\tt{def a = b}}.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> def (b = a + 1,  c = 100 * sqrt(b) )
+  Iff> def my.chik = my.chi * my.k^kweight
+\end{verbatim} \noindent %----
+Note that both {\tt{b}} and {\tt{c}} will change if {\tt{a}} changes, and
+that {\tt{my.chik}} will automatically update when {\tt{kweight}} changes.
+\item[See also] {\MNseealso{set}}, {\MNseealso{sync}}.
+\end{IFFcom}
+
+
+%_command_% echo
+%_revised_% 2002-03-31
+\subfunc{echo} %------
+
+\begin{IFFcom}
+\item[Description] echo a text string to the screen, without any
+  interpolation of variables. This is mostly useful in macros.
+\item[Input Program Variables] {\tt{\&screen\_echo}}, which can be 
+  used to turn on and off the actual `echo'ing.
+\item[Keywords/Values]  None.
+\item[Output Program Variables]  None.
+\item[Notes]
+  
+  Setting {\tt{\&screen\_echo}} to zero will suppress the actual `echo'ing
+  (see example).  Note that this will also cause all {\cmnd{pause}} commands
+  to be ignored, which can be useful for batch processing.
+  
+  In fact, setting {\tt{\&screen\_echo}} to an even value will suppress the
+  actual echo, and setting it to an odd number will turn on the echo.  This
+  can be used in conjuction with the {\cmnd{log}} command to fully control
+  printing to the screen and/or the log file defined with {\cmnd{log}}.
+  {\tt{\&screen\_echo}} of 0 will suppress all printing, 1 will print to
+  the screen but not the log file, 2 will print to the log file but not the
+  screen, and 3 will print to both.
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> echo "here's a comment!"
+     here's a comment!
+  Iff> &screen_echo = 0
+  Iff> echo "here's a comment!"
+  Iff>
+\end{verbatim} 
+  
+\item[See also] {\MNseealso{comment}}, {\MNseealso{log}}, {\MNseealso{macro}},
+  {\MNseealso{pause}}, {\MNseealso{print}}.
+\end{IFFcom}
+
+%_command_% erase
+%_revised_% 2003-01-25
+\subfunc{erase}  %-------------------
+
+\begin{IFFcom}
+\item[Description] Erase one or more Program Variables.  Erasing removes
+  the variable from memory (as opposed to just resetting it).  This is not
+  a keyword/value command, but a list-directed command see
+  section~\ref{Ch:Structure-commands}).
+\item[Input Program Variables] None.
+\item[Keywords/Values] {\texttt{@arrays}}, {\texttt{@scalars}},
+  {\texttt{@strings}},will erase every array, scalar, and string.  You can
+  also erase an entire group with {\texttt{@group}}, or a path definition with
+  {\texttt{@path}}.
+\item[Notes] You cannot currently erase only fitting variables, or individual
+  macros.  
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim}
+ Iff> erase kmin, my.energy
+ Iff> erase @strings
+ Iff> erase @group = my
+\end{verbatim}
+  \noindent
+  This first will erase the scalar {\texttt{kmin}}, and the array
+  {\texttt{my.energy}}.  The second will erase all text strings. The third
+  will erase all arrays in the {\tt{my}} group.
+\item[See also] {\MNseealso{rename}}, {\MNseealso{set}},
+  {\MNseealso{show}}, {\MNseealso{unguess}}.
+\end{IFFcom}
+
+
+%_command_% exit
+%_revised_% 2002-03-31
+\subfunc{exit}  %-------------------
+
+\begin{IFFcom}
+\item[Description] Exit the program.
+\item[Keywords/Values] None.
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+    Iff> exit
+\end{verbatim}
+\item[See also] {\MNseealso{quit}}.
+\end{IFFcom}
+
+
+%_command_% f1f2
+%_revised_% 2002-04-01
+\subfunc{f1f2}  %-------------------
+
+\begin{IFFcom}
+\item[Description] Get x-ray scattering factors {\fp} and {\fpp} derived
+  from the Cromer-Libermann tables over a specified energy range.  The
+  tabulated values can be broadened with a Lorenztian function.
+\item[Input Program Variables]   {\tt{\$group}}.
+
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${energy} &               & & {energy array name} \\ 
+  ${}^{2}${z}      &               & & {atomic number for element} \\ 
+  {group}          &{\tt{\$group}} & & {group name for output arrays} \\ 
+  {width}          &             & 0.  & {energy convolution width.} \\ 
+  {do\_f1}         &             & T & {flag for calculating {\fp}.} \\ 
+  {do\_f2}         &             & T & {flag for calculating {\fpp}.} \\ 
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+
+\item[Notes] The width, if supplied, will be used to broaden both 
+  {\fp} and {\fpp}.
+  
+  The sign convention used for {\fp} and {\fpp} are the ``conventional'',
+  if somewhat internally inconsistent version that is in wide use in
+  crystallography.  That is, {\fpp} is a positive quantity and {\fp} is
+  negative, and at an absorption edge the change in {\fpp} will be positive
+  and the cusp in {\fp} will point down.  
+
+\item[Output Program Variables] Arrays {\tt{\$GROUP.f1}} (for {\fp}) and
+  {\tt{\$GROUP.f2}} for {\fpp} will be generated for each energy of the
+  input energy array.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+    Iff> f1f2(energy=cu.energy, z=29)
+\end{verbatim}
+\item[See also] {\cmnd{bkg\_cl}} (Section~\ref{Ch:Command:bkg-cl}), 
+\end{IFFcom}
+
+
+
+%_command_% feffit
+%_revised_% 2002-04-01
+\subfunc{feffit} %------
+\begin{IFFcom}
+\item[Description] Fit XAFS $\chi(k)$ data to a sum of {\feff} paths, 
+  optimizing a set of fitting variables in the process. 
+
+\item[Input Program Variables] {\tt{rmin}}, {\tt{rmax}}, {\tt{kmin}},
+  {\tt{kmax}}, {\tt{kweight}}, {\tt{dk1}}, {\tt{dk2}}, {\tt{\$kwindow}},
+  {\tt{data\_set}}, {\tt{data\_total}}, {\tt{\$fit\_space}}.
+
+\item[Keywords/Values] {\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${\emph{path list}}  & & & list of paths (see note 1)\\
+  {chi}   &  &  & array of $\chi$ data to fit\\
+  k       &  &  & array of $k$ data \\
+  group   & {\tt{\$group}} & {\tt{feffit}} & group name for created arrays \\ 
+  rmin    & {\tt{rmin}} & 0& $R_{\rm min}$: lower $R$ bound of fit  \\ 
+  rmax    & {\tt{rmax}} & 0& $R_{\rm max}$: upper $R$ bound of fit  \\ 
+  kmin    & {\tt{kmin}} & 0& FT parameter  \\ 
+  kmax    & {\tt{kmax}} & 0& FT parameter  \\ 
+  dk1     & {\tt{dk1}}  &  & FT parameter  \\ 
+  dk2     & {\tt{dk2}}  &  & FT parameter  \\ 
+  dk      &             &  & sets both {\tt{dk1}} and {\tt{dk2}}\\  
+  kweight     &{\tt{kweight}}   &  & FT parameter \\ 
+  kwindow     &{\tt{\$kwindow}} &  & FT parameter  \\ 
+  altwindow   &  &  & FT parameter.  \\ 
+  epsilon\_k  &{\tt{epsilon\_k}}&  & uncertainty in $\chi(k)$ data\\
+  epsilon\_R  &{\tt{epsilon\_r}}&  & uncertainty in $\chi(R)$ data  (see note 2)\\
+  {toler}     &            & 1.e-8 & fitting tolerance\\
+\noalign{\smallskip}
+  {data\_set}   & {\tt{data\_set}} & 1 & index of the current data set  \\ 
+  {data\_total} & {\tt{data\_total}} & 1 &  total number of data sets in fit \\ 
+ \noalign{\smallskip}
+  fit\_space  & {\tt{\$fit\_space}} &  & name of space for fit (see note 3)\\
+  do\_real    &  & F & save real part of best-fit $\tilde\chi(k)$ \\
+  do\_mag     &  & F & save magnitude of best-fit $\tilde\chi(k)$ \\
+  do\_phase   &  & F & save phase of best-fit $\tilde\chi(k)$ \\
+ \noalign{\smallskip}
+  {do\_bkg}   &  & F & refine background spline (see note 4)  \\ 
+  {macro}     &  &   & user macro to run at each iteration (see note 5)\\
+  {restraint} &  &   & scalar restraint (see note 6)\\
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+
+\item[Output Program Variables] {\tt{data\_total}}, {\tt{chi\_square}},
+  {\tt{chi\_reduced}}, {\tt{r\_factor}}, {\tt{n\_idp}}, {\tt{n\_varys}},
+  {\tt{epsilon\_k}}, {\tt{epsilon\_r}}, and the above FT parameters.  In
+  addition, the estimated uncertainty for each variable will be stored in
+  variables with names like {\tt{delta\_VAR}}.  Arrays will be created (or
+  overwritten) for the best-fit $\chi(k)$ and $\chi(R)$: {\tt{\$GROUP.k}}
+  and {\tt{\$GROUP.chi}}, {\tt{\$GROUP.chir\_mag}},
+  {\tt{\$GROUP.chir\_real}}, {\tt{\$GROUP.chir\_imag}}.
+
+  Optional output arrays can be written for other parts of the complex
+  $\tilde\chi(k)$ according to the appropriate keyword:
+  {\tt{\$GROUP.chi\_real}} ({\tt{do\_real}}), 
+  {\tt{\$GROUP.chi\_mag}}  ({\tt{do\_mag}}), and 
+  {\tt{\$GROUP.chi\_phase}}  ({\tt{do\_phase}}).
+  
+\item[Notes]
+  { }
+  \begin{enumerate}
+  \item {\cmnd{feffit}} uses a list of paths as the default argument. 
+  \item If neither {\tt{epsilon\_k}} nor {\tt{epsilon\_r}} arguments are
+    provided, {\cmnd{feffit}} will execute {\cmnd{chi\_noise}} on the
+    supplied data to get these values.
+  \item Valid values for {\tt{fit\_space}} are 'k', 'R', and 'Q', with 'Q' meaning
+    backtransformed $k$-space.  The default is 'R'.
+  \item By using {\tt{do\_bkg}}, the fit will add several variables to define
+    a spline $\mu_0(k)$ that will be added to the model {\chik}, and the
+    miminum $R$ value used in the fit will be set to 0.0.  The {\emph{number}}
+    of spline parameters will be determined by {\tt{rmin}} (now acting in the
+    role of {\tt{rbkg}} in the {\cmnd{spline}} command) so that the spline
+    will only be ``free enough'' to easily match the low-$R$ portion of the
+    spectra.
+  \item A user-defined macro can be run at each iteration of the fit.
+    This will cause serious problems when {\cmnd{feffit}} is itself called in
+    a macro, but works otherwise.  This makes for  a convenient way to
+    inspect a fit as it happens.
+  \item  Up to separate 10 restraint conditions can be added.
+  \end{enumerate}
+
+\item[Examples] {\hspace{0.25truein} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> feffit(chi=cu.chi,  1,2,4-6, rmin=1,rmax=4,
+              kmin=2, kmax=18, kweight=2, dk=5, 
+              kwindow='Kaiser')
+\end{verbatim}
+\item[See also] {\cmnd{chi\_noise}} (Section~\ref{Ch:Command:chi-noise}), 
+  {\MNseealso{ff2chi}}, {\MNseealso{minimize}},
+  {\MNseealso{path}},  Chapter~{\ref{Ch:FEFFIT}}. 
+\end{IFFcom}
+
+
+%_command_% ff2chi
+%_revised_% 2002-04-01
+\subfunc{ff2chi} %------
+
+\begin{IFFcom}
+\item[Description] Sum a set of {\feff} paths to generate $\chi(k)$.
+ The paths must be defined by the {\cmnd{path}} command.
+\item[Input Program Variables] None. 
+
+\item[Keywords/Values] {\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${\emph{path list}}  & & & list of paths\\
+  {group}     & & {\tt{feff}} &  group name for created arrays\\
+  {kmin}      & & 0.  & $k_{\rm min}$ for output arrays  \\ 
+  {kmax}      & & 20. & $k_{\rm max}$ for output arrays  \\ 
+  {s02}       & & 1.  & overall scale factor for {\chik}\\
+  {sigma2}    & & 0.  & overall  $\sigma^2$ for {\chik} \\
+  {do\_real}  & & F   & save real part of {\chik}\\
+  {do\_phase} & & F   & save phase-shift of {\chik}\\
+  {do\_mag}   & & F   & save  magnitude of {\chik}\\
+  {do\_all}   & & F   & save all optional output\\
+\end{tabular}
+
+%%  {do\_cphase} & & & save central atom phase-shift of {\chik}\\
+
+\item[Output Program Variables] Arrays for $k$ and $\chi(k)$ will be
+  written to  {\tt{\$GROUP.k}}  and {\tt{\$GROUP.chi}}.
+  
+  Optional output arrays can be written for other parts of the complex
+  $\tilde\chi(k)$ according to the appropriate keyword:
+  {\tt{\$GROUP.chi\_real}}   ({\tt{do\_real}}),
+  {\tt{\$GROUP.chi\_mag}}     ({\tt{do\_mag}}), and 
+  {\tt{\$GROUP.chi\_phase}}   ({\tt{do\_phase}}).
+  
+\item[Notes] Like {\cmnd{feffit}}, {\cmnd{ff2chi}} uses a list of paths as
+  the default argument.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> ff2chi(1,2,4-9, do_phase)
+\end{verbatim} \noindent %----
+\item[See also] {\MNseealso{feffit}}, {\MNseealso{fftf}},
+  Chapter~{\ref{Ch:FEFFIT}}.
+\end{IFFcom}
+
+
+%_command_% fftf
+%_revised_% 2003-01-25
+\subfunc{fftf} %------
+
+\begin{IFFcom}
+\item[Description] Forward XAFS Fourier Transform of an array.  Generally
+  used for transforming from $\chi(k)$ to $\tilde\chi(R)$.  This does a
+  discrete Fourier Transform.
+\item[Input Program Variables] {\tt{kmin}}, {\tt{kmax}},
+  {\tt{dk1}},{\tt{dk2}},{\tt{kweight}}, {\tt{\$kwindow}} and
+  {\tt{rmax\_out}}.
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${real} &               &  & array for $\rm Re[\chi(k)]$. \\
+  {imag}      &                  &  & array for $\rm Im[\chi(k)]$. \\
+  k           &                  &  & array of $k$ data \\
+  group       & {\tt{\$group}}   &  & group name for output arrays \\ 
+  kmin        & {\tt{kmin}}      & 0& $k_{\rm min}$ FT parameter  \\ 
+  kmax        & {\tt{kmax}}      & 0& $k_{\rm max}$ FT parameter  \\ 
+  dk1         & {\tt{dk1}}       &  & FT parameter  \\ 
+  dk2         & {\tt{dk2}}       &  & FT parameter  \\ 
+  dk          &                  &  & sets both {\tt{dk1}} and {\tt{dk2}}\\  
+  kweight     & {\tt{kweight}}   &  & $k$-weight  FT parameter \\ 
+  kwindow     & {\tt{\$kwindow}} &  & FT window function  \\ 
+  altwindow   &                  &  & array for alternate FT window.  \\ 
+  \noalign{\smallskip}
+  phase\_array  &                &  & phase array for phase-correction.\\
+  pc\_edge    &    &  & element name and edge symbol for  phase-correction.\\
+  pc\_feff\_path   &    &  & index of path to use for phase-correction.\\
+  pc\_caps         &    &  & flag to use central-atom phase-shift in phase-correction \\
+  pc\_full         &    &  & flag to use full phase-shift in phase-correction \\
+\end{tabular}
+
+\item[Output Program Variables] {\tt{kmin}}, {\tt{kmax}}, {\tt{dk1}},
+  {\tt{dk2}}, {\tt{kweight}}, and {\tt{rmax\_out}} will  be set on output.
+ 
+  In addition, several arrays will be created:
+  {\tt{\$GROUP.win}} will contain the $k$-space window array, $W(k)$;
+  {\tt{\$GROUP.r}} will contain the array of $r$ values,
+  {\tt{\$GROUP.chir\_mag}} will contain $|\tilde\chi(R)|$,
+  {\tt{\$GROUP.chir\_re}} will contain $\rm Re[\tilde\chi(R)]$, and
+  {\tt{\$GROUP.chir\_im}} will contain $\rm Im[\tilde\chi(R)]$.
+  
+\item[Notes] See Appendix~{\ref{App:Fourier}}.
+
+  Normally, {\texttt{\$ftf\_real}} names the {\chik} array,
+  and {\texttt{\$ftf\_imag}} remain unset. 
+  
+  If the real (or imaginary) part of the input {\chik} data does
+  {\emph{not}} start at $k=0$, the array of $k$ values should be specified
+  with the keyword {\tt{k}}.  Otherwise, the FT will be inaccurate.
+  
+  Phase-corrected Fourier transforms can be done by providing a phase array
+  -- see section~\ref{Ch:XAFSProcess-pcft} and
+  Appendix~{\ref{App:Fourier}} for details.
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+    Iff> fftf(real=my.chi, kmin = 1.0, kmax =16.0, 
+              dk=1.0, kweight=2., kwindow= 'hanning' )
+\end{verbatim}
+\item[See also]  {\MNseealso{fftr}}, {\MNseealso{window}}, 
+  section~\ref{Ch:XAFSProcess-ft},
+  section~\ref{Ch:XAFSProcess-pcft},
+  Appendix~{\ref{App:Fourier}}. 
+\end{IFFcom}
+
+
+%_command_% fftr
+%_revised_% 2002-04-01
+\subfunc{fftr} %------
+
+\begin{IFFcom}
+\item[Description] 
+Reverse XAFS Fourier Transform of an array.  Generally used for
+transforming from $\tilde\chi(R)$ to $\tilde\chi(k)$. This does a discrete
+Fourier Transform..
+\item[Input Program Variables] {\tt{rmin}}, {\tt{rmax}},
+  {\tt{dr1}},{\tt{dr2}},{\tt{\$rwindow}}.
+\item[Keywords/Values]  
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${real} &               &  & array for $\rm Re[\chi(R)]$. \\
+  {imag}      &                  &  & array for $\rm Im[\chi(R)]$. \\
+  r           &                  &  & array of $R$ data \\
+  group       & {\tt{\$group}}   &  & group name for output arrays \\ 
+  rmin        & {\tt{rmin}}      & 0& $R_{\rm min}$ FT parameter  \\ 
+  rmax        & {\tt{rmax}}      & 0& $R_{\rm max}$ FT parameter  \\ 
+  dr1         & {\tt{dr1}}       &  & FT parameter  \\ 
+  dr2         & {\tt{dr2}}       &  & FT parameter  \\ 
+  dr          &                  &  & sets both {\tt{dr1}} and {\tt{dr2}}\\  
+  rweight     & {\tt{rweight}}   &  & $R$-weight  FT parameter \\ 
+  rwindow     & {\tt{\$rwindow}} &  & FT window function  \\ 
+  altwindow   &                  &  & array for alternate FT window.  \\ 
+\end{tabular}
+
+\item[Output Program Variables] {\tt{rmin}}, {\tt{rmax}}, {\tt{dr1}},
+  {\tt{dr2}}, {\tt{rweight}}, and {\tt{rmax\_out}} will  be set on output.
+ 
+  In addition, several arrays will be created:
+  {\tt{\$GROUP.rwin}} will contain the $R$-space window array, $W(R)$;
+  {\tt{\$GROUP.q}} will contain the array of $k$ values for the back-transform,
+  {\tt{\$GROUP.chiq\_mag}} will contain $|\tilde\chi(k)|$,
+  {\tt{\$GROUP.chiq\_re}} will contain $\rm Re[\tilde\chi(k)]$, and
+  {\tt{\$GROUP.chiq\_im}} will contain $\rm Im[\tilde\chi(k)]$.
+  
+\item[Notes] See Appendix~{\ref{App:Fourier}}.
+
+  {\texttt{rweight}} sets the $R$-weight for the Fourier Transform, but is
+  not traditionally used.
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+    Iff> fftr(real=my.chir_re, imag = my.chir_im, 
+              rmin = 1.0, rmax =4.0, dr = 0.2)
+\end{verbatim}
+    \item[See also]  {\MNseealso{fftf}}, {\MNseealso{window}}, Appendix~{\ref{App:Fourier}}.
+\end{IFFcom}
+
+
+%_command_% get_path
+%_revised_% 2002-04-01
+\relax\par\vfill
+\subsection{\texttt{get\_path}}
+    \label{Ch:Command:get-path}\indexcmd{get\_path}
+
+\begin{IFFcom}
+\item[Description] Convert Path Parameters from a {\feff} path into regular
+  program  variables. 
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{lll}
+  \textbf{Keyword} &   \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${path}  &  Path index. \\
+  ${}^{2}${group} &  group name for arrays and prefix for scalar names. \\ 
+  {do\_arrays}    &  flag to create arrays \\ 
+\end{tabular}
+\item[Output Program Variables] The scalar values of the Path Parameters
+  {\tt{s02}}, {\tt{e0}}, {\tt{ei}}, {\tt{delr}}, {\tt{sigma2}},
+  {\tt{third}}, {\tt{fourth}}, {\tt{degen}}, and {\tt{reff}}, will be
+  written to variables {\tt{PREFIX\_s02}}, {\tt{PREFIX\_e0}},
+  {\tt{PREFIX\_ei}}, \ldots {\tt{PREFIX\_reff}} where {\tt{PREFIX}} is
+  the given path prefix.
+  
+  If {\tt{do\_arrays}} is set, the arrays from the {\feffndat} file will be
+  turned into {\ifeffit} arrays, with names {\tt{PREFIX.k}},
+  {\tt{PREFIX.amp}}, {\tt{PREFIX.phase}}, {\tt{PREFIX.caps}},
+  {\tt{PREFIX.rep}}, and {\tt{PREFIX.lambda}}.  These arrays are on a
+  non-uniform and fairly sparse $k$-grid, which can be interpolated onto a
+  uniform $k$-grid.
+
+  \item[Notes] The default prefix for path $NNN$ is {\tt{pathNNN}}. That is,
+  the default prefix for path 1 is {\tt{path001}}.
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> get_path(2)
+  Iff> show path002_reff, path002_s02
+     path001_reff     =  3.6032000
+     path001_s02      =  0.9300000
+\end{verbatim}
+\item[See also]  {\MNseealso{feffit}}, {\MNseealso{ff2chi}}, and   {\MNseealso{path}}.
+\end{IFFcom}
+
+
+
+%_command_% guess
+\subfunc{guess} %------
+
+\begin{IFFcom}
+\item[Description] Define a fitting variable, and set it's initial value.
+\item[Input Program Variables] None.
+\item[Keywords/Values] None.
+\item[Output Program Variables] Keywords for {\texttt{guess}} are interpreted as names of
+  numeric scalars.  The Values are interpreted as math expressions,
+  evaluated upon definition to give the initial value of the variable.
+  
+  Several Keyword/Value pairs can occur together.  The parentheses are
+  optional.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> guess (x = 1. , y = 2.00 )
+  Iff> guess  z =  y * sqrt(2) 
+\end{verbatim}
+\item[See also] {\MNseealso{set}}, {\MNseealso{sync}}, {\MNseealso{feffit}}, 
+  {\MNseealso{minimize}}, {\MNseealso{unguess}}.
+\end{IFFcom}
+
+
+%_command_% history
+\subfunc{history} %------
+\begin{IFFcom}
+\item[Description] Open a file to record a ``history''  of {\ifeffit}
+  commands as they are executed. 
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${file} &      &  & name of history file. \\
+  {off}          &    &  & flag to turn off history recording.\\
+\end{tabular}
+
+\item[Output Program Variables] The variable {\texttt{\$historyfile}} is
+  updated to name the current (or most recently used) history file.
+
+\item[Notes] The formal syntax for setting variables is recorded.  This
+  reflects the fact that the commands recorded are those actually executed.
+  Certain commands (such as the recording of macros and {\tt{history}}
+  itself) are not recorded.  
+
+  The history file is {\emph{not}} guaranteed to be readable until after
+  {\ifeffit} has been exited,  or until the recording has been explicitly
+  turned off with a {\tt{history(off)}} command.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> history(ifeffit.his)
+  Iff> comment "Here's a comment"
+  Iff> a = 1.22
+  Iff> b = a * 8
+  Iff> history(off)
+\end{verbatim}
+\noindent
+This will create a file {\file{ifeffit.his}}, and then fill it with the 
+following lines:
+
+{\small{
+%%#VerbSBox%
+\begin{VerbSBox}
+ # Here's a comment
+ def (a = 1.22)
+ def (b = a * 8)
+\end{VerbSBox}
+%%#VerbSBox%
+}}\noindent
+
+\item[See also] {\MNseealso{comment}}, {\MNseealso{load}}. 
+\end{IFFcom}
+
+
+%_command_% linestyle
+\subfunc{linestyle} %------
+\begin{IFFcom}
+\item[Description] Manipulate the table of plotting linestyles.  The
+  linestyle table (like the color table) is
+  used to set the default linestyles for the traces (x-y pairs) in a plot.
+\item[Input Program Variables] None.
+\item[Keywords/Values]  
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  {show}    &  &        & display linestyle table\\
+  1       &  & solid    & first x-y trace\\
+  2       &  & solid    & second x-y trace\\
+  3       &  & solid    & third x-y trace\\
+  \vdots  &  &          & \vdots\\
+  \noalign{\smallskip}
+\end{tabular}
+
+\item[Output Program Variables] Valid values for the linestyles are:
+  {\tt{solid}}, {\tt{dashed}}, {\tt{dotted}}, {\tt{dot-dashed}},
+  {\tt{pointsN}} and {\tt{linespointsN}} (both for N = 1,2,3,\ldots).
+
+  Like for the color table, the linestyle table is affected by explicitly 
+  setting the linestyle of a trace with the {\cmnd{plot}} command.
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> linestyle(1=solid, 2 =dashed)
+\end{verbatim} \noindent %----
+\item[See also] {\MNseealso{color}}, {\MNseealso{plot}}.
+\end{IFFcom}
+
+
+%_command_% load
+\subfuncn{load} %------
+\begin{IFFcom}
+\item[Description] Load a file of {\ifeffit} commands and execute them.
+  The file loaded can have any valid filename, and can itself
+  {\texttt{load}} other files.  This is especially useful in conjunction
+  with the {\texttt{history}} command, and for writing macros.
+\item[Input Program Variables] None.
+\item[Keywords/Values] None.
+\item[Output Program Variables] None.  
+\item[Notes]  {\cmnd{load}}'s can be nested, so that {\tt{load}}ed files
+  can themselves contain {\tt{load}} statements. 
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> load My_macros.iff
+\end{verbatim}
+  \item[See also] {\MNseealso{history}}, {\MNseealso{macro}},
+  Chapter~{\ref{Ch:Macros}}. 
+\end{IFFcom}
+
+
+%_command_% log
+\subfunc{log}  %-------------------
+\begin{IFFcom}
+\item[Description] Control the writing of commands and screen output to an
+  external {\emph{log file}}.
+\item[Keywords/Values] 
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  {file}   &  &         & log file name to open and write to\\
+  {close}  &  &   & close log file\\
+  \noalign{\smallskip}
+\end{tabular}
+
+\item[Output Program Variables] None.
+\item[Notes] A log file cannot be named {\file{close}}. 
+
+  If a file named
+  {\file{file.log}} exists when executing {\tt{log(file=file.log)}}, that
+  file will be replace with the new log file.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+    Iff> log(file = analysis.log)
+    Iff> log(close)
+\end{verbatim}
+\item[See also] {\MNseealso{echo}}.
+\end{IFFcom}
+
+
+
+%_command_% macro
+\subfuncn{macro} %------
+\begin{IFFcom}
+\item[Description] Define a macro -- a sequence of {\ifeffit} commands to
+  be executed later by simply typing the macro name (and optional
+  parameters).  Macro definitions end with the line `{\texttt{end macro}}',
+  and can call other macros.
+ 
+\item[Input Program Variables] 
+\item[Keywords/Values] None.
+\item[Output Program Variables] None.  
+\item[Notes] Macros may take positional parameters, which are interpreted
+  as text strings.  In the macro definition, these parameters are
+  referenced by the special string variables \$1, \$2, \ldots, \$9.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+   macro prex 
+     read_data( $1, type = xmu,  group = my)
+     pre_edge(my.energy, my.xmu)
+     show e0, edge_step
+   end macro
+\end{verbatim} \noindent %----$-
+  This macro will read in a $\mu(E)$ data file, subtract a line for the
+  pre-edge, and plot the normalized, pre-edge subtracted $\mu(E)$ as a
+  function of energy relative to $E_0$.   It would be called like this:
+\begin{verbatim} 
+   Iff> pre my_data.xmu
+\end{verbatim} \noindent 
+  Note that one parameter is used in this macro, and that it will
+  continually overwrite the arrays in the `{\texttt{my}}' group.
+\item[See also] {\MNseealso{macro}}, Chapter~{\ref{Ch:Macros}}. 
+\end{IFFcom}
+
+
+%_command_% minimize
+\subfunc{minimize} %------
+
+\begin{IFFcom}
+\item[Description] Minimize an array in the least squares sense, by
+  adjusting the values of the fitting variables.  This gives a simple and
+  flexible way to fit general data to a fairly simple models.
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+  {\relax \hspace{1.1truein}\par\noindent\relax}
+  \begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+    ${}^{1}${array}  & & & {residual to be minimized} \\ 
+    {x}              & & & {x-array associated with array} \\ 
+    {uncertainty}    & & & {array of uncertainties in residual} \\ 
+    {xmin}           & & & {low-x  value for fit range} \\ 
+    {xmax}           & & & {high-x value for fit range} \\ 
+    {toler}          & & 1.e-8 & {fitting tolerance} \\ 
+    {restraint}      & & & {scalar fitting restraint} \\ 
+    \noalign{\smallskip}
+  \end{tabular}
+  \noindent
+     
+\item[Output Program Variables]  {\tt{chi\_square}}, {\tt{chi\_reduced}}.
+  For each variable {\tt{XXX}}, the variable {\tt{delta\_XXX}} will be
+  given it's estimated uncertainty.
+\item[Notes] The array named by {\tt{x}} is optional, and is necessary only
+  if {\tt{xmin}} or {\tt{xmax}} are given.  The array given by
+  {\tt{uncertainty}} is optional as well.
+
+  Currently, only 1 restraint scalar can be added.
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> guess (a  = 1, b = 0)
+  Iff> my.resid = my.data - (a * my.x + b)
+  Iff> minimize(my.resid)
+\end{verbatim} \noindent %----
+\item[See also] {\MNseealso{feffit}}, Chapter~{\ref{Ch:Minimize}}. 
+\end{IFFcom}
+
+
+%_command_% newplot
+\subfunc{newplot} %------
+
+\begin{IFFcom}
+\item[Description] Draw a new plot on the graphics device (usually the
+  screen). 
+\item[Input Program Variables] None.
+\item[Keywords/Values] Same as {\texttt{plot}}.
+\item[Output Program Variables] Same as {\texttt{plot}}.  
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> newplot(my.x, my.y)
+\end{verbatim} \noindent %--
+\item[See also] {\MNseealso{plot}},
+  Chapter~{\ref{Ch:Plot}}. 
+\end{IFFcom}
+
+
+%_command_% path
+\subfunc{path} %------
+
+\begin{IFFcom}
+\item[Description] Define a {\feff} path and specify the path parameters.
+  The paths defined in this way can be used in either {\texttt{ff2chi}} or
+  {\texttt{feffit}} to create $\chi(k)$.
+  
+  Paths are referred to by an integer {\emph{index}}, which is a required
+  keyword.  Every path must have an index and a {\feffndat} file associated
+  with it -- all other path parameters are optional, taking ``normal
+  defaults'' (zero for all parameters except \texttt{S02} which defaults to
+  one).
+  
+\item[Input Program Variables] {\tt{feff\_file}} is used as the default
+  {\feffndat} file.
+  
+\item[Keywords/Values] All values are treated as text strings except for
+  {\tt{index}} which must be an integer.  Except for
+  {\tt{label}} and {\tt{feff}}, strings for path parameters are interpreted
+  as math expressions, either giving a scalar or array.  
+  {\relax \hspace{1.1truein}\par\noindent\relax}
+  \begin{tabular}{llrl}
+    \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+    \textbf{Description}\\
+    \noalign{\smallskip}
+    ${}^{1}${index} & &  & path index, an integer used to make path lists\\
+    ${}^{2}$feff    & &  & {\feffndat} file to use for this path\\
+    label           & &  &text string to describe path\\
+    s02      & &1 &$N S_0^2$ -- constant amplitude factor\\
+    e0       & &  &$E_0$  -- energy shift\\
+    delr     & &  &$\Delta R$ -- change in path distance\\
+    sigma2   & &  &$\sigma^2$ -- mean-square-displacement\\
+    third    & &  &$C_3$ -- third cumulant\\
+    fourth   & &  &$C_4$ -- fourth cumulant\\
+    ei       & &  &$E_i$ -- shift in imaginary energy term.\\
+    \noalign{\smallskip}
+    k\_array &  & & 
+    \begin{minipage}{3.20truein}
+      array of $k$-values for $k$-dependent
+      phase-shift and amplitudes
+    \end{minipage}
+    \\
+    phase\_array & & & array of $k$-dependent phase-shift\\
+    amp\_array   & & & array of $k$-dependent amplitude factor\\
+    \noalign{\smallskip}
+  \end{tabular}
+  \noindent
+    
+\item[Output Program Variables]  None.
+  
+\item[Notes] All the numerical Path Parameters can be generalized
+  {\emph{expressions}} of the fitting variables and other {\tt{def}}ined
+  Program Variables.  The \cmnd{path} command only defines the path, and
+  may not even cause the {\feffndat} file to be read.
+
+  
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> path(index = 1, file = feff0001.dat, s02= 1, 
+            sigma2 = sig2)
+  Iff> path(2,  feff0002.dat, s02= 1,  sigma2 = sig2)
+  Iff> 
+  Iff> path(3,  feff0003.dat, sigma2 = 'sig2 * sqrt(3)')
+  Iff> path(3,  delr   = reff * alpha)
+\end{verbatim} \noindent %--
+\item[See also] {\MNseealso{ff2chi}}, {\MNseealso{feffit}},
+{\cmnd{get\_path}} (Section~\ref{Ch:Command:get-path}), 
+  Chapter~{\ref{Ch:FEFFIT}}. 
+\end{IFFcom}
+
+
+%_command_% pause
+\subfunc{pause} %------
+
+\begin{IFFcom}
+\item[Description] Write a message to the screen, and suspend the program
+  until the user hits any key on the keyboard.  This is often useful to put
+  in macros or {\cmnd{load}}ed files that will perform multiple   plotting
+  tasks.  
+\item[Input Program Variables] {\tt{\&screen\_echo}}, which determines
+  whether messages are sent to the screen, and {\tt{\&pause\_ignore}},
+  which sets whether or not to ignore all {\cmnd{pause}} commands, will
+  influence the operation of this command.
+\item[Keywords/Values] {\cmnd{pause}} takes one argument -- a string that
+  is printed to the screen to prompt the user to `hit any key'.  The
+  default string is `{\texttt{-- hit any key to continue -- }}'.
+\item[Output Program Variables] None.
+\item[Notes] In order for the {\cmnd{pause}} command to actually be
+  executed, {\tt{\&screen\_echo}} must be 1 and {\tt{\&pause\_ignore}} must
+  be 0.  Thus, setting {\tt{\&pause\_ignore}} to 1 will suppress the
+  command, which may be useful for batch processing or scripts.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> pause '>> hit any key to see chi(k) <<'
+\end{verbatim} \noindent %--
+\item[See also] {\MNseealso{echo}}, {\MNseealso{print}}.
+\end{IFFcom}
+
+
+%_command_% plot
+\subfunc{plot} %------
+
+\begin{IFFcom}
+\item[Description] The general plotting command, specifying x- and
+  y-arrays to plot, and plot attributes.  The plot created can be either to
+  the graphics screen or to the current output graphics device (such as a
+  postscript file).
+  
+  The {\texttt{plot}} command takes a huge variety of arguments.
+\item[Input Program Variables] 
+  \begin{sloppypar} 
+    {\tt{\$plot\_device}}, {\tt{\$plot\_file}}, {\tt{\$plot\_xlabel}},
+    {\tt{\$plot\_ylabel}}, {\tt{\$plot\_title}}, {\tt{\$group}}.
+  \end{sloppypar}
+
+\item[Keywords/Values]
+  {\relax \hspace{1.1truein}\par\noindent\relax}
+  \begin{tabular}{llrl}
+    \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+    \textbf{Description}\\
+    \noalign{\smallskip}
+    ${}^{1}${x} &     & & {x-array} \\ 
+    ${}^{2}${y} &     & & {y-array} \\ 
+    {group}     & {\tt{\$group}} & & {group name} \\ 
+    {dy}        &    & & {array of error bar size for y}\\
+    {dx}        &    & & {array of error bar size for x}\\
+    {xmin}      &    & & {lower limit for x-range} \\ 
+    {xmax}      &    & & {upper limit for x-range} \\ 
+    {ymin}      &    & & {lower limit for y-range} \\ 
+    {ymax}      &    & & {lower limit for y-range} \\ 
+    \noalign{\smallskip}
+    {color}     &   & (table) & {color for current trace}\\
+    {style}     &   & (table) & {line style  for current trace}\\
+    {width}     &   & 2 & {line width for current trace}\\
+    {bg}        &   &white & {background color} \\ 
+    {fg}        &   &black & {foreground (labels,axis) color} \\ 
+    {grid}      &   &T & {flag for showing grid} \\ 
+    {nogrid}    &   &  & {flag for hiding grid} \\ 
+    {gridcolor} &   &\#CCBEE0 & {color of grid lines} \\ 
+    \noalign{\smallskip}
+    {xlabel}    & {\tt{\$plot\_xlabel}} & & {string for x-axis label}\\
+    {ylabel}    & {\tt{\$plot\_ylabel}} & & {string for y-axis label}\\
+    {title}     & {\tt{\$plot\_title}} & & {string for plot title}\\
+    {key}       &   & & {text of key for legend} \\ 
+    {charfont}  &   &1 & {font for text strings}\\
+    {charsize}  &   &1.5 &  {font size for all text strings}\\
+    {labelsize}  &   &1.5 & {font size for axis labels and titles}\\
+    {markersize} &   &1.5 & {font size for point markers}\\
+    {textsize}   &   &1.5 & {font size for {\tt{text}} labels}\\
+    {text}      &   & & {text string for general label} \\ 
+    {text\_x}   &   & & {x-coordinate for text string} \\ 
+    {text\_y}   &   & & {y-coordinate for text string} \\ 
+    {cleartext} &   & & {flag to erase all "text" labels} \\ 
+    \noalign{\smallskip}
+    {file}      & {\tt{\$plot\_file}} & & {file name for non-screen
+      outputs} \\ 
+    {device}    & {\tt{\$plot\_device}} & & {name of plot device}\\
+    {new}       &   & & {flag for not overplotting} \\ 
+    {reset}     &   & & {flag to reset all plot attributes}\\
+  \end{tabular}
+  \noindent   
+  
+\item[Output Program Variables] 
+  \begin{sloppypar} 
+    {\tt{\$plot\_device}}, {\tt{\$plot\_file}}, {\tt{\$plot\_xlabel}},
+    {\tt{\$plot\_ylabel}}, {\tt{\$plot\_title}}.  If a plot attribute
+    (color, style) for a particular trace is altered, it will be remembered
+    until a `reset' is issued.
+  \end{sloppypar}
+\item[Notes]   Further details are in Chapter~{\ref{Ch:Plot}}.
+
+  The default color and linestyle are dictated by internal tables.
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> plot(my.x, my.y, color=green,xmin= 0, 
+           title = 'Y v. X')
+\end{verbatim} \noindent %--
+\item[See also] 
+  \begin{sloppypar} 
+    {\MNseealso{color}}, {\MNseealso{cursor}},
+    {\MNseealso{newplot}}, {\MNseealso{zoom}}, 
+    {\cmnd{plot\_arrow}} (Section~\ref{Ch:Command:plot-arrow}), 
+    {\cmnd{plot\_marker}} (Section~\ref{Ch:Command:plot-marker}), 
+    {\cmnd{plot\_text}} (Section~\ref{Ch:Command:plot-text}), 
+    Chapter~{\ref{Ch:Plot}}.
+  \end{sloppypar} 
+\end{IFFcom}
+
+%_command_% plot_arrow
+% reviewed 2002-03-31
+\subsection{\texttt{plot\_arrow}}  \label{Ch:Command:plot-arrow}\indexcmd{plot\_arrow}
+\begin{IFFcom}
+\item[Description] Add an arrow or line to the current plot.
+
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} &  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^1${x1}   & x-coordinate of arrow tail\\
+  ${}^2${y1}   & y-coordinate of arrow tail\\
+  ${}^3${x2}   & x-coordinate of arrow head\\
+  ${}^4${y2}   & y-coordinate of arrow head\\
+  clear        & erase all arrows from plot\\
+  no\_head     & use no arrow head\\
+  fill         & fill in arrow head\\
+  outline      & use outline of arrow head\\
+  size         & size of arrow head\\
+  angle        & angle of arrow head\\
+  barb         & size of arrow barb\\
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Ifeffit> plot_arrow(x1=10, y1= 4, x2=25, y2=4,  barb=2)
+\end{verbatim}
+\item[See also] Section~\ref{Ch:Plot-Markers}.
+\end{IFFcom}
+
+%_command_% plot_marker
+% reviewed 2002-03-31
+\subsection{\texttt{plot\_marker}}  \label{Ch:Command:plot-marker}\indexcmd{plot\_marker}
+\begin{IFFcom}
+\item[Description] Add a marker or symbol to the current plot.
+  See Figure~\ref{Fig:PlotPoints} for the available symbols.
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} &  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^1${x}     & x-coordinate of marker\\
+  ${}^2${y}     & y-coordinate of marker\\
+  ${}^3${marker} & integer of plot marker to use\\
+  clear        & erase all markers from plot\\
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Ifeffit> plot_marker(x=7000,y=4,marker=1)
+\end{verbatim}
+\item[See also] Section~\ref{Ch:Plot-Markers}, Figure~\ref{Fig:PlotPoints}.
+\end{IFFcom}
+
+%_command_% plot_text
+% reviewed 2002-03-31
+\subsection{\texttt{plot\_text}}  \label{Ch:Command:plot-text}\indexcmd{plot\_text}
+\begin{IFFcom}
+\item[Description] Add a text string to an arbitrary location on the
+  current plot.  This is equivalent to using {\tt{text\_x}},
+  {\tt{text\_y}}, and {\tt{text}} arguments to {\cmnd{plot}}.
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} &  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^1${x}     & x-coordinate of text\\
+  ${}^2${y}     & y-coordinate of text\\
+  ${}^3${text}  & text string to add to plot\\
+  {size}        & {font size for {\tt{text}} labels}\\
+  clear         & erase all strings from plot\\
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Ifeffit> plot_text(x=7025,y=0.3, text='400 K Data')
+\end{verbatim}
+\item[See also] {\MNseealso{plot}}, Section~\ref{Ch:Plot-Text}.
+
+\end{IFFcom}
+
+%_command_% pre-edge
+\relax\par\vfill
+\subsection{\texttt{pre\_edge}}
+\label{Ch:Command:pre-edge}\indexcmd{pre\_edge}
+
+\begin{IFFcom}
+\item[Description]
+  Calculate the pre-edge line through XAFS $\mu(E)$ data, the energy
+  origin $E_0$, and the edge step.   
+  
+  Note that the {\tt{spline}} command may call {\tt{pre\_edge}} for
+  you if it appears that it has not already been called.
+  
+\item[Input Program Variables]
+  {\tt{pre1}}, {\tt{pre2}}, {\tt{norm1}}, {\tt{norm2}}.
+  
+\item[Keywords/Values]
+  {\relax \hspace{1.1truein}\par\noindent\relax}
+  \begin{tabular}{llrl}
+    \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+    \textbf{Description}\\
+    \noalign{\smallskip}
+    ${}^{1}${energy} &                    & & {energy array name} \\ 
+    ${}^{2}${xmu}    &                    & & {xmu array name} \\ 
+    {group}          & {\tt{\$group}}     & & {group name} \\ 
+    {e0}             & {\tt{e0}}          & & {$E_0$, the energy origin} \\ 
+    {edge\_step}     & {\tt{edge\_step}} &  & {Edge Step} \\ 
+    {pre1}           & {\tt{pre1}} &{-200.} & {pre-edge line lower limit} \\ 
+    {pre2}           & {\tt{pre2}} &{-50.}  & {pre-edge line upper limit} \\ 
+    {norm1}          & {\tt{norm1}} &{100.} & {normalization line lower limit} \\ 
+    {norm2}          & {\tt{norm2}} &{300.} & {normalization line upper limit} \\ 
+    {pre\_slope}     & {\tt{pre\_slope}} &  & {slope of pre-edge line} \\ 
+    {pre\_offset}    & {\tt{pre\_offset}}&  & {offset of pre-edge line} \\ 
+    {find\_e0}       &                   &{F}&  {flag to force finding $E_0$} \\ 
+    \noalign{\smallskip}
+  \end{tabular}
+  \noindent
+\item[Output Program Variables] 
+  \begin{sloppypar}
+    {\tt{e0}}, {\tt{edge\_step}}, {\tt{pre1}},
+    {\tt{pre2}}, {\tt{norm1}}, {\tt{norm2}}, {\tt{pre\_slope}},
+    {\tt{pre\_offset}}, {\tt{\$group}}, and  {\tt{\$GROUP.pre}}.
+  \end{sloppypar}
+\item[Notes]  The edge step will be found unless specified.  $E_0$ will
+  be found unless specified and in the data range. 
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax}
+\begin{verbatim} 
+  Iff> read_data(my.xmu, group = my)
+  Iff> pre_edge(my.energy, my.xmu)
+\end{verbatim} \noindent %--
+\item[See also] {\cmnd{bkg\_cl}} (Section~\ref{Ch:Command:bkg-cl}), 
+{\MNseealso{spline}}.
+\end{IFFcom}
+
+
+
+%_command_% print
+\subfunc{print} %------
+\begin{IFFcom}
+\item[Description] Write the {\emph{value}} of a list of Program Variable
+  or expressions to the screen.  Because {\tt{print}} uses list context, it
+  does a poor job parsing complex expressions.  Expressions that include
+  spaces should be enclosed in parentheses.   Alternatively, you can
+  enclose strings in quotes to prevent them from evaluation.  This gives a
+  reasonably flexible way to format outputs.
+\item[Input Program Variables] None.
+\item[Keywords/Values] None. 
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> print "7 * sqrt(99.11) = ",  (7 * sqrt(99.11))
+    7 * sqrt(99.11) =     69.6878038
+\end{verbatim} \noindent %--
+\item[See also] {\MNseealso{echo}}, {\MNseealso{show}}.
+\end{IFFcom}
+
+
+%_command_% quit
+\subfuncn{quit} %------
+\begin{IFFcom}
+\item[Description] Quit the program.
+\item[Input Program Variables] None.
+\item[Keywords/Values] None.
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> quit
+\end{verbatim}
+\item[See also] {\MNseealso{exit}}.
+\end{IFFcom}
+
+
+
+%_command_% read_data
+\relax\par\vfill
+\subsection{\texttt{read\_data}} %------
+    \label{Ch:Command:read-data}\indexcmd{read\_data}
+
+\begin{IFFcom}
+\item[Description] Read array data from ASCII column file.
+\item[Input Program Variables] {\tt{\$commentchar}}.
+\item[Keywords/Values]     {\hspace{1.in} \par\noindent\relax}
+
+  \begin{tabular}{llll}
+    \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+    \textbf{Description}\\
+    \noalign{\smallskip}
+    ${}^{1}${file}   & & & {Name of input file.} \\ 
+    {group}          & & & {Default group name for arrays.} \\ 
+    {type}           & & & {File Type to assume for array names.} \\ 
+    {label}          & & & {Label line to use for array names.} \\ 
+    npts             & & & {length of arrays to read.}\\
+    narray           & & & {number of array to read.}\\
+    commentchar      &  {\tt{\$commentchar}} & {\#} &
+        comment character for text lines.\\
+  \end{tabular}
+
+  {\relax \vspace{0.2truein}\relax}
+  \noindent
+  All arrays read in will share a common group name.  If not explicitly
+  given, the group name will be determined from the file name.  The arrays
+  read in will be named according to conventions described in
+  Chapter~{\ref{Ch:Structure}} and Chapter~{\ref{Ch:IO}}.
+  
+\item[Output Program Variables] Arrays will be read in, and text strings
+  will be read in.  In addition, {\tt{\$group}} will hold the group name
+  used, and {\tt{\$commentchar}} will hold the comment character used.
+  {\tt{\$filetype}} will hold the file `type', if appropriate.  Most
+  importantly, {\tt{\$column\_label}} will hold what the colum label
+  {\emph{should have been}} to give the resulting array names.  That is, it
+  will contain a space-delimited list of array suffixes.
+  
+  Comment strings at the top of the data file will also be saved in text
+  strings with names {\tt{\$GROUP\_title\_01}}, {\tt{\$GROUP\_title\_02}},
+  \ldots. 
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> read_data(file= My.dat, type=raw, group= my)
+  Iff> read_data( CuS04_002.dat, label = 'energy xmu i0')
+\end{verbatim}
+\item[See also]
+{\cmnd{write\_data}} (Section~\ref{Ch:Command:write-data}), 
+Chapter~{\ref{Ch:Structure}}, Chapter~{\ref{Ch:IO}}.
+\end{IFFcom}
+
+
+
+%_command_% rename
+\subfunc{rename}
+
+\begin{IFFcom}
+\item[Description] Rename one or more Program Variables.  
+\item[Input Program Variables] None.
+\item[Keywords/Values] None.
+\item[Output Program Variables] None.
+\item[Notes] Use of this command can be very detrimental to effective and
+  rational use of definitions and complex fitting models. In short, the
+  {\emph{name}} of the variable is changed, but does not change its definition
+  or the definitions of the variables that depend on it.  Sometimes this is
+  exactly what you want.  Sometimes it is not.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+   Iff> rename kmin kmin_save
+   Iff> rename my.x your.x
+
+   Iff> a = 1
+   Iff> b = a + 1
+   Iff> rename(a, c)
+   Iff> c = 5
+   Iff> print b
+     6.000000
+   Iff> rename(b, d)
+   Iff> c = 10
+   Iff> print d
+    11.000000
+\end{verbatim}
+\noindent
+\item[See also] {\MNseealso{erase}}, {\MNseealso{set}}, {\MNseealso{show}}.
+\end{IFFcom}
+
+
+%_command_% reset
+\subfunc{reset} %------
+
+\begin{IFFcom}
+\item[Description] Reset all {\ifeffit} Program Variables.
+\item[Input Program Variables] None.
+\item[Keywords/Values] None.
+\item[Output Program Variables] All Program Variables are erased, 
+  and all program settings re-initialized.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> reset
+\end{verbatim} \noindent %----
+\item[See also] {\MNseealso{exit}}.
+\end{IFFcom}
+
+
+%_command_% restore
+\subfunc{restore} %------
+
+\begin{IFFcom}
+\item[Description] Restore a {\tt{save}}'ed {\ifeffit} session.
+\item[Input Program Variables] None.
+\item[Keywords/Values]  The only argument is the name of the save file to
+  restore.  The keyword {\tt{file}} is optional.
+\item[Output Program Variables] All Program Variables read from the 
+{\tt{save}} file are updated.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> restore(my.sav)
+\end{verbatim} \noindent %----
+\item[See also] {\MNseealso{save}}.
+\end{IFFcom}
+
+
+%_command_% save
+\subfunc{save} %------
+
+\begin{IFFcom}
+\item[Description] Save all {\ifeffit} program variables into a single
+  file for later restoration. 
+\item[Input Program Variables] All Program Variables.
+\item[Keywords/Values]
+  {\relax \hspace{1.1truein}\par\noindent\relax}
+  \begin{tabular}{llll}
+    \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+    \textbf{Description}\\
+    \noalign{\smallskip}
+    ${}^{1}${file} & &{\file{ifeffit.sav}} & {Name of output save file.} \\ 
+    npad           & & {8} & {WordLength for PAD numbers.} \\ 
+    no\_strings    & & {F} & {Flag to not save text strings.}\\
+    no\_arrays     & & {F} & {Flag to not save arrays.}\\
+    no\_scalars    & & {F} & {Flag to not save scalars.}\\
+    no\_sys        & & {F} & {Flag to not save ``system scalars''.}\\
+    with\_strings  & & {T} & {Flag to save text strings.}\\
+    with\_arrays   & & {T} & {Flag to save arrays.}\\
+    with\_scalars  & & {T} & {Flag to save scalars.}\\
+    with\_sys      & & {T} & {Flag to save ``system scalars''.}\\
+  \end{tabular}
+
+\item[Notes] A wordlength {\tt{npad}} of 8 gives at least 12 significant
+  digits.  Higher precision can be achieved by setting {\tt{npad}} as high as
+  12, which results in about 15 significant digits -- roughly at the machine
+  resolution of most implementations of double precision.  True double
+  precision cannot be guaranteed with this format, but 12 digits of
+  {\emph{portable}} data will mask many machine differences, and is probably
+  good enough for most applications involving experimental data.
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> save(my.sav)
+\end{verbatim} \noindent %----
+\item[See also] {\MNseealso{restore}}.
+\end{IFFcom}
+
+
+
+%_command_% set
+\subfunc{set} %------
+
+\begin{IFFcom}
+\item[Description] Set a Program Variable.  In contrast to {\tt{def}},
+  {\tt{set}} does not remember the definition (ie, the mathematical
+  formula) of numerical Program Variables, but only the value at the time
+  of creation.
+  
+  Note that {\tt{def}} is the default command, which means that {\tt{set}}
+  must be done explicitly.
+
+\item[Input Program Variables] None.
+\item[Keywords/Values]  The keyword is taken as the name of the variable to
+  be assigned, and the Value is taken as the mathematical expression to use
+  for the definition. 
+
+\item[Output Program Variables] Well, the Program Variable is set. 
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> set (b = a + 1,  c = 100 * sqrt(b) )
+  Iff> set my.chik = my.chi * my.k^kweight
+\end{verbatim} \noindent %----
+  Note that neither {\tt{b}} nor {\tt{c}} will change if {\tt{a}} changes,
+  and that {\tt{my.chik}} will not change when {\tt{kweight}} changes.
+  Sometimes this kind of constance and predictability is exactly what you
+  want.  For those other times, you'll want {\tt{def}}.
+\item[See also] {\MNseealso{def}}, {\MNseealso{sync}}, {\MNseealso{print}}.
+\end{IFFcom}
+
+
+%_command_% show
+\subfunc{show} %------
+
+\begin{IFFcom}
+\item[Description] Show information about {\ifeffit} Program Variables,
+  commands, macros, and {\tt{feffit}} paths.
+\item[Input Program Variables] None.
+\item[Keywords/Values] The argument to {\tt{show}} is usually interpreted
+  as a list of the names of Program Variables to display.  In addition to
+  the `normal' Program Variables, the names of user-defined macros can also
+  be included.  For scalars and strings, {\tt{show}} will display the value
+  of these  Program Variables.  For arrays, the number of points and
+  maximum and minimum values are shown (the {\MNseealso{print}} command will
+  print all the values of an array, if that's what you want). 
+  
+  {\tt{show}} can also take a few ``global'' arguments to show several
+  variables at once.  All such global arguments begin with ``@'', which can
+  be taken as a mnemonic for ``all'', and a few can take an additional
+  argument. The table below lists the available ``global'' arguments.
+  \begin{center}  \begin{tabular}{clll} 
+    \hspace{0.025in} &Argument & Value & What is Shown  \\ \noalign{\smallskip}
+    &{@scalars}  & & all scalars. \\ 
+    &{@arrays}   & & all arrays.\\
+    &{@strings}  & & all text strings.\\
+    &{@variables}& & all fitting variables, with uncertainties.\\
+    &{@groups}   & & all array ``groups''.\\
+    &{@group}    & group name & all arrays in selected group.\\
+    &{@paths}    &      & all paths for the current data set.\\
+    &{@path}     & path list  & selected paths.\\
+    &{@commands} & & all commands, with brief description. \\ 
+    &{@macros}   & & all user-defined macros.\\
+  \end{tabular}\end{center} 
+\noindent
+See the examples below for syntax.
+
+\item[Output Program Variables] Outputs are written to the screen.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+ Iff> show rmin, fit.chi
+   rmin         =      1.30000000
+   fit.chi      = 499 points [-0.5341341   : 0.5121385]
+ Iff> show @groups
+   data
+   fit
+ Iff> show @group=data   
+   data.k       = 499 points [ 0.500000E-01:  24.95000]
+   data.chi     = 499 points [-0.1756163   : 0.1433899]
+ Iff> show @path=1
+    PATH   1
+      feff  = feffcu01.dat
+      id    = Cu metal first neighbor
+      reff  =    2.547800 , degen  =   12.000000
+      s02   =    0.934530 , e0     =    0.558189
+      dr    =    0.000771 , ss2    =    0.003483
+      3rd   =    0.000000 , 4th    =    0.000000
+      ei    =    0.000000 , phase  =    0.000000
+\end{verbatim} \noindent %----
+\item[See also] {\MNseealso{set}}, {\MNseealso{print}}, {\MNseealso{echo}}.
+\end{IFFcom}
+
+
+
+%_command_% spline
+\relax\par\vfill
+\subsection{\texttt{spline}}
+       \label{Ch:Command:spline}\indexcmd{spline}
+
+\begin{IFFcom}
+\item[Description] Calculate the background spline $\mu_0(E)$ and EXAFS 
+  and $\chi(k)$ given arrays for $\mu(E)$.   This command uses the
+  {\autobk} algorithm, described in more detail in {\XAIBook}.
+  
+\item[Input Program Variables] 
+  \begin{sloppypar}
+    {\tt{e0}}, {\tt{rbkg}}, {\tt{toler}}, {\tt{nknots}}, {\tt{kmin\_spl}},
+    {\tt{kmax\_spl}}, \relax {\tt{kweight\_spl}}, {\tt{dk1\_spl}},
+    {\tt{dk2\_spl}}, \relax {\tt{\$kwindow}}, {\tt{edge\_step}},
+    {\tt{pre1}}, {\tt{pre2}}, {\tt{norm1}}, {\tt{norm2}}.
+  \end{sloppypar}
+\item[Keywords/Values]
+  {\relax \hspace{1.1truein}\par\noindent\relax}
+  \begin{tabular}{llll}
+    \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+    \textbf{Description}\\
+    \noalign{\smallskip}
+    ${}^{1}${energy} &  & & {energy array name} \\ 
+    ${}^{2}${xmu}    &  & & {xmu array name} \\ 
+    {group}    & {\tt{\$group}} & & {group name} \\ 
+    {e0}       & {\tt{e0}} &  & {$E_0$, the energy origin} \\ 
+    {rbkg}     & {\tt{rbkg}} &{1.0}  & {$R_{\rm bkg}$} \\ 
+    {toler}    & {\tt{toler}} &{1.d-3}  & {Fitting tolerance} \\ 
+    {nknots}   &{\tt{nknots}}& & {Number of knots in spline} \\ 
+    {kmin} &{\tt{kmin\_spl}} & &{$k_{\rm min}$ for FFT in spline evaluation} \\ 
+    {kmax} &{\tt{kmax\_spl}} & &{$k_{\rm max}$ for FFT in spline evaluation} \\ 
+    {kweight} & {\tt{kweight\_spl}} &{1} & {$k$-weight for FFT in spline} \\ 
+    {dk1} & {\tt{dk1\_spl}} & & {$\delta k_1$ parameter for FFT in spline} \\ 
+    {dk2} & {\tt{dk2\_spl}} & & {$\delta k_2$ parameter for FFT in spline} \\ 
+    {kwindow} & {\tt{\$kwindow}} & & {name of FFT window type for spline} \\ 
+    {edge\_step} & {\tt{edge\_step}} &  & {Edge Step} \\ 
+    {pre1} & {\tt{pre1}} &{-200} & {pre-edge line lower limit} \\ 
+    {pre2} & {\tt{pre2}} &{-50}  & {pre-edge line upper limit} \\ 
+    {norm1} & {\tt{norm1}} &{100}  & {normalization line lower limit} \\ 
+    {norm2} & {\tt{norm2}} &{300} & {normalization line upper limit} \\ 
+    {eefind}     & &{F} & {flag to force finding $E_0$} \\ 
+    {varye0}     & &{F} & flag to allow $E_0$ to vary in spline fit\\ 
+    {find\_step} & &{F} & flag to force finding of Edge Step \\ 
+    {fnorm}      & &{F} & flag to normalize by $\mu_0(E)$.\\ 
+    {do\_pre}    & &{T} & flag to force the finding of the pre-edge \\ 
+    {do\_spl}    & &{T} & flag to force spline fit \\ 
+    {interp}    &   &{quad}  & {method to use for data interpolation} \\ 
+    \noalign{\smallskip}
+  \end{tabular}
+  \noindent
+  
+\item[Output Program Variables] 
+  \begin{sloppypar}
+    {\tt{\$group}}, {\tt{e0}}, {\tt{rbkg}}, {\tt{nknots}},
+    {\tt{kmin\_spl}}, {\tt{kmax\_spl}}, {\tt{kweight\_spl}},
+    {\tt{dk1\_spl}}, {\tt{dk2\_spl}}, {\tt{\$kwindow}}, {\tt{edge\_step}},
+    {\tt{pre1}}, {\tt{pre2}}, {\tt{norm1}}, {\tt{norm2}}.
+  \end{sloppypar}  
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax}
+\begin{verbatim} 
+  Iff>  spline(my.energy,my.xmu,rbkg=1.0,kmin=0)
+\end{verbatim} \noindent %--
+\item[See also] 
+{\texttt{pre\_edge}} (Section~\ref{Ch:Command:pre-edge}).
+\end{IFFcom}
+
+
+
+%_command_% sync
+\subfunc{sync} %------
+\begin{IFFcom}
+\item[Description] Synchronize numeric Program Variables (fitting
+  variables, scalars and arrays) so that all dependencies are up-to-date
+  and all values are consistent with one another.  This command is
+  implicitly run at the beginning of commands {\texttt{ff2chi}},
+  {\texttt{feffit}}, and {\texttt{minimize}}.
+\item[Input Program Variables] None.
+\item[Keywords/Values] None.
+\item[Output Program Variables] None.  Well, all scalars and arrays are
+  `re-arranged'.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> a  =  1,   b  =  3,   c  = (a + b)/2
+  Iff> b  =  5
+  Iff> show a, b, c
+    a   =   1.00000
+    b   =   5.00000
+    c   =   2.00000
+  Iff> sync
+  Iff> show a, b, c
+    a   =   1.00000
+    b   =   5.00000
+    c   =   3.00000
+\end{verbatim}
+\item[See also] {\MNseealso{ff2chi}}, {\MNseealso{feffit}},
+  {\MNseealso{minimize}}, {\MNseealso{set}}, {\MNseealso{def}}, and
+  section~{\ref{Ch:Structure-SetDef}}.
+\end{IFFcom}
+
+
+%_command_% unguess
+%_revised_% 2003-01-25
+\subfunc{unguess} %------
+\begin{IFFcom}
+\item[Description] Change all {\cmnd{guess}}ed program variables to 
+    {\cmnd{set}} variables with the current values.
+\item[Input Program Variables] None.
+\item[Keywords/Values] None.
+\item[Output Program Variables] None.  Well, all fitting variables are
+  changes to regular scalars.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> unguess()
+\end{verbatim}
+\item[See also] {\MNseealso{set}}, {\MNseealso{def}},
+  {\MNseealso{guess}}, section~{\ref{Ch:Structure-SetDef}}.
+\end{IFFcom}
+
+
+%_command_% window
+%_revised_% 2003-01-25
+\subfunc{window} %------
+
+\begin{IFFcom}
+\item[Description] Generate an XAFS Fourier Transform window, without
+  actually doing the Fourier transform.
+\item[Input Program Variables] {\tt{kmin}}, {\tt{kmax}},
+  {\tt{dk1}},{\tt{dk2}},{\tt{kweight}}, {\tt{\$kwindow}} and
+  {\tt{rmax\_out}}.
+\item[Keywords/Values] 
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+  \textbf{Description}\\
+  \noalign{\smallskip}
+  ${}^{1}${real} &               &  & array for $\rm Re[\chi(k)]$. \\
+  {imag}      &                  &  & array for $\rm Im[\chi(k)]$. \\
+  k           &                  &  & array of $k$ data \\
+  group       & {\tt{\$group}}   &  & group name for output arrays \\ 
+  kmin        & {\tt{kmin}}      & 0& $k_{\rm min}$ FT parameter  \\ 
+  kmax        & {\tt{kmax}}      & 0& $k_{\rm max}$ FT parameter  \\ 
+  dk1         & {\tt{dk1}}       &  & FT parameter  \\ 
+  dk2         & {\tt{dk2}}       &  & FT parameter  \\ 
+  dk          &                  &  & sets both {\tt{dk1}} and {\tt{dk2}}\\  
+  kweight     & {\tt{kweight}}   &  & $k$-weight  FT parameter \\ 
+  kwindow     & {\tt{\$kwindow}} &  & FT window function  \\ 
+  altwindow   &                  &  & array for alternate FT window.  \\ 
+\end{tabular}
+
+\item[Output Program Variables] {\tt{kmin}}, {\tt{kmax}}, {\tt{dk1}},
+  {\tt{dk2}}, {\tt{kweight}}, and {\tt{rmax\_out}} will  be set on output.
+ 
+  The array {\tt{\$GROUP.win}} will contain the $k$-space window array,
+  $W(k)$.
+  
+\item[Notes] See Appendix~{\ref{App:Fourier}}.
+
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+    Iff> window(real=my.chi, kmin = 1.0, kmax =16.0, 
+              dk=1.0, kweight=2., kwindow= 'hanning' )
+\end{verbatim}
+\item[See also]  {\MNseealso{fftf}}, {\MNseealso{fftr}}, Appendix~{\ref{App:Fourier}}. 
+\end{IFFcom}
+
+
+%_command_% write_data
+\relax\par\vfill
+\subsection{\texttt{write\_data}}
+    \label{Ch:Command:write-data}\indexcmd{write\_data}
+
+\begin{IFFcom}
+\item[Description] Write scalars, strings, and arrays to an ASCII data
+  file.
+\item[Input Program Variables] {\tt{\$group}}, {\tt{\$commentchar}}.
+\item[Keywords/Values]  The arguments for {\texttt{write\_data}} are
+  mostly interpreted as a list of Program Variables to write to the file.
+  The list elements can be either strings or arrays, but (currently) not
+  scalars.  The text strings will be written first, followed by a line of
+  minus signs, and then the arrays will be written in column format.
+  Currently supported keywords are: 
+  {\par\noindent\relax}
+  \begin{tabular}{llll}
+    \textbf{Keyword} & \textbf{Variable} & \textbf{Default} &
+    \textbf{Description}\\
+    \noalign{\smallskip}
+    ${}^{1}${file}   & & & {Name of output file.} \\ 
+    {group}          & & & {Default group name for arrays.} \\ 
+    npts             & & & {number of array points to write.}\\
+    commentchar      &  {\tt{\$commentchar}} & {\#} &
+        comment character for text lines.\\
+  \end{tabular}
+
+  {\relax \vspace{0.2truein}\relax}
+  \noindent
+  For writing groups of text strings, `globs' are supported with the `*'
+  character.  That is, a `*' in the name of text string variables will be
+  expanded so that all strings matching the pattern will be printed.
+  Text lines will begin with a `comment character'.  By default, this is
+  `\#', but can be set to any two character sequence.
+  
+  The maximum number of arrays that can be written to a single file is 16.
+  Array {\emph{expressions}} are not supported.
+
+
+\item[Output Program Variables] None.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff> write_data(file=out.dat, $title*, my.x, my.y)
+\end{verbatim}
+\item[See also] 
+{\texttt{read\_data}} (Section~\ref{Ch:Command:read-data}).
+\end{IFFcom}
+
+
+%_command_% zoom
+% reviewed 2002-03-31
+\subfunc{zoom} %------
+
+\begin{IFFcom}
+\item[Description] Zoom in on a region of the plot window.  Using the
+  cursor (typically a mouse),  click on the lower-left and upper-right
+  portion of the plot window you wish to enlarge. 
+\item[Input Program Variables] None.
+\item[Keywords/Values] 
+The following flags can be given to customize the behavior of
+{\cmnd{zoom}}:
+
+{\relax \hspace{0.25truein}\par\noindent\relax}
+\begin{tabular}{llrl}
+  \textbf{Keyword} &  \textbf{Description}\\
+  \noalign{\smallskip}
+  {show}       & print output string after selection\\
+  {nobox}      & suppress drawing of 'active zoom box'\\
+  \noalign{\smallskip}
+\end{tabular}
+\noindent
+
+\item[Output Program Variables] {\texttt{cursor\_x}}, and
+  {\texttt{cursor\_y}} will contain the x and y positions of the cursor for
+  the last point chosen.
+\item[Examples] {\hspace{1.in} \vspace{-0.1truein} \relax }
+\begin{verbatim} 
+  Iff>  zoom
+\end{verbatim}
+\item[See also] {\MNseealso{cursor}}, {\MNseealso{plot}}, 
+Section~\ref{Ch:Plot-cursor}.
+\end{IFFcom}

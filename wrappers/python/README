@@ -1,0 +1,40 @@
+This is the Python interface to the Ifeffit library.  It assumes
+that you have python 1.5.2 (or later) installed on your system.
+
+Installation instructions:
+
+ Type 'python setup.py install' as root.
+
+Detailed Instructions:
+
+ 1. build and INSTALL the ifeffit library.  The ifeffit library
+    must be installed for the python extension to work properly. 
+
+    If you're building this from the standard distribution, a
+    site_install.py file should already be in this directory.  
+ 
+    If not (or if you are building this after the Ifeffit library 
+    has been installed) copy this files from the ifeffit directory: 
+       cp /usr/local/share/ifeffit/config/site_install.py .
+   
+    (the exact location may be different, depending on how
+     ifeffit was built and installed).
+   
+    Normally, you should not need to alter site_install.py, but 
+    if you run into trouble, you may want to look at this file
+    for hints of how it thinks Ifeffit is installed on your system.
+
+ 2. type 'python setup.py build'
+    this will build the python extension for your system.  
+
+ 3. type 'python setup.py install' (do this as root) to install.
+
+ 4. If python has been installed with Tkinter capabilities (see notes
+    on installing python), then gifeffit, the graphical user interface
+    will be installed with the above installation.  Since gifeffit
+    requires the additional Pmw widgets, these will also be installed 
+    if needed.
+
+Matt Newville <newville@cars.uchicago.edu>
+
+

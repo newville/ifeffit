@@ -1,0 +1,7 @@
+
+my.f = range(0,10,0.1)
+my.g = sin(my.f)
+
+macro mm
+   echo ' macro mm'
+end macro

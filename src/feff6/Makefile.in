@@ -1,0 +1,402 @@
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+# Copyright (C) 2000 Matt Newville <newville@cars.uchicago.edu>
+#  
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without 
+# modifications, as long as this notice is preserved.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+CC = @CC@
+CPP = @CPP@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+F2C = @F2C@
+F2CFLAGS = @F2CFLAGS@
+F77 = @F77@
+FFLAGS = @FFLAGS@
+FLIBS = @FLIBS@
+MN_FLIBS = @MN_FLIBS@
+MAKEINFO = @MAKEINFO@
+NM = @NM@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+VERSION = @VERSION@
+canonical_host_type = @canonical_host_type@
+
+bin_PROGRAMS = feff6
+
+feff6_SOURCES = feff.f rdinp.f chopen.f mkptz.f setgam.f terp.f potph.f\
+	 rpotph.f rdhead.f atom.f indata.f getorb.f dirac.f inouh.f\
+	 inth.f potsl.f somm.f totale.f cdsld.f ykdir.f renorm.f potslw.f\
+	 ovrlp.f sumax.f frnrm.f istprm.f sidx.f istval.f fermi.f head.f\
+	 wpot.f phmesh.f fixvar.f phase.f besjn.f bjnser.f xcpot.f\
+	 rhl.f imhl.f ffq.f cubic.f quinn.f edp.f fovrg.f diff.f intpol.f\
+	 wphase.f prcrit.f rphbin.f cpl0.f paths.f sortix.f ccrit.f\
+	 mrb.f mcrith.f mcritk.f ipack.f heap.f pathsd.f timrep.f mpprmp.f\
+	 phash.f outcrt.f strap.f mpprmd.f genfmt.f snlm.f rdpath.f\
+	 setlam.f rot3i.f mmtr.f sclmz.f mmtrxi.f fmtrxi.f trap.f pijump.f\
+	 ff2chi.f sigms.f feffbd.f \
+	 dist.f sdist.f xx.f getxk.f dalp.f fpot.f exchan.f exchee.f pertab.f
+
+feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
+	 rpotph.o rdhead.o atom.o indata.o getorb.o dirac.o inouh.o\
+	 inth.o potsl.o somm.o totale.o cdsld.o ykdir.o renorm.o potslw.o\
+	 ovrlp.o sumax.o frnrm.o istprm.o sidx.o istval.o fermi.o head.o\
+	 wpot.o phmesh.o fixvar.o phase.o besjn.o bjnser.o xcpot.o\
+	 rhl.o imhl.o ffq.o cubic.o quinn.o edp.o fovrg.o diff.o intpol.o\
+	 wphase.o prcrit.o rphbin.o cpl0.o paths.o sortix.o ccrit.o\
+	 mrb.o mcrith.o mcritk.o ipack.o heap.o pathsd.o timrep.o mpprmp.o\
+	 phash.o outcrt.o strap.o mpprmd.o genfmt.o snlm.o rdpath.o\
+	 setlam.o rot3i.o mmtr.o sclmz.o mmtrxi.o fmtrxi.o trap.o pijump.o\
+	 ff2chi.o sigms.o feffbd.o \
+	 dist.o sdist.o xx.o getxk.o dalp.o fpot.o exchan.o exchee.o pertab.o
+
+feff6_INC = vers.h dim.h const.h pola.h arrays.h pdata.h clmz.h fmatrx.h\
+	 lambda.h nlm.h rotmat.h echo.h
+
+
+feff6_LDADD = ../lib/libxafs.a $(MN_FLIBS)
+
+feff6_DEPENDENCIES = ../lib/libxafs.a
+feff6_LDFLAGS = 
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../../config.h
+CONFIG_CLEAN_FILES = 
+PROGRAMS =  $(bin_PROGRAMS)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) -I../..
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+
+F77COMPILE = $(F77) $(AM_FFLAGS) $(FFLAGS)
+F77LD = $(F77)
+F77LINK = $(F77LD) $(AM_FFLAGS) $(FFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+
+SOURCES = $(feff6_SOURCES)
+OBJECTS = $(feff6_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .f .o .s
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-binPROGRAMS:
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+distclean-binPROGRAMS:
+
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+feff6: $(feff6_OBJECTS) $(feff6_DEPENDENCIES)
+	@rm -f feff6
+	$(F77LINK) $(feff6_LDFLAGS) $(feff6_OBJECTS) $(feff6_LDADD) $(LIBS)
+.f.o:
+	$(F77COMPILE) -c $<
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = src/feff6
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+# DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+# -include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+
+maintainer-clean-depend:
+
+%.o: %.c
+	$(COMPILE) -c $<
+
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-binPROGRAMS
+install-exec: install-exec-am
+
+install-data-am:
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-binPROGRAMS
+uninstall: uninstall-am
+all-am: Makefile $(PROGRAMS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-compile \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-binPROGRAMS clean-compile clean-tags clean-depend \
+		clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-binPROGRAMS distclean-compile distclean-tags \
+		distclean-depend distclean-generic clean-am
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-binPROGRAMS \
+		maintainer-clean-compile maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
+maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info-am info \
+dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+
+# dependencies:
+feff.o:  vers.h dim.h const.h
+rdinp.o:  const.h dim.h pola.h
+mkptz.o:  pola.h const.h
+potph.o:  const.h dim.h arrays.h
+rpotph.o:  dim.h
+ovrlp.o:  const.h dim.h
+frnrm.o:  dim.h
+istprm.o:  const.h dim.h
+istval.o:  dim.h
+fermi.o:  const.h
+head.o:  const.h dim.h vers.h
+wpot.o:  const.h dim.h
+phmesh.o:  const.h dim.h
+fixvar.o:  dim.h const.h
+phase.o:  dim.h
+besjn.o:  dim.h
+xcpot.o:  const.h dim.h
+rhl.o:  const.h
+imhl.o:  const.h
+quinn.o:  const.h
+edp.o:  const.h
+fovrg.o:  const.h
+wphase.o:  dim.h
+prcrit.o:  const.h dim.h pdata.h
+rphbin.o:  dim.h pdata.h
+paths.o:  dim.h vers.h
+ccrit.o:  const.h dim.h
+mrb.o:  dim.h
+mcrith.o:  const.h dim.h
+mcritk.o:  const.h dim.h
+pathsd.o:  const.h dim.h pola.h
+timrep.o:  dim.h
+mpprmp.o:  dim.h pola.h
+phash.o:  dim.h
+outcrt.o:  const.h dim.h
+mpprmd.o:  dim.h
+genfmt.o:  const.h dim.h clmz.h fmatrx.h lambda.h pdata.h nlm.h\
+	 rotmat.h vers.h pola.h
+snlm.o:  dim.h nlm.h
+rdpath.o:  const.h dim.h pdata.h pola.h
+setlam.o:  const.h dim.h lambda.h pdata.h
+rot3i.o:  dim.h rotmat.h pdata.h
+mmtr.o:  const.h dim.h pola.h rotmat.h pdata.h
+sclmz.o:  const.h dim.h clmz.h
+mmtrxi.o:  const.h dim.h nlm.h lambda.h clmz.h pola.h fmatrx.h rotmat.h\
+	 pdata.h
+fmtrxi.o:  const.h dim.h nlm.h lambda.h clmz.h fmatrx.h rotmat.h\
+	 pdata.h
+pijump.o:  const.h
+ff2chi.o:  vers.h const.h
+sigms.o:  const.h
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:
+

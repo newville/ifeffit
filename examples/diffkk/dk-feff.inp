@@ -1,0 +1,16 @@
+%------------------------%
+  title  = Cu(1) of YBCO
+     out = feff.fpp      % output file name
+     xmu = xmu.dat       % xmu file name
+  isfeff = true          % is the a feff xmu.dat?
+   encol =    1          % energy column
+   mucol =    4          % mu(E) column
+      iz =   29          % Z of central atom
+      e0 =   8986.0700   % edge energy
+   egrid =      1.0000   % energy grid
+  ewidth =      1.5000   % for broadening CL data
+    elow =    200.0000   % \ how far below and above
+   ehigh =    500.0000   % / the data range to go
+    epad =      5.0000   % \ energy grid & # of points
+    npad =   20          % / for pre-padding feff mu(E)
+%------------------------%

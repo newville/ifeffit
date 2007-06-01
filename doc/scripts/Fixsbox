@@ -1,0 +1,41 @@
+#!/usr/bin/perl -w
+# fix '\\begin{VerbSBox} ' construct for html files
+
+use Getopt::Std;
+getopts('d:');
+$direc = ($opt_d) ? ($opt_d) : "html";
+$htmldir  = 1;
+if (($direc eq "dvi") or ($direc eq "pdf")) { $htmldir = 0;}
+
+foreach $file (@ARGV) {
+    $savefile = $file.".bak"; 
+    rename ($file,$savefile) or die "couldn't rename $file\n";
+    open(IN,  "<$savefile")  or die "couldn't open $savefile\n";
+    open(OUT, ">$file")      or die "couldn't open $file\n";
+    my ($x, $mode) = (0,0);
+    my @vtext; 
+    while (<IN>) {
+	chomp;
+	if (/%VerbSBox%/)  {
+	    if ($mode == 0) {
+		$x = <IN>;
+		$mode = 1;
+		$tag = "\\begin{VerbSBox}";
+		if ($htmldir) { $tag =  "\\begin{Verbatim}" };
+		print OUT "%VerbSBox%\n$tag\n";
+		@vtext = ();
+	    } elsif ($mode == 1) {
+		pop @vtext;
+		foreach $i (@vtext) {  print OUT "$i\n";}
+		$tag = "\\end{VerbSBox}";
+		if ($htmldir) { $tag =  "\\end{Verbatim}" };
+		print OUT "$tag\n%VerbSBox%\n";
+		$mode = 0;
+	    }
+	} elsif ($mode == 1) {
+	    push @vtext, $_;
+	} else {
+	    print OUT "$_\n";
+	}
+    }
+}

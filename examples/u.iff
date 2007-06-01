@@ -1,0 +1,46 @@
+def test=reff
+path(1, feff=feff/feff0001.dat, delr=test, sigma2=reff)
+path(2, feff=feff/feff0002.dat, delr=test, sigma2=reff)
+path(3, feff=feff/feff0005.dat, delr=test, sigma2=reff)
+
+show @paths
+#    reading  feff0001.dat
+#    reading  feff0002.dat
+#    reading  feff0005.dat
+#    PATH   1
+#      feff  = feff0001.dat
+#      id    =
+#      reff  =    2.552700, degen  =   12.000000
+#      s02   =    1.000000, e0     =    0.000000
+#      dr    =    0.000000, ss2    =    2.552700
+#      3rd   =    0.000000, 4th    =    0.000000
+#      ei    =    0.000000, dphase =    0.000000
+#    PATH   2
+#      feff  = feff0002.dat
+#      id    =
+#      reff  =    3.610000, degen  =    6.000000
+#      s02   =    1.000000, e0     =    0.000000
+#      dr    =    2.552700, ss2    =    3.610000
+#      3rd   =    0.000000, 4th    =    0.000000
+#      ei    =    0.000000, dphase =    0.000000
+#    PATH   3
+#      feff  = feff0005.dat
+#      id    =
+#      reff  =    4.421300, degen  =   24.000000
+#      s02   =    1.000000, e0     =    0.000000
+#      dr    =    3.610000, ss2    =    4.421300
+#      3rd   =    0.000000, 4th    =    0.000000
+#      ei    =    0.000000, dphase =    0.000000
+# 
+# 
+# reff, delr, and sigma2 should all be the same for each path.  However,
+# delr is set to reff via a def parameter.  The def parameter is
+# evaluating using the previous path index's reff in each case.
+# 
+# I got curious to see if
+#   def test = debye(10,350)
+#   path(1, feff=feff0001.dat, sigma2=test)
+#     etc.
+# would trip a similar bug.  Apparently not.  Whew!
+# 
+# B

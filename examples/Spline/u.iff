@@ -1,0 +1,7 @@
+
+ read_data(file = ../data/cu.xmu, label = 'energy xmu', group = ' c* ')
+ show @arrays
+
+ spline(energy= c_.energy, xmu= c_.xmu)
+
+ show @arrays

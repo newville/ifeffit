@@ -1,0 +1,64 @@
+%%
+\section{Introduction} \label{Ch:intro}
+
+{\ifeffit} is a program and programming library for analyzing x-ray
+absorption fine-structure (XAFS) data.  As its name may suggest,
+{\ifeffit}{\footnote{The name was originally intended to stand for
+    {\program{interactive}} {\feffit}, but I sort of like the simple
+    self-declarative nature of the name as well as the literary allusion to
+    {\textsl{I, Claudius}} and {\textsl{I, Robot}}.  It could also be
+    interpreted as the answer to the question, "How do you analyze your
+    XAFS data?".  It is in no way intended as a subliminal insertion of
+    {\feff} into that {\emph{other}} Chicago technological institute known
+    to do some XAFS.}}  
+gives an interactive method for fitting XAFS data using calculations from
+{\feff}, and is based on the fitting program {\feffit} of the {\uwxafs}
+Analysis Package.  There have been significant additions to {\feffit}, and
+the user interface has been completely rewritten.
+
+{\ifeffit} is a complete XAFS analysis package, allowing general data
+manipulation, analysis, and plotting, as well as meeting the unique demands
+of analyzing XAFS data.  For those of you familiar with the {\uwxafs}
+Package, {\ifeffit} combines the functionality of {\autobk} and {\feffit}
+and adds many more features.  A major goal of {\ifeffit} is to make a
+graphical user interface (GUI) for XAFS analysis, but {\ifeffit} is not
+simply a GUI program by itself.  It is, instead, a command-based library
+that can be run either as a command-line program or called from other
+programs, including both graphical and non-graphical interfaces.  At this
+writing, an enhanced command-line program named {\gifeffit} is distributed
+with {\ifeffit}, and the GUI programs {\program{athena}},
+{\program{artemis}}, {\program{tkatoms}}, {\program{hephaestus}}, and
+{\program{sixpack}} make use of {\ifeffit}.
+
+This {\textsl{Reference Guide}} describes the commands and syntax of
+{\ifeffit}, and is intended for people who want direct access to the
+underlying '{\ifeffit} engine', either directly from the command-line
+program or through their analysis scripts.  While the high-level GUI
+wrappers such as {\program{athena}}, {\program{artemis}}, and
+{\program{sixpack}} provide most of the functionality needed for XAFS
+analysis, some sientists will appreciate a simple, scriptable command-based
+interface to a core set of XAFS analysis routines.  The commands and syntax
+described here are an attempt to provide such an interface.
+
+This guide starts with an example in Chapter~\ref{Ch:Basics} and then
+discusses the general syntax and structure of the commands in
+Chapter~\ref{Ch:Structure}.  The next several chapters give more in-depth
+information about input and output files, plotting, fitting XAFS data with
+{\feff} calculations, and fitting non-XAFS data to simple functions.
+Chapter~\ref{Ch:Commands} lists all the commands and their complete syntax.
+Chapter~\ref{Ch:Macros} discusses writing simple macros for {\ifeffit} and
+more complicated scripts using scripting languages.
+
+In addition to this {\textsl{Reference Guide}}, there is also {\textsl{The
+    {\ifeffit} Tutorial}} which gives a more gentle introduction to
+{\ifeffit}.  More information about {\ifeffit}, including installation
+instructions, further examples, an archived mailing list, and the other
+documention are available with the source code and at the {\ifeffit} web
+site: {\WWWiff}
+
+\subsection*{Acknowledgements} \label{ch:intro-ack}
+
+{\ifeffit} was written with helpful suggestions from Julie~Cross,
+Bruce~Ravel, and John~Rehr.  More detailed and up to date acknowledgements
+can be found in the {\file{THANKS}} file distributed with {\ifeffit}.
+

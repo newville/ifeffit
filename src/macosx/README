@@ -1,0 +1,79 @@
+
+This directory contains OLD build instructions for ifeffit on Mac OS X.
+
+For most Mac OS X users, a binary installer is available. For OS X 10.2 and
+higher, the main source build system will work, as long as the
+prerequisites liare installed.
+
+Prerequsites:
+-------------
+Getting ifeffit to run on MacOS X relies heavily on the Fink Project:
+   http://fink.sourceforge.net/
+
+You will need to download the Fink base system and some of its
+Unix-like extensions.  The following 'Fink packages' are needed:
+
+ pgplot f2c g77 readline xfree86-base xfree86-rootless
+
+(I think this is a complete list, but please let me know if I'm
+missing any).  'xfree86-server' can be used instead of '-rootless',
+but will not let you run XDarwin and Aqua at the same time.  Fink
+strongly encourages you to install everything under the '/sw'
+directory.
+
+You will also need to install the 'Developer Tools' from the MacOS
+X 'Developer Disk'.
+
+Configuration and Build:
+------------------------
+
+Again, this is of historical interest only.
+
+Type './configure ; make'.
+
+This simplified version of configure takes the following options:
+
+   --prefix=PREFIX            base directory for installation 
+   --arraysize=ARRAYSIZE      tiny,small,medium,large,huge    
+   --pgplot_dir=PGPLOT_DIR    directory for PGPLOT            
+   --xlibs=XLIBS              link directive for X            
+
+Type './configure --help' to get a listing of the default values (as 
+these will change depending on the system).
+
+If you installed Fink to somewhere other than '/sw', you may need to 
+set '--prefix=...'.  
+
+You may need to edit some of the top few lines of the Makefile.  
+
+If you have troubles in this 'make' step, you might want to check 
+that the file '../lib/sys.h'  exists.
+
+
+
+Installation:
+-------------
+Type 'sudo make install'.
+
+Building Extensions:
+--------------------
+If python is installed (say, through Fink), then the python extension
+can be built as:
+
+   cd ../../wrappers/python
+   sudo python setup.py install
+
+This should be done after Ifeffit has been installed.  This will also
+install the program gifeffit.
+
+
+If perl is installed, the perl extension can be built as:
+   cd ../../wrappers/perl
+   perl Makefile.PL
+   sudo make install
+
+If perl/Tk is installed, this should abuild and install the athena program 
+as well as the perl extension. 
+
+Last update:  16-Dec-2002 MN
+

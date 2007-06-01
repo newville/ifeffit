@@ -1,0 +1,8 @@
+# 
+#  start-up perl for ifeffit
+  push @shell_commands, qw(less emacs grep diff);
+  push @ifeffit_commands, qw(bkg make_ps);
+#
+ ifeffit(" load $HOME/.ifeffit_macros"); 
+#
+1;

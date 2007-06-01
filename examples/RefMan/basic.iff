@@ -1,0 +1,25 @@
+
+read_data(file=Cu.dat, type=raw, group= cu)
+cu.energy  = cu.1 * 1000.0
+cu.xmu     = ln(cu.2 / cu.3)
+
+spline(energy = cu.energy, xmu = cu.xmu, 
+       rbkg=1.1, kweight=1., kmin=0)
+
+plot(cu.energy, cu.xmu, new)
+plot(cu.energy, cu.bkg, xmin=8850, xmax=9300,  
+                        color=red)
+
+pause
+
+kweight = 2.0,  cu.chi_kw = cu.chi * cu.k^kweight
+newplot(cu.k,  cu.chi_kw)
+
+fftf(real = cu.chi, kmin = 2.0, kmax = 16.0, 
+     dk = 1.0, kweight=2)
+newplot(cu.r, cu.chir_mag, xmax=8)
+
+$title1 = "Test: writing out  k, chi, chi*k"
+$title2 = "   data from Cu.dat,   rbkg = 1.0"
+write_data(file = Out.chi,  cu.k, cu.chi, 
+           cu.chi_kw, $title1, $title2)

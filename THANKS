@@ -1,0 +1,117 @@
+The Ifeffit THANKS file
+
+Ifeffit was written by Matt Newville (MN: newville@cars.uchicago.edu), with
+considerable help and encouragement from many people. 
+
+Many of the basic algorithms of Ifeffit are based on those of Autobk and
+Feffit, which were written by MN while at the University of Washington.
+Autobk and Feffit were developed under the guidance of Edward A. Stern
+(EAS) and distributed as part of the UWXAFS3.0 Package by the University of
+Washington.
+
+The central idea of the core algorithm for Autobk was first presented to MN
+by Yizhak Yacoby (YY) and EAS.  The idea is similar to that of J. W. Cook,
+Jr and Dale E. Sayers (DES) [1], though they did not explicitly use a
+Fourier transform.  The algorithm was further developed by MN and EAS for
+Autobk, with many helpful suggestions from YY, Peteris Livins (PL) and John
+J. Rehr (JJR).  The Autobk algorithm is described and demonstrated in [2].
+
+The core algorithms of Feffit were developed by MN with many discussions
+and suggestions from EAS, JJR, PL, YY, Bruce Ravel (BR), and Steven
+I. Zabinsky (SIZ).  Feffit would not exist without the Feff program of JJR,
+SIZ, Jose Mustre de Leon, and Alexei Ankudinov [3,4].  Feffit is discussed
+in [5,6,7], and an early use of it is described in [8].
+
+Many users of Autobk and Feffit over the years have greatly improved the
+reliability, correctness, and functionality of Autobk and Feffit, and so
+have contributed to Ifeffit.  The enthusiastic use, bug reports, and
+helpful suggestions from BR, JJR, SIZ, Maoxu Qian, Anatoly Frenkel, Daniel
+Haskel, Yanjun Zhang, Shelly Kelly, Chuck Bouldin, Hans Stragier, Julie
+O. Cross (JOC), and Boyan Boyanov (BB) all deserve special thanks.
+
+Ifeffit has been developed by MN while at The Consortium for Advanced
+Radiation Sciences at the University of Chicago as a complete rewrite of
+Autobk and Feffit.  Most of the details of Autobk and Feffit have been
+altered to some extent for Ifeffit, and nearly every routine inherited from
+Autobk or Feffit has been changed.  JJR, BR, and JOC have been particularly
+helpful in discussing the design and features of Ifeffit.
+
+Some of the source code in Ifeffit is based on general utilities and file
+handling code originally co-authored for Autobk and Feffit by MN and BR,
+and some was originally co-authored by MN and SIZ.  MN has altered or
+completely rewritten all but the most trivial of these routines for
+Ifeffit.  Some algorithms and code in Ifeffit are of special note:
+
+ 1  The routines in sigms.f, for the Correlated Debye Model, was originally
+    written for Feff by JJR, and altered by SIZ.  MN altered it further for   
+    inclusion in Feffit, and again for inclusion in Ifeffit.
+
+ 2  The code for 'error analysis', found in iff_feffit.f, iff_chieps.f, and  
+    fiterr.f is inherited (though largely re-implemented) from code in 
+    Feffit. The algorithms used were worked out jointly by MN, EAS, and PL,
+    though  they are essentially identical to the procedures described in
+    standard statistical books.  Though tested fairly thoroughly when
+    implemented, a  more detailed test and analysis of Feffit's error
+    analysis was done by BB and DES and published [9].  The controversial
+    use of  
+       N_idp = (2 Delta_k Delta_R/ pi) +2
+    as described by EAS [10] and used in Feffit, has been relaxed in
+    Ifeffit to be   
+       N_idp = 2 Delta_k Delta_R/pi
+    without the '+2'.
+
+ 3  The routines for handling and encoding mathematical expressions were
+    originally written by MN but the extension of these routines by MN and
+    BR for the program PHIT inspired and influenced the way in which
+    Ifeffit works with arrays.
+
+Ifeffit uses the graphics package PGPLOT of T. J. Pearson.  Due to
+restrictive statements in the PGPLOT Copyright notice, PGPLOT is not
+incorporated directly into Ifeffit, but should be built as a separate
+library. PGPLOT is available for free for non-commercial use, and can be
+found at http://astro.caltech.edu/~tjp/pgplot/.  Because of these
+restrictions, it is possible to build Ifeffit without PGPLOT.
+
+Ifeffit uses routines from the MINPACK package of J. J. More et al, the
+FFTPACK package of P. N. Swarztrauber, and the PPPACK package of C. de
+Boor.  The original versions of these packages are freely available from
+the Netlib repository: http://www.netlib.org/.  Though the licensing status
+of these codes is somewhat unclear, they are in wide use and appear to have
+no restrictions on use or redistribution.  MN made some minor alterations
+to routines from these packages for use in Ifeffit.  All routines from
+these packages needed by Ifeffit are included in the Ifeffit distribution,
+with their original copyright notices.
+
+Ifeffit was developed almost exclusively on Linux machines using the GNU
+Emacs text editor and the GNU g77 compiler.  The documentation uses the TeX
+and LaTeX formatting system.  Many of the applications for Ifeffit were
+written in Python and Perl, and some in Tcl. The SWIG tool was used to aid
+in the creation of the interfaces to these scripting languages.  To
+simplify and improve the quality of development, the CVS and RCS version
+control systems have been used.  To simplify distribution and the build
+procedure, Ifeffit uses GNU Make, Autoconf, and Automake.  The availability
+and high quality of all of these free software packages were instrumental
+in the development of Ifeffit.
+
+Bibliography:
+
+[ 1]  J. W. Cook, Jr and D. E. Sayers, Journal of Applied Physics, 52,
+      p 5924 (1981).
+[ 2]  M. Newville, P. Livins, Y. Yacoby, J. J. Rehr, and E. A. Stern, 
+      Physical Review B 47, p 14126 (1993).
+[ 3]  J. Mustre de Leon, J. J. Rehr, and S. I. Zabinsky, 
+      Physical Review B 44, p 4146 (1991).
+[ 4]  S. I. Zabinsky, J. J. Rehr, A. Ankudinov, R. C. Albers, and
+      M. J. Eller,  Physical Review B 52, p 2995 (1995).
+[ 5]  M. Newville, B. Ravel, D. Haskel, J. J. Rehr, E. A. Stern, and
+      Y. Yacoby, Physica B 208&209, p 154 (1995).
+[ 6]  E. A. Stern, M. Newville, B. Ravel, Y. Yacoby, and D. Haskel,
+      Physica B 208&209, p 117 (1995).
+[ 7]  M. Newville, PhD Thesis, University of Washington (1995).
+[ 8]  A. Frenkel, E. A. Stern, A. Voronel, M. Qian, and M. Newville, 
+      Physical Review B 49, p 11662 (1994).
+[ 9]  M. Newville, B. Boyanov, D. E. Sayers, Journal of Synchrotron
+      Radiation 6, p 264 (1999).
+[10]  E. A. Stern, Physical Review B 48, p 9825 (1993).
+
+

@@ -1,0 +1,90 @@
+
+log(my_feffit.log) 
+
+macro plot_path 1 "color=black"
+ ff2chi($1,  group=p$1)
+ fftf(real = p$1.chi)
+ plot( p$1.r,  -p$1.chir_mag, $2)
+end macro
+
+macro plot_fit
+  newplot( data.r, data.chir_mag,xmin=0.,xmax=7)
+  ff2chi(1-6, group=fit) 
+  fftf(real =  fit.chi)
+  plot(fit.r, fit.chir_mag)
+  plot(fit.r, abs(data.chir_mag-fit.chir_mag),xmax=6)
+end macro
+
+
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+guess  s02   = 1.
+guess  e0    = 1.
+guess  e0_1  = 1.
+guess  ss2   = 0.002
+guess  ss2_2 = 0.002
+guess  ss2_3 = 0.001
+guess  ss2_4 = 0.001
+def    ss2_5 = ss2_4
+def    ss2_6 = ss2_4
+guess  dr    = 0.001
+guess  dr_2  = dr * ( 3.603  / 2.5478)
+def    dr_3  = dr * ( 3.822  / 2.5478)
+def    dr_4  = dr * ( 4.349  / 2.5478)
+def    dr_5  = dr * ( 4.413  / 2.5478)
+def    dr_6  = dr * ( 4.754  / 2.5478) 
+
+path(index  = 1, 
+     feff   = ../feff/feffcu01.dat, 
+     label  = "Cu metal first neighbor", 
+     s02    = s02, 
+     sigma2 = ss2,
+     delr   = dr, 
+     e0     = e0_1 )
+
+path(2,  ../feff/feffcu02.dat,     s02 = s02, e0 = e0, 
+     sigma2  = ss2_2,      delr=dr_2)
+
+path(3,  ../feff/feffcu03.dat,     s02 = s02, e0 = e0, 
+     sigma2  = ss2_3,      delr=dr_3)
+
+path(4,  ../feff/feff0004.dat,     s02 = s02, e0 = e0, 
+     sigma2  = ss2_4,      delr=dr_4)
+
+path(5,  ../feff/feff0005.dat,     s02 = s02, e0 = e0, 
+     sigma2  = ss2_5,      delr=dr_5)
+
+
+path(6,  ../feff/feff0006.dat, 
+     s02 = s02, e0 = e0, 
+     sigma2  = ss2_6, 
+     delr=dr_6)
+
+kmin = 2, kmax=17, kweight=2, dk1 = 3, dk2 = 3
+$kwindow = kaiser
+rmin = 1.6, rmax =4.2
+rmax_out = 8
+
+ff2chi(1-6, group=init) 
+
+
+fftf(real = data.chi)
+
+feffit(chi = data.chi, k=data.k,group = fit, 1-6 )
+
+show @variables, chi_square, r_factor
+
+fftf(real = init.chi)
+fftf(real =  fit.chi)
+
+# newplot(data.r, data.chir_mag, color = blue, style=solid, xmax = 6)
+# plot( fit.r,  fit.chir_mag, color = red, style = dashed)
+# plot_path "1"  "color=black"
+# plot_path "2"  "color=blue"
+# plot_path "4"  "color=blue"
+# plot_path "5"  "color=red"
+
+print 'fit took ', &fit_iteration, ' iterations'
+
+log(close)
+

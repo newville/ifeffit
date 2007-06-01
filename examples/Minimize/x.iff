@@ -1,0 +1,36 @@
+
+dat.x = range(0,100,0.5)
+
+random(npts=200, output=dat.noise, dist=normal,sigma=0.01)
+
+dat.gauss = 9*gauss(dat.x, 50, 5.5)
+
+
+newplot dat.x, dat.gauss, style=linespoints2
+
+plot dat.x, dat.noise
+
+dat.y = dat.gauss + dat.noise
+
+
+
+guess (e0 = 10, g1_sig = 0.4, g1_cen  = 40)
+
+fit.gauss  = (abs(e0)/g1_sig) * exp(-((dat.x -g1_cen)/g1_sig)^2/2)
+
+
+plot dat.x, fit.gauss
+
+
+fit.resid = fit.gauss - dat.y
+
+minimize(fit.resid)
+
+show @variables
+newplot dat.x, dat.y
+plot dat.x, fit.gauss
+
+spline(dat.x, dat.noise)
+u = e0 * 3.
+print u
+

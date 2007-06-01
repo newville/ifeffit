@@ -1,0 +1,12 @@
+Changes
+Ifeffit.pm
+MANIFEST
+Makefile.PL
+README
+a.xmu
+dot.ifeffit_macros
+dot.ifeffitrc
+ifeffit_shell.pl
+ifeffit_wrap.c
+test.pl
+test_a.pl

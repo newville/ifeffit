@@ -1,0 +1,14 @@
+%------------------------%
+   title = Cu XAFS data
+     out = exp.fpp       % output file name
+     xmu = cu_exp.xmu    % xmu data file name
+  isfeff = false         % is this a feff xmu.dat?
+   encol =    1          % energy column
+   mucol =    2          % mu(E)  column
+      iz =   29          % Z  of central atom
+      e0 =   8977.9700   % edge energy
+   egrid =      1.0000   % energy grid
+  ewidth =      1.5000   % for broadening CL
+    elow =    200.0000   % \ how far below and above
+   ehigh =    500.0000   % / the data range to go
+%------------------------%

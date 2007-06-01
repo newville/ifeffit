@@ -1,0 +1,844 @@
+%%#fixtex% for html/pdf   -*-latex-*-
+\section{Plotting with {\ifeffit}} \label{Ch:Plot}
+
+Graphical displays of data are essential to data analysis.  {\ifeffit} uses
+PGPLOT, a simple graphics library that is fairly well-supported and
+portable, and can be accessed from fortran, C, and a variety of scripting
+languages.  PGPLOT supports many graphics devices (terminals, graphics
+files, hardcopies), and works well on Unix, MacOS X using X Windows, and
+Windows systems.  Much of the information in this chapter is adapted from
+the PGPLOT documentation.  That documentation is aimed at the programmer
+and not the end user, but the concepts discussed are fairly simple.  If you
+have a question about {\ifeffit} graphics, you may wish to consult the
+PGPLOT documentation, which can be found at {\WWWpgplot}.
+
+
+Plotting in {\ifeffit} is encapsulated in the commands {\cmnd{plot}},
+{\cmnd{newplot}}, {\cmnd{cursor}}, {\cmnd{zoom}}, {\cmnd{color}},
+{\cmnd{plot\_text}}, {\cmnd{plot\_marker}}, and {\cmnd{plot\_arrow}}.
+These commands make respectable looking plots on screen and paper, and
+provide good flexibility for graphical data analysis.  These routines allow
+different colors and linestyles for each trace on the plot, They allow
+other symbols, text strings, and arrows anywhere on the plot window, and
+allow a 'legend' of plotted trace to be easily and automatically built.
+They also allow you to use the cursor to get x-y positions of particular
+points on the plot window and to zoom in on particular areas of the plot
+window.
+
+The hardcopies made by PGPLOT are of reasonable quality, but may not
+satisfy your criteria of publication quality.  Since there are many
+programs designed especially for these purposes, and since {\ifeffit} is
+intended to be an XAFS analysis program, not a high-quality graphics
+program or a data visualization tool, the quality of the resulting graphics
+seems acceptable.
+
+
+The {\cmnd{plot}} command is the main plotting command in {\ifeffit},
+making a two-dimensional line-plot or scatter-plot given x and y arrays.
+There are many optional arguments, most of which will be discussed in this
+chapter. A complete list is given in section~{\ref{Ch:Command:plot}}.  The
+{\cmnd{newplot}} command is a minor variation on {\cmnd{plot}}, that will
+always erase the current plot before plotting.  The rest of this chapter
+will discuss the details of the various plotting options available in
+{\ifeffit}.
+
+\subsection{Specifying Data for Plotting} \label{Ch:Plot-xy}
+{\index{{plotting!data}}}
+{\index{{plotting!expressions}}}
+
+The {\cmnd{plot}} command plots arrays of data.  Typically, you you will
+specify array names for both the x- and y-arrays, as in
+\begin{verbatim}
+  Ifeffit> plot(x= my.x, y= my.y)
+\end{verbatim}
+\noindent
+Of course there are many other optional keywords you can give to
+{\cmnd{plot}}, but here we're just focusing on the {\tt{x}} and {\tt{y}}
+arguments because they are the most important.  As you use {\ifeffit},
+you'll find that a simple {\cmnd{plot}} command such as the one above gets
+used a lot.  Because of this, even this simple {\cmnd{plot}} command can be
+made easier, more flexible, and more powerful, as will be discussed here.
+
+First, the {\cmnd{plot}} command uses the concept of positional keywords,
+so that you can drop the {\tt{x=}} and {\tt{y=}}, and just use
+\begin{verbatim}
+  Ifeffit> plot(my.x,my.y)
+\end{verbatim}
+\noindent
+that is, the first argument in the list (i.e., everything between '(' and
+the the first comma) without an explicit keyword is assumed to be the value
+for {\tt{x}}, and the second argument without a keyword is assumed to be
+the value for {\tt{y}}.  Since a command that fits on a single line can
+drop the parentheses, this can become
+\begin{verbatim}
+  Ifeffit> plot my.x, my.y
+\end{verbatim}
+\noindent
+
+Much, or perhaps most, of the data you'll want to plot will be in a single
+group.  If the {\tt{x}} and {\tt{y}} arrays you intend to plot are in the
+same group, you can specify the group once, and only give the suffixes of
+the array names:
+\begin{verbatim}
+  Ifeffit> plot x, y, group=my
+\end{verbatim}
+\noindent
+In fact, if the string variable {\tt{\$group}} is set to the group you want
+(and it often is set to the ``current group'' after most data processing
+commands, and the {\cmnd{plot}} command itself), this group name will be
+used by default:
+\begin{verbatim}
+  Ifeffit> $group = my
+  Ifeffit> plot x, y
+  Ifeffit> plot x, z
+\end{verbatim}
+\noindent % $
+which greatly simplifies the task of over-plotting data from the same group.
+
+Since there are two {\cmnd{plot}} commands in the above example, this is a
+good time to discuss when the plot window gets cleared for a fresh plot.
+Normally, the {\cmnd{plot}} command adds the specified trace to the
+existing plot: over-plotting is the normal behavior.  To clear the plot, you
+can use
+\begin{verbatim}
+  Ifeffit> newplot (my.x, my.z)
+\end{verbatim}
+\noindent
+which will erase the previous plot and start over.  You can simply send an
+empty {\cmnd{newplot}} command and subsequent {\cmnd{plot}} commands will
+add to this refreshed plot window.
+
+In many cases, you'll want to plot more than one {\tt{y}} array as a
+function of the same {\tt{x}} array. This leads to a slight variation on
+the rule for positional keywords.  I said above that the first argument
+without a keyword is taken for {\tt{x}} and the second for {\tt{y}}, but
+the full truth is a little more complicated.  If exactly one argument has
+no keyword, and there is no explicitly set {\tt{y=\ldots}} argument, then
+the argument without a keyword is actually taken as the {\emph\tt{y}}
+array. In this case, the {\tt{x}} array is the {\emph{previous}} {\tt{x}}
+array.  That is, after
+\begin{verbatim}
+  Ifeffit> newplot (my.energy, my.xmu)
+\end{verbatim}
+\noindent
+these two commands will produce the same effect:
+\begin{verbatim}
+  Ifeffit> plot my.energy, my.bkg
+  Ifeffit> plot bkg
+\end{verbatim}
+\noindent
+If you give only one array for the first trace to plot, a simple index
+array (i.e, 1,2,3,4,\ldots) will be used for {\tt{x}}, so that
+\begin{verbatim}
+  Ifeffit> newplot my.energy
+\end{verbatim}
+\noindent
+would be equivalent to
+\begin{verbatim}
+  Ifeffit> my.tmpx = indarr( npts(my.energy))
+  Ifeffit> newplot my.tmpx, my.energy
+\end{verbatim}
+\noindent
+
+That covers how to make the {\cmnd{plot}} command simpler, now let's look
+at how to make it more complicated.  As the last example hints at,
+sometimes it's desirable to plot arrays that do not yet exist as named
+arrays in {\ifeffit}.  For example, to view $\chi(E) = \mu(E) - \mu_0(E)$
+after a background subtraction from {\cmnd{spline}}, you might say
+\begin{verbatim}
+  Ifeffit> cu.chie = cu.xmu - cu.bkg
+  Ifeffit> plot(x= cu.energy, y= cu.chie)
+\end{verbatim}
+\noindent
+or use one of the simplified forms discussed above.  But if you only want
+to view $\chi(E)$, not do any processing with it, it seems unnecessary to
+create it.  So, in fact you can pass a simple expression as the {\tt{y}}
+(or {\tt{x}}) argument to {\cmnd{plot}}:
+\begin{verbatim}
+  Ifeffit> plot(x= cu.energy, y=cu.xmu-cu.bkg)
+\end{verbatim}
+\noindent
+In fact, the expression can include any of the data and any of the
+functions described in section~\ref{Ch:Structure-math}.  This provides a
+flexible way to plot a variety of functions, but there are some caveats to
+using expressions instead of existing arrays.  First, to be sure the
+expression is parsed correctly, you should put it in quotes:
+\begin{verbatim}
+  Ifeffit> plot(cu.energy, y="(cu.xmu - cu.bkg)*(cu.energy-e0)")
+\end{verbatim}
+\noindent
+This is especially true if the value in the keyword/value pair contains
+spaces: use quotes or you're likely to get several warnings and weird
+results.  Also, when using an expression instead of an existing array, you
+should not rely on {\tt{x}} and {\tt{y}} being default positional keywords,
+and explicitly use the {\tt{y=}} as shown above.
+
+\subsection{Error Bars} \label{Ch:Plot-errbars}
+{\index{{plotting!error bars}}}
+
+If you have experimental data for which you have estimates of the
+uncertainties in the data, it is often useful to display these
+uncertainties using error bars.  This can be done using the keywords
+{\tt{dy}} and {\tt{dx}} which name arrays for the point-by-point
+uncertainties in the {\tt{y}} and {\tt{x}} arrays, respectively.  That is,
+if {\tt{dat.sigma}} is an array of uncertainties in {\tt{dat.y}},
+\begin{verbatim}
+  Ifeffit> plot(dat.x, y=dat.y, dy=dat.sigma)
+\end{verbatim}
+\noindent
+will add vertical error bars extending from {\tt{dat.y}}-{\tt{dat.sigma}} to
+{\tt{dat.y}}+{\tt{dat.sigma}}.
+
+
+Similarly, though it somewhat less usual for EXAFS data, if you have an
+estimate for the uncertainties in the ordinate array, these can be
+displayed using
+\begin{verbatim}
+  Ifeffit> plot(dat.x, y=dat.y, dx=dat.delx)
+\end{verbatim}
+\noindent
+will add horizontal error bars extending from {\tt{dat.x}}-{\tt{dat.delx}}
+to {\tt{dat.x}}+{\tt{dat.delx}}.
+
+Though we'll discuss how to select plot colors and line styles in the next
+section, the error-bar plots generated with these {\cmnd{plot}} commands
+will use a single color and style for the main trace and error bars.  If
+you'd like to see the error bars alone, or have thee error bars in a
+different color from the main trace, the you should use
+{\tt{style=points1}} when plotting the error bars:
+\begin{verbatim}
+  Ifeffit> plot(dat.x, y=dat.y, color=red)
+  Ifeffit> plot(dat.x, y=dat.y, dy=dat.sigma,
+                   color=black, style=points1)
+\end{verbatim}
+\noindent
+
+\subsection{Colors, Line Styles, and Other Attributes}\label{Ch:Plot-Color}
+
+{\ifeffit} allows different colors for each trace as well as the
+background, the foreground (text strings and the box around the plot), and
+the optionally displayed grid.  It also supports different styles of lines
+(solid, dashed, points, etc.) to be used for different x-y pairs.  This
+section will explain how to use these options in detail.
+
+There are a few different ways to specify colors for x-y traces,
+background, foreground, and optional grid.  First and most simply, you can
+specify the color for each object directly by name:
+\begin{verbatim}
+  Ifeffit> plot(my.x,my.y, color=red, bg=white)
+\end{verbatim}
+\noindent
+which will draw the x-y trace in red on a white background.  This is
+probably the easiest way to get the colors you want.  The available set of
+named colors is determined when the PGPLOT routines are installed, and are
+listed in the file {\file{rgb.txt}} in the PGPLOT directory.  This file is
+usually very close to the standard X-Windows set of colors, so you can
+specify {\texttt{dodgerblue3}} and {\texttt{bisque}}, but not
+{\texttt{teal}}.  For other colors, you can specify the red-green-blue
+intensities in hexadecimal format, using the somewhat standard `\#RRGGBB'
+format:
+\begin{verbatim}
+  Ifeffit> plot(my.x,my.y,color='#FF00FF')
+\end{verbatim}
+\noindent
+will be magenta, for example.
+{\index{{plotting!color}}}
+
+
+{\index{{plotting!color table}}} If colors are not specified in the
+{\cmnd{plot}} command, the default values used will be taken from an
+internal ``color table''. The color table lists the colors used for
+background, foreground, grid, and then the traces in order that they are
+drawn, and can be displayed with either {\texttt{color(show)}} or
+{\texttt{show @colors}}.  A typical output would look like this:
+\begin{alltt}
+  Ifeffit> show @colors
+  plot color table:
+     bg   = white
+     fg   = black
+     grid = #CCBEE0
+        1 = blue
+        2 = red
+        3 = darkgreen
+        4 = black
+   \vdots
+\end{alltt}
+\noindent
+which means the first trace drawn would be in blue, the second in red, and
+so on.   You can change the values in the color table using the
+{\cmnd{color}} command, like this:
+\begin{verbatim}
+  Ifeffit> color(fg = black, bg = white, grid = '\#AABB99')
+  Ifeffit> color(1 = yellow, 2 = cyan)
+  Ifeffit> color(3 = white, 4 = magenta)
+\end{verbatim}
+\noindent
+which will reset the default colors to plot with.  Such commands may be
+placed in a start-up file {\file{.ifeffit}}.  For postscript output
+intended for a printer please note that a black background will use a lot
+of ink --  a white background is recommended for hardcopies.
+
+There are a few different line styles available as values for the
+{\texttt{style}} keyword.  The supported line styles are given in
+Table~\ref{Table:plot_style} with examples shown in
+Figure~\ref{Fig:PlotStyles}.  There is a fair selection of points available
+for the {\tt{points}} and {\tt{linespoints}} styles, which are specified by
+integer with {\texttt{points1}}, {\texttt{points2}},
+{\texttt{linespoints12}}, etc, with examples of the available point types
+shown in Figure~\ref{Fig:PlotPoints}.  {\index{plotting!line style}}
+{\indexcmd{linestyle}}
+
+{\indexcmd{color}}
+\begin{table}[t]
+  \begin{center}
+  \caption[a]{Supported Plotting line styles for the  {\cmnd{plot}} command.
+    These can be specified with {\tt{plot(..., style=lines)}} and so
+    forth. The available point types are show in
+    Figure~\ref{Fig:PlotPoints}.  }
+  {\label{Table:plot_style}}
+    \begin{tabular}{ll}
+      \noalign{\smallskip}
+      Line Style & Description   \\
+      \noalign{\smallskip}    \hline    \noalign{\smallskip}
+       solid       & solid line \\
+       dashed      & dashed line\\
+       dotted      & dotted line\\
+       dot-dash    & mixed dot-dashed line\\
+       points      & a special marker at each point
+                       (see Figure~\ref{Fig:PlotPoints}) \\
+       linespoints & solid line with a special markerd at each point\\
+      \noalign{\smallskip}    \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+
+
+%%#GraphicsFile%    plot_styles   PlotStyles
+%   A selection of plotting line and points styles
+%   for {\ifeffit}.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/plot_styles.ps}
+  \caption{ A selection of plotting line and points styles
+ for {\ifeffit}.}\label{Fig:PlotStyles}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+
+
+%%#GraphicsFile%    plot_points   PlotPoints
+% The plotting point types for {\ifeffit}, as produced with
+% syntax such as {\tt{style=points3}}, and so forth.  The linespoints
+% types such as {\tt{style=linespoints3}} will show the same point type,
+% joined with a solid line.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/plot_points.ps}
+  \caption{ The plotting point types for {\ifeffit}, as produced with
+ syntax such as {\tt{style=points3}}, and so forth.  The linespoints
+ types such as {\tt{style=linespoints3}} will show the same point type,
+ joined with a solid line.}\label{Fig:PlotPoints}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+The width of the lines for all traces and axes can be set with the
+{\texttt{linewidth}} keyword, which takes an integer value.  Values between
+1 to 5 are appropriate, and the default is 2.
+{\index{{plotting!linewidth}}
+
+
+\subsection{Text Strings and Labels} \label{Ch:Plot-Text}
+{\index{{plotting!text strings}}}
+
+Text strings can be put on a plot to labels axes, give a title, as a legend
+for each trace, and to put text at user-specified coordinates.  There is
+some control over the character size and font used, and there is a
+primitive syntax for non-standard characters that allows Greek letters, the
+{\AA}ngstrom symbol, subscripts, and superscripts.  Like many aspects of
+PGPLOT, the possibilities are limited, but include a reasonable set of
+functionality needed for most applications.  The full list of {\cmnd{plot}}
+keywords affecting the placement of text strings on the plot window are
+given in Table~\ref{Table:plot_strings}.  In addition to the {\cmnd{plot}}
+command, the {\cmnd{plot\_text}} command can be used to put text strings at
+selected x-y coordinates.
+
+
+\begin{table}[tb]
+\begin{center}
+\caption[a]{Arguments for the  {\cmnd{plot}} command  for putting text
+  strings on the plot window.}
+{\label{Table:plot_strings}}
+  \begin{tabular}{ll}
+    \noalign{\smallskip}
+    Keyword & Meaning   \\
+      \noalign{\smallskip}    \hline    \noalign{\smallskip}
+     {\tt{{xlabel}}}     & the label of the x-axis \\
+     {\tt{{ylabel}}}     & the label of the y-axis \\
+     {\tt{{title}}}      & plot title along top \\
+     {\tt{{key}}}        & keyword describing each trace for legend\\
+     {\tt{{charfont}}}   & integer to select font for text \\
+     {\tt{{charsize}}}   & character size for all characters and markers \\
+     {\tt{{labelsize}}}  & character size of axis labels and numbers \\
+     {\tt{{textsize}}}   & character size of text strings and legend keys \\
+     {\tt{{markersize}}} & size of plotting point markers \\
+     {\tt{{text}}}       & text string for a general plot label\\
+     {\tt{{text\_x}}}    & x-coordinate for this text string \\
+     {\tt{{text\_y}}}    & y-coordinate for this text string \\
+    \noalign{\smallskip}   \hline
+  \end{tabular}
+\end{center}
+\end{table}
+\noindent
+
+The keywords \texttt{xlabel} and \texttt{ylabel} set the labels for the
+x-axis and y-axis, respectively, while \texttt{title} will set the title
+above the drawing box.  Each x-y trace can have a legend that will appear
+along the right side of the plot, with a short version of the plot line
+style and a ``legend key'' -- a short text string that you can set with
+{\index{{plotting!legend}}} the {\tt{key}} keyword, as in
+\begin{verbatim}
+  Ifeffit> plot(dat.r,dat.chir_mag, color=red, key='data')
+  Ifeffit> plot(fit.r,fit.chir_mag, color=red, key='fit')
+\end{verbatim}
+\noindent
+
+Text strings can also be put anywhere on the plot using either the
+\texttt{text} keyword, which will put a label at a coordinates specified by
+the keywords \texttt{text\_x} and \texttt{text\_y} or by the
+{\cmnd{plot\_text}} command.\footnote{These two variations of
+  {\texttt{plot(text='300 K Data', text\_x=7025, text\_y=0.2)}} and
+  {\texttt{plot\_text(x=7025,y=0.2,text='300 K Data')}} really are
+  equivalent and can be mixed.}}
+
+You can put on multiple labels (up to 32) on a plot, but once on they can
+only be erased by making a new plot, which will erase all the labels.
+\begin{verbatim}
+  Ifeffit> plot( text='300 K Data', text_x=7025, text_y=0.2)
+\end{verbatim}
+\noindent
+or
+\begin{verbatim}
+  Ifeffit> plot_text(x=7025,y=0.3, text='400 K Data')
+  Ifeffit> plot_text( 7025,   0.5,  '500 K Data')
+\end{verbatim}
+\noindent
+As you can see, the advantage of the {\cmnd{plot\_text}} variation is that
+it has default positional keywords for {\tt{x}}, {\tt{y}}, and {\tt{text}}
+which greatly simplifies the syntax. Such labels are often useful when
+coupled with arrows, discussed in section~\ref{Ch:Plot-Markers}.
+
+{\index{{plotting!character sizes}}}
+The sizes of the various text strings and plot markers can each be set
+separately.  The text size for the axis, x- and y-labels, and title can be
+set with the keyword {\tt{labelsize}}.  The text size for legend keys and
+explicitly-placed text strings are set with the keyword {\tt{textsize}}.
+The size of the point markers for point and linespoints line styles are set
+with the {\tt{markersize}} keyword.  The keyword {\tt{charsize}} will set
+all of the sizes to the same value.  The value taken is a real number, with
+appropriate values usually in the range of 1.0 to 3.0.  To completely
+suppress the axis text, you might be tempted to set {\tt{labelsize}} to
+zero.  This can cause odd results, so using a very small value such as
+\begin{verbatim}
+  Ifeffit> plot(dat.x, dat.y, labelsize=0.0001)
+\end{verbatim}
+\noindent
+will effectively suppress the axes from being drawn.
+
+The syntax of the text strings themselves is almost straightforward.  The
+PGPLOT documentation gives a more complete description, but I'll outline
+the main points here.  Most text is displayed as typed, of course.  You can
+also use ``control sequences'' to control formatting and special
+characters.
+
+{\index{{plotting!fonts}}}
+PGPLOT uses Hershey (vector) fonts which are easy to render when rotated
+but look slightly less than ideal.  You can specify one of four fonts as
+the default font with the {\texttt{charfont}} keyword, which takes an
+integer 1--4 as its value.  {\texttt{Charfont =1}} is the normal typeface
+-- a sans serif font.  {\texttt{Charfont = 2}} gives a roman font,
+{\texttt{Charfont = 3}} gives an italic font, and {\texttt{Charfont = 4}}
+gives a script font which is pretty difficult to read.  You
+can mix these fonts in a text string with the an escape sequence.
+\begin{alltt}
+ \(\backslash\)fn The Sans Serif Font   \(\backslash\)fi The Italic Font
+ \(\backslash\)fr The Roman Font    \(\backslash\)fs The Script Font
+\end{alltt}
+which will render fonts as shown in Figure~\ref{Fig:PlotFonts}.
+
+%%#GraphicsFile%    plot_fonts   PlotFonts
+%  Sample of plotting text strings, fonts, and special characters
+%   for {\ifeffit}
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/plot_fonts.ps}
+  \caption{ Sample of plotting text strings, fonts, and special characters
+ for {\ifeffit}}\label{Fig:PlotFonts}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+To get Greek characters, escape sequences starting with
+${\mathtt{\backslash}{g}}$ are used: ${\mathtt{\backslash}{gm}}$ give
+$\mu$, for example.  Subscripts are done with ${\mathtt{\backslash}d}$ and
+superscripts with ${\mathtt{\backslash}u}$.  There are no sub-subscripts,
+super-superscripts, sub-superscripts, etc.  The {\AA}ngstrom symbol is
+${\mathtt{\backslash}A}$.  Examples of these, and some string sequences to
+get common symbols for XAFS analysis are shown in
+Figure~\ref{Fig:PlotFonts}, and are provided in the examples distributed
+with {\ifeffit}.
+
+\subsection{Markers and  Arrows} \label{Ch:Plot-Markers}
+
+The plot points as shown in Figure~\ref{Fig:PlotPoints} can be put at any
+location on the plot window as {\emph{markers}}.  This is done with the
+o{\cmnd{plot\_marker}} command
+\begin{verbatim}
+  Ifeffit> plot_marker(x=7000,y=4,marker=1)
+  Ifeffit> plot_marker(7000,2,3)
+\end{verbatim}
+\noindent
+where the value of {\tt{marker}} gives the integer from
+Figure~\ref{Fig:PlotPoints} for the symbol to use.  Like the
+{\cmnd{plot\_text}} command, this command can use default positional
+keywords for {\tt{x}}, {\tt{y}}, and {\tt{marker}}, greatly simplifying the
+syntax.  {\index{{plotting!markers}}}
+
+
+{\index{{plotting!arrows}}}
+
+Arrows and lines can be put anywhere on the plot window, pointing to some
+spectral feature of the plotted data.  This is done with the
+{\cmnd{plot\_arrow}} command, which takes beginning and end points, and
+parameters describing how draw the arrow head (including whether to have no
+arrow head at all).  An arrow can be placed like this:
+\begin{verbatim}
+  Ifeffit> plot_arrow(x1=7000,y1=4, x2=7050,y2=3)
+\end{verbatim}
+\noindent
+More complex control over the shape of the arrowhead can be obtained with
+the keywords {\tt{size}}, {\tt{angle}}, and {\tt{barb}}.  The {\tt{size}}
+keyword alters the size of the arrowhead, while {\tt{angle}} gives the
+angle subtended by the point in degrees.  The {\tt{barb}} keyword controls
+the shape and concavity of the arrowhead. Examples, with reasonable values
+for the {\tt{size}} and {\tt{barb}} parameters include
+\begin{verbatim}
+ Ifeffit> plot_arrow(x1=10, y1= 4, x2=25, y2=4,  barb=2)
+ Ifeffit> plot_arrow(x1=65, y1= 4, x2=90, y2=4,  barb=0,outline=1)
+ Ifeffit> plot_arrow(x1=65, y1= 0, x2=90, y2=0,  angle=100,barb=0)
+ Ifeffit> plot_arrow(x1=65, y1=-4, x2=90, y2=-4, size=5)
+ Ifeffit> plot_arrow(x1=30, y1= 8, x2=90, y2=8,  no_head=1)
+\end{verbatim}
+\noindent
+The result of these and other {\cmnd{plot\_arrow}} commands are shown in
+Figure~\ref{Fig:PlotArrows}.  The arrowhead can be made hollow by setting
+{\tt{outline=1}}.  To get a line between points (x1,y1) and (x2,y2), the
+{\cmnd{plot\_arrow}} command is used with {\tt{no\_head=1}},
+which completely suppresses the arrowhead.
+
+%%#GraphicsFile%    plot_arrows   PlotArrows
+%   A selection of examples of plotting arrow parameters
+%   for {\ifeffit}.
+\begin{figure}[tb] \begin{center}
+  \includegraphics[width=2.75in,angle=-90]{figs/plot_arrows.ps}
+  \caption{ A selection of examples of plotting arrow parameters
+ for {\ifeffit}.}\label{Fig:PlotArrows}
+\end{center} \end{figure}
+%%#EndGraphics%
+
+\subsection{Cursor and Zooming} \label{Ch:Plot-cursor}
+{\index{{plotting!cursor}}}
+{\index{{plotting!cursor!cursor position}}}
+{\index{{plotting!zooming}}}
+
+For interactive data analysis, it is often desirable to get the x-y
+coordinates of some particular point on a plot, or to zoom in on a
+particular region of the plot window.  The {\cmnd{cursor}} command allows
+you get the coordinates of a point on the plot window by clicking on it
+with the mouse.  The x- and y-coordinates are then stored in the {\ifeffit}
+variables {\tt{cursor\_x}} and {\tt{cursor\_y}}.  These values can be
+written to the screen immediately by using the {\tt{show}} keyword:
+\begin{verbatim}
+  Ifeffit> cursor(show)
+\end{verbatim}
+\noindent
+This will wait for you to click on the plot window, then print out
+the result in the form
+\begin{verbatim}
+   cursor: x =     7.78890    , y =    0.963039
+\end{verbatim}
+\noindent
+It is important to remember that the {\cmnd{cursor}} command blocks all
+other processing until you click on the plot window.  For one thing, this
+means that putting {\cmnd{cursor}} in a macro should be done with caution.
+
+By default, {\cmnd{cursor}} will show a small cross at the cursor point,
+but it is possible to change the look of the cross-hair shown while
+selecting the cursor point.  For example,
+\begin{verbatim}
+  Ifeffit> cursor(crosshair)
+\end{verbatim}
+\noindent
+will show a moving crosshair that extends the full height and width of the
+plot window.  There are a few other variations on the look of the cursor
+when selecting points.  For example, {\tt{cursor(vert)}} will show just a
+vertical line that spans the entire length of the plot window, and follows
+the cursor as you move the mouse.  Similarly, {\tt{cursor(horiz)}} will
+show a horizontal line that extends over the entire plot window and moves
+with the cursor position.
+
+{\index{{plotting!cursor!selecting x range}}}
+{\index{{plotting!cursor!selecting y range}}}
+For selecting x-ranges (say, for choosing an energy range for the pre-edge
+region), it is often useful to see the previously chosen cursor position as
+you select the next one.  This can be accomplished with
+{\tt{cursor(xrange)}} which will show a stationary vertical line at the
+previously selected cursor point (or, if you explicitly set
+{\tt{cursor\_x}} yourself, that value will be used) and also show a
+vertical line that moves with the mouse.  Similarly, for selecting a
+y-range, {\tt{cursor(yrange)}} will draw a stationary horizontal line at
+the value set by {\tt{cursor\_y}} as well as a horizontal line that moves
+with the mouse.
+
+The {\cmnd{zoom}} command will allow you to select a region on the current
+plot window to ``zoom in'' on.  This will first show the full-length
+cross-hair, as from {\tt{cursor(crosshair)}}, until the mouse is clicked,
+then show a box with one corner at the first selected point and the
+opposite corner that follows the cursor until the mouse is clicked again.
+At that point, the window will be zoomed to this selected box.  Using
+{\tt{zoom(nobox)}} will suppress the drawing of the cross-hair and ``zoom
+box'', showing only the normal cursor plus sign.
+
+You can get the resulting x- and y-coordinates of corners of the selected
+zoom box by using {\tt{zoom(show)}}.  This will print out two lines of the
+form
+\begin{verbatim}
+   cursor: x =     1.03020    , y =    0.001020
+   cursor: x =     4.30290    , y =    0.963039
+\end{verbatim}
+\noindent
+that will contain the limits of the zoomed plot window.
+
+
+IMPORTANT NOTE: On Windows systems these variations on the cursor lines and
+``zoom box'' are not working.  This is under investigation.
+
+
+
+\subsection{Graphics Devices} \label{Ch:Plot-devices}
+{\index{{plotting!devices}}}
+
+PGPLOT, and therefore {\ifeffit}, uses the concept of a plotting
+{\emph{device}} to distinguish different output forms.  Depending on how
+PGPLOT was installed, there can be several different devices, including
+output to the screen (possibly using different screen plotting libraries)
+and graphic image files suitable for making hardcopies or including in
+other documents.  The list of devices typically available is given in
+Table~{\ref{Table:plot_devs}}.  To see the available devices for any
+installation of {\ifeffit}, you can inspect the string
+{\tt{\$plot\_devices}}, which will contain a simple space-delimited string
+of device names as given in Table~{\ref{Table:plot_devs}}.
+\begin{verbatim}
+  Ifeffit> print $plot_devices
+   /gif /vgif /png /tpng /null /ps /vps /cps /vcps /xwindow /xserve
+\end{verbatim}
+\noindent % $
+The currently selected device is contained in {\tt{\$plot\_device}}.  For
+each platform, at least one interactive plotting screen device is
+available.  Normally one of these is the default plotting device, so that
+plots are 'live' and interactive.  The following sections describe several
+of the plotting devices in details and how to customize the settings for
+them.
+
+\begin{table}[t]
+  \begin{center}
+  \caption[a]{Typical PGPLOT device labels and their meaning.
+    Note that several of these are restricted to a single platform,
+    and that other plotting devices may be available on some platforms.}
+  {\label{Table:plot_devs}}
+    \begin{tabular}{lll}
+      \noalign{\smallskip}
+      Device Name & Platforms & Description   \\
+      \noalign{\smallskip}    \hline    \noalign{\smallskip}
+       /null     & all    &  none -- no plot will be drawn\\
+       /ps       & all    &  black-and-white Postscript file, portrait mode\\
+       /vps      & all    &  black-and-white Postscript file, landscape mode\\
+       /cps      & all    &  color Postscript file, portrait mode\\
+       /vcps     & all    &  color Postscript file, landscape mode\\
+       /gif      & many   &  GIF file, portrait mode\\
+       /vgif     & many   &  GIF file, landscape mode\\
+       /png      & many   &  PNG file\\
+       /tpng     & many   &  PNG file with a transparent background\\
+       /xwindow  & Unix/X &  X-window screen\\
+       /xserve   & Unix/X &  X-window screen, persistent plot frame\\
+       /gw       & Win32  &  GrWin graphics screen\\
+       /aqt      & Mac OS X  &  Mac Aquaterm (non-X) screen\\
+      \noalign{\smallskip}    \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+
+\subsubsection{X-Windows Graphics} \label{Ch:Plot-X}
+{\index{{plotting!X windows}}}
+
+For Unix (including Mac OS X), the X Windows library is well supported by
+PGPLOT and {\ifeffit}.  To use {\ifeffit} on an Unix/X window system,
+you'll need to set two environmental variables.  First, the variable
+PGPLOT\_DIR gives the directory location of the PGPLOT library (probably
+/usr/local/pgplot/).  Second, the variable PGPLOT\_DEV sets the default
+plotting device.  To draw to the X window, this should be set to either
+`/XSERVE' or '/XWINDOW'.  In c-shell and derivatives, this would be done
+like this (possibly put in the {\file{.cshrc}} file):
+\begin{verbatim}
+# csh syntax
+setenv PGPLOT_DIR /usr/local/pgplot/
+setenv PGPLOT_DEV /XSERVE
+\end{verbatim}
+\noindent
+In bash and ksh shells, this would look like this (possibly in the
+{\file{.profile}} file):
+\begin{verbatim}
+# bash syntax
+ PGPLOT_DIR /usr/local/pgplot/
+ PGPLOT_DEV /XSERVE
+ export PGPLOT_DIR
+ export PGPLOT_DEV
+\end{verbatim}
+
+The '/XWINDOW' and '/XSERVE' devices look identical, but there is one
+important difference between them.  The '/XWINDOW' plot window will
+disappear when you leave {\ifeffit}, while the '/XSERVE' plot window will
+remain plotted until explicitly killed by your window manager (say, by
+clicking the little X button).  If after leaving {\ifeffit} you start
+another {\ifeffit} session (possibly on a different machine) that same plot
+window will be used, though two concurrent {\ifeffit} sessions will not use
+the same window.
+
+In addition to the choice of X window type, there are a few other X-window
+settings for PGPLOT that you may way to customize in your
+{\file{.Xdefaults}} or {\file{.Xresources}} file.  The two most important
+settings are:
+\begin{verbatim}
+  pgxwin.server.visible:  false
+  pgxwin.Win.geometry:    610x377
+\end{verbatim}
+\noindent
+The first of these suppresses a little X-server window that pops up.  The
+second sets the initial window geometry in pixels. Of course, you can
+resize it, but this will set it to a decent size to begin with.  Finally,
+the X-Windows device has a tendency to use up the X color map, which causes
+color flashing, especially on machines with older video cards, and
+especially when other color-intensive programs are running.  If this
+happens, try limiting the number of colors that PGPLOT can set aside:
+\begin{verbatim}
+  pgxwin.Win.maxColors:   64
+\end{verbatim}
+\noindent
+did the trick on my old laptop.
+
+\subsubsection{GrWin Graphics for Win32 systems} \label{Ch:Plot-Win32}
+{\index{{plotting!MS Windows}}}
+For Win32 users (that is, Microsoft Windows NT 4.0, 95, 98, 2000, ME,
+and whatever else they come up with), the GrWin graphics used by
+{\ifeffit} are fairly straightforward to use.  Cut and Paste to the
+Windows clipboard works, so importing graphics into documents is easy.
+
+For most users, the GrWin graphics are set-up when the icons to run the
+command-line program {\tt{ifeffit.exe}} or one of the GUIs.  In general,
+using the GrWin graphics requires setting the environmental variable
+PGPLOT\_DEV to /GW and the environmental variables PGPLOT\_DIR and
+IFEFFIT\_DIR to point to the directory of the {\ifeffit} installation, and
+add this directory to the system PATH.  These setting can be done through
+the ``normal setting of environmental variables'': autoexec.bat for older
+versions of Windows, and through the Control Panel or system registry for
+Windows NT and later.
+
+Alternatively, These settings can be encapsulated into a batch file which
+runs the {\ifeffit} executable program itself.  The Windows distribution of
+{\ifeffit} includes such batch files.  At this writing, the Windows version
+of {\ifeffit} supports the GrWin, Postscript, and GIF devices.
+
+\subsubsection{Aquaterm Graphics for Mac OS X} \label{Ch:Plot-aqt}
+{\index{{plotting!Aquaterm for Mac OS X}}}
+
+On Mac OS X, {\ifeffit} can be built with X Windows graphics, in which case
+everything in section~\ref{Ch:Plot-X} applies.  But for Mac OS X users who
+wish to run {\ifeffit} without X Windows, there is an alternative to plot
+directly to the Aquaterm.  This PGPLOT device is still under active
+development, and though I have seen this work, I have not myself built or
+used this plotting device.  I expect that this will become a fairly
+standard option, \ldots.
+
+
+\subsubsection{PostScript, GIF and PNG Graphics Files} \label{Ch:Plot-PS}
+{\index{{plotting!PostScript output}}}
+
+The plots generated by {\ifeffit} can be saved to Postscript, GIF, and PNG
+files, though these may not all be available on all platforms.  The
+creation of hardcopy as described in this section is an ideal job for
+{\ifeffit} macros, as discussed in chapter~\ref{Ch:Macros}.  You'll
+probably want to play with the 'hardcopy generation' macros once and then
+use them extensively without looking at them.  As with many aspects of
+PGPLOT, the quality is not the highest (notably, vector fonts are used,
+even in the PostScript output), but the results are passable enough for
+many situations.
+
+To save a plot image to a file, you need to supply a file name and the type
+of output device.  Thuse, to save a black-and-white PostScript version of the
+current plot to the file {\file{ifeffit.ps}}, you would type:
+\begin{verbatim}
+  Ifeffit> plot(device="/ps",file= "ifeffit.ps")
+\end{verbatim}
+\noindent
+The plot device is automatically reset to the default interactive window
+after saving the file.  Other devices listed in
+Table~{\ref{Table:plot_devs}} will produce different forms of output.
+
+It must be noted that the images generated will preserve the background and
+foreground color, even for black-and-white output.  This means that if
+you're plotting on a screen with a black background and a white foreground
+(ie, white text), then the output image file will use a lot of ink when you
+print it out.  You almost certainly want to redraw plots with black
+foreground and white background for printing:
+\begin{verbatim}
+  Ifeffit> plot(device="/vps",file= "ifeffit.ps",
+                bg=white,fg=black)
+\end{verbatim}
+\noindent
+
+The size of the output postscript file is set (in units of 0.001" = 25
+$\rm{\mu}m$) with the environmental variables PGPLOT\_PS\_HEIGHT and
+PGPLOT\_PS\_WIDTH:
+\begin{verbatim}
+# bash syntax: set PGPLOT PostScript size
+  PGPLOT_PS_HEIGHT  6000
+  PGPLOT_PS_WIDTH   4000
+  export PGPLOT_PS_HEIGHT
+  export PGPLOT_PS_WIDTH
+\end{verbatim}
+\noindent
+
+While Postscript files are appropriate for printing and inclusion in
+papers, GIF and PNG files are more widely used for Web publication.  GIF
+files can be produced with the "/gif" plot device.  Landscape mode GIFS are
+generated with "/vgif".  As with the Postscript drivers, the colors
+generated in the GIF file will be close to those on the screen, including
+the background and foreground colors.  The text strings, on the hand, may
+be rendered slightly differently than on the screen.  The size of the GIF
+output file can be set in pixels with the environmental variables
+PGPLOT\_GIF\_HEIGHT and PGPLOT\_GIF\_WIDTH:
+
+{\index{{plotting!GIF output}}}
+\begin{verbatim}
+# cshrc syntax: set PGPLOT PostScript size
+  setenv PGPLOT_GIF_HEIGHT  800
+  setenv PGPLOT_GIF_WIDTH  1000
+\end{verbatim}
+\noindent
+Due the limited quality of the GIF output, it may be tempting to create
+very large GIF file and reduce it afterwards.  This works reasonably well,
+though to be honest, I've had better success with doing screen grabs of the
+PGPLOT window to a native bitmap and converting that to the desired format.
+
+{\index{{plotting!PNG output}}} PNG files are similar to GIF, though
+generally smaller and slightly superior in quality.  The PNG files written
+by PGPLOT are, however, about the same quality as the GIF output.  On the
+bright side, they are not burdened by use of a software patent.
+

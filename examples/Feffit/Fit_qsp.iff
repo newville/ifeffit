@@ -1,0 +1,33 @@
+
+read_data(../data/cu_chi.dat, group = data, type=chi)
+
+guess  s02   = 1.
+guess  e0    = 1.
+guess  ss2   = 0.002
+guess  dr    = 0.001
+
+path(index  = 1,  feff   = ../feff/feffcu01.dat, 
+     s02    = s02, 
+     sigma2 = ss2,
+     delr   = dr, 
+     e0     = e0 )
+
+kmin = 2, kmax=17, kweight=2
+dk1  = 1, dk2=1
+
+rmin = 1.5, rmax =4.4
+echo 'aa'
+
+feffit(chi = data.chi, k=data.k,group = fit, 1, fit_space=q)
+
+echo 'bb'
+show @variables, chi_square, r_factor
+print 'fit took ', &fit_iteration, ' iterations'
+
+data.chik = data.chi* data.k^kweight
+ fit.chik = fit.chi* fit.k^kweight
+
+newplot( data.k, data.chik)
+  plot(  fit.k, fit.chik)
+
+

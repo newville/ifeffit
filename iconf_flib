@@ -1,0 +1,20 @@
+#!/bin/sh
+# shell script to fix mis-ordered FLIBS on linux
+inp=$1
+l1=''
+l2=''
+for d in $inp; do
+  case "$d" in
+    -l*.o) 
+         ;;
+    -l*) 
+         echo $l1 | grep -q "\\$d" >&/dev/null
+	 if [ $? -ne 0 ]; then  l1="$l1 $d" ; fi
+         ;;
+    -L*) 
+         echo $l2 | grep -q "\\$d" >&/dev/null
+	 if [ $? -ne 0 ]; then  l2="$l2 $d" ; fi
+         ;;
+  esac
+done
+echo $l2 $l1
