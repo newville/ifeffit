@@ -6,8 +6,11 @@ This file describes building and installing Ifeffit from source code on
 Unix and Unix-like systems.  The essential steps are:
 
   1. Download and unpack the distribution file.
-  2. Install the PGPLOT library if needed, or decide to build 
-     Ifeffit without native graphics. 
+  2. Install PGPLOT with PGPLOT_install (see README.PGPLOT)
+     
+         Note that precompiled binary package for PGPLOT will NOT work.  
+         You MUST install PGPLOT with PGPLOT_install. 
+
   3. Configure the building procedure for ifeffit for your system, 
      specifying whether to use PGPLOT graphics, where to install 
      the package, and which of the optional interfaces for Python, 
@@ -20,19 +23,21 @@ Unix and Unix-like systems.  The essential steps are:
 
 At it's simplest, the process will look something like this:
 
- ~> <get http://cars9.uchicago.edu/ifeffit/src/ifeffit/ifeffit.tar.gz>
+ ~> <verify that PGPLOT is installed>
+
+ ~> <get http://cars9.uchicago.edu/~ifeffit/src/ifeffit.tar.gz>
  ~> gunzip -c ifeffit.tar.gz | tar xf -
- ~> cd ifeffit-1.2.8
- ~> <verify PGPLOT>
+ ~> cd ifeffit-1.2.10
  ~> ./configure
  ~> make
  ~> make install
 
 
-If PGPLOT is not already installed, you'll need to install it __BEFORE__
-configuring Ifeffit.
+The first If you have not already installed PGPLOT for IFEFFIT, you'll 
+need to install it __BEFORE__ configuring Ifeffit.
 
  ~> ./PGPLOT_install 
+
 
 -------------------------------------
 Special Note on Root/Non-Root access:
@@ -44,8 +49,14 @@ at installing Unix software or particularly paranoid about doing things
 as root, the configure and make steps above can be done as a non-root
 user.  If you do not have root access to the machine you're installing
 Ifeffit on, pay particular attention to the '--prefix' arguments to the
-PGPLOT_install and configure steps below, as you'll need write access to
-these directories.
+'PGPLOT_install' and 'configure' steps below, as you'll need write access
+to these directories.
+
+Note that both 'configure' and 'PGPLOT_install' take a '--prefix'
+argument.  The default for each is '/usr/local'.   If you need to change
+this, it is recommended that you use the same value for both installation
+scripts.
+
 
 More detailed instructions follow. 
 
@@ -77,10 +88,10 @@ at http://astro.caltech.edu/~tjp/pgplot/
 
 The PGPLOT_install shell script included with Ifeffit will attempt to
 download and install the package for you.  This script assumes the
-final location of the PGPLOT library will be /usr/local/pgplot. It
-assumes to be running as root, and presumes a linux system.  It may
-work for other cases, but has not been fully tested.  To use this
-script, type 
+final location of the PGPLOT library will be
+/usr/local/share/ifeffit/pgplot.  It assumes to be running as root, and
+presumes a linux system.  It may work for other cases, but has not been
+fully tested.  To use this script, type 
   ~> ./PGPLOT_install
 
 PGPLOT_install assumes you want to install the PGPLOT library to
@@ -155,9 +166,9 @@ If the PGPLOT library has been installed using PGPLOT_install, there
 should be no need to explicitly set any of these. 
 
 The --with-pgplot option specifies the location of the PGPLOT
-library file, libpgplot.a.  You can explicitly specify the location
+library file, libpgplot_iff.a.  You can explicitly specify the location
 like this:  
-  --with-pgplot=/usr/local/pgplot/
+  --with-pgplot=/usr/local/share/ifeffit/pgplot/
 
 You can also explicitly tell Ifeffit to build _without_ the PGPLOT
 library, by saying
@@ -166,7 +177,7 @@ library, by saying
 You can also fully specify how the linker should link to the PGPLOT library
 with something like
 
-  --with-pgplot-link='-L/usr/local/pgplot -lpgplot -lpng -lz -L/usr/X11R6/lib -lX11'
+  --with-pgplot-link='-L/usr/local/share/ifeffit/pgplot -lpgplot_iff -lpng -lz -L/usr/X11R6/lib -lX11'
 
 This should not be necessary. 
 
@@ -214,6 +225,7 @@ configuration (/usr/local/ by default):
              cldata/*.dat       - data files for Cromer-Libermann 
                                   f' and f'' data
              fefftab/*.dat      - data files for Feff Tables
+             pgplot/            - pgplot installation directory
 
 
 
@@ -274,15 +286,6 @@ $prefix/share/ifeffit/config.
 Once Ifeffit is installed, you [as a normal, non-root user] should be able
 to run the command-line program ifeffit, and (if installed) the GUI
 gifeffit.  There are a few customizations you may want to perform.
-
-First, you'll need to set an environmental variable for the PGPLOT graphics
-to work.  The environmental variable PGPLOT_DIR needs to point to the
-PGPLOT installation directory, probably /usr/local/pgplot, unless you used
-some other '--prefix' setting during PGPLOT_install.  If you're using the
-csh or tcsh shell, this looks like
-  ~> setenv PGPLOT_DIR /usr/local/pgplot
-for bash, the syntax is
-  ~> export PGPLOT_DIR=/usr/local/pgplot
 
 You'll probably want to put these in your startup file (.cshrc for csh,
 .profile or .bashrc for bash). 

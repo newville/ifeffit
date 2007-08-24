@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #  This file will test how to build pgplot.  Essentially, 
-#  this looks for where libpgplot is, where the X libs are,
+#  this looks for where libpgplot_iff is, where the X libs are,
 #  and whether to use '-lpng -lz' for the PNG device.
 #
 
@@ -9,7 +9,7 @@
 #  look for library file
 
 # where to look for pgplot directory: last one found will be used!
-pgdirs="/usr/lib /usr/local/lib /usr/share/pgplot /usr/local/pgplot /Applications/Ifeffit/pgplot $1"
+pgdirs="/usr/local/share/ifeffit/pgplot /usr/share/ifeffit/pgplot /Applications/Ifeffit/pgplot $1"
 xdirs="/usr/X11/lib /usr/lib/X11 /usr/lib/X11R5 /usr/X11R5/lib /usr/lib/X11R6 /usr/X11R6/lib"
 xd=""
 
@@ -23,7 +23,6 @@ for d in $pgdirs; do
     if [ -d $d ] ; then
        if [ -f $d/grfont.dat ]      ; then basedir=$d ; fi
        if [ -f $d/libpgplot_iff.a ] ; then libdir=$d  ; fi
-       if [ -f $d/libpgplot.a  ]    ; then libdir=$d  ; fi
     fi 
 done
 
@@ -42,9 +41,13 @@ ffile=$basedir/grexec.f
 
 if [ -f $mfile ] ; then
   out="$out -L$libdir"
-  l1=`grep "^PGPLOT_LIB=" $mfile| sed 's/PGPLOT_LIB=-L\`pwd\`//' | sed 's/PGPLOT_LIB=//'`
+  l1=`grep "^PGPLOT_LIB=" $mfile| sed 's/PGPLOT_LIB=-L\`pwd\`//' | sed 's/PGPLOT_LIB=//' `
   l2=`grep "^LIBS="  $mfile  | sed "s/LIBS=//"`
   lline="$l1 $l2"
+#   echo 'L1:  ', $l1
+#   echo 'L2:  ', $l2
+#   echo 'out:  ', $out
+
   for i in $lline ; do 
     echo $i | grep -q '^-L'  ; stat=$?
     if [ $stat == 0 ] ; then # this is a '-L' word, check that directory exists
@@ -53,9 +56,10 @@ if [ -f $mfile ] ; then
       out="$out $i"
     fi
   done
+#   echo 'out:  ', $out
 else
   if [ -f $ffile ] ; then
-    out="-L$libdir -lpgplot"
+    out="-L$libdir -lpgplot_iff"
     grep " CALL PNDRIV" $ffile >/dev/null 2>&1;
     if [  $? ] ; then out="$out -lpng -lz" ;   fi
     grep " CALL XWDRIV" $ffile >/dev/null 2>&1;

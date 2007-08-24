@@ -9,12 +9,13 @@ AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE(ifeffit,1.2.10)
 AC_PROG_CC(gcc cc )
 AC_PROG_CPP(gcc cc)
-AC_PROG_F77(g77 f77 f90)
+AC_PROG_F77(gfortran g77 g95 f77 f90)
 AC_F77_LIBRARY_LDFLAGS
 
 AC_ISC_POSIX
 AC_HEADER_STDC
 AC_PROG_RANLIB
+AC_INCLUDES_DEFAULT
 
 AC_PATH_PROGS(PERL,   perl perl5 perl5.8 perl5.6 perl5.005, NO_PERL )
 AC_PATH_PROGS(PYTHON, python python2 python2.3 python2.2 python2.1 python1.5, NO_PYTHON)
@@ -50,13 +51,14 @@ VERSION=`$SHELL ./iconf_iff $prefix $ARRSIZE $PACKAGE $ac_default_prefix `
 ## simple script to fix bad ordering of FLIBS with gcc
 
 MN_FLIBS=`$SHELL ./iconf_flib  "$FLIBS"`
-## AC_MSG_RESULT([===  FLIBS: $FLIBS])
-## AC_MSG_RESULT([===  MN_FLIBS: $MN_FLIBS])
+
+AC_MSG_RESULT([===  Fortran LIBS: $MN_FLIBS])
+
 AC_SUBST(MN_FLIBS)
 
 # tests for PGPLOT
 
-pgdir=$PGPLOT_DIR
+pgdir=''
 use_pgplot=true
 pwd=`pwd`
 PGPLOT_LIBS="$pwd/src/pgstub/libnopgplot.a";
