@@ -18,7 +18,7 @@ c
        parameter ( mcline = 4096 )
        parameter ( mcdeep =   32 )
        parameter ( mfiles =   16 )
-       parameter ( max_restraint =   10)
+       parameter ( max_restraint =   32)
        parameter ( mkeys  =   64 )
        parameter ( maxheap_array = maxpts*512)
        parameter ( maxarr = 8192 ) ! # of array variables

@@ -109,7 +109,7 @@ c which can overwrite location of data and startup files
        ilen   = istrln(envval)
        if (ilen.gt.1)  sysdir = envval
        call settxt('&install_dir', sysdir)
-c
+
        envvar = 'PGPLOT_DEV'
        ilen   = istrln(envvar)
        call getenv(envvar(1:ilen), envval)

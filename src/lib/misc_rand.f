@@ -108,7 +108,7 @@ c period parameters
        parameter(n1    =  n+1)
        parameter(m     =  397)
        parameter(mata  = -1727483681) ! constant vector a
-       parameter(umask = -2147483648) ! most significant w-r bits
+c       parameter(umask = -2147483648) ! most significant w-r bits
        parameter(lmask =  2147483647) ! least significant r bits
        parameter(tmaskb= -1658038656) ! tempering parameters
        parameter(tmaskc= -272236544)
@@ -128,6 +128,7 @@ c
        save mag01,y
 c                        mag01(x) = x * mata for x=0,1
 c      
+       umask = -2147483648  ! most significant w-r bits
        if(mti.ge.n) then
           if (mti.eq.n1) call seed_randmt(4357)
 c  generate n words at one time

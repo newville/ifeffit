@@ -161,7 +161,7 @@ c we found the right record:  read in path information
  320         continue
              iptpth(0,ipth) = 0
              izpth(0,ipth)  = izpot(0)
-             call rdpadr(iunit,npack, ratpth(1,1,ipth),3*nleg)
+             call rdpadd(iunit,npack, ratpth(1,1,ipth),3*nleg)
              do 340 i = 0, nleg
                 do 335 j = 1, 3
                    ratpth(j,i,ipth) = ratpth(j,i,ipth) * bohr
@@ -169,15 +169,15 @@ c we found the right record:  read in path information
  340         continue
 c  note that we really don't care about beta, eta, ri arrays, so we'll
 c  just skip them here:
-             call rdpadr(iunit,npack,beta,nleg)
-             call rdpadr(iunit,npack,beta,nleg)
-             call rdpadr(iunit,npack,beta,nleg)
+             call rdpadd(iunit,npack,beta,nleg)
+             call rdpadd(iunit,npack,beta,nleg)
+             call rdpadd(iunit,npack,beta,nleg)
 c but we really want these arrays (amplitude and phase)
 c
 c note that this version of feff.bin does not save 
 c central-atom and scattering-atom phase-shifts separately.
-             call rdpadr(iunit,npack,achi,nepts)
-             call rdpadr(iunit,npack,phchi,nepts)
+             call rdpadd(iunit,npack,achi,nepts)
+             call rdpadd(iunit,npack,phchi,nepts)
 c
              do 390 j = nepts+1, mptsx
                 achi(j)  = zero

@@ -170,14 +170,14 @@ c  iop range: -8000 to -10000
           call stack(x,maxpts,mstack,nx,istack,2)
 
        elseif (ic.eq.jpenl2) then
-          xx0 = - exp(85.d0)
-          call res_penalty(x(1,1),nx(1),xx0,1,x(1,2),nx(2))
+          xtmp(1) = - exp(85.d0)
+          call res_penalty(x(1,1),nx(1),xtmp,1,x(1,2),nx(2))
           call stack(x,maxpts,mstack,nx,istack,1)
 
        elseif (ic.eq.jpenl3) then
-          xx0 = exp(85.d0)
-          call res_penalty(xx0, 1, x(1,1),nx(1),x(1,2),nx(2))
-          x(1,1) = xx0
+          xtmp(1) = exp(85.d0)
+          call res_penalty(xtmp, 1, x(1,1),nx(1),x(1,2),nx(2))
+          x(1,1) = xtmp(1)
           call stack(x,maxpts,mstack,nx,istack,1)
 
        elseif ((ic.eq.jterpl).or.(ic.eq.jterpq).or.

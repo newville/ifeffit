@@ -273,7 +273,7 @@ c if obvious, or explicitly stated, switch KeV to eV:
           call kev2ev(arr_e, npts_e)
        endif
 cc       print*, ' find_e0 vary_e0 = ', find_e0, vary_e0,  do_pre, e0
-       if (do_pre .or. (abs(step).le.tiny) .or. (find_e0)) then
+       if (do_pre .or. (abs(step).le.tiny) .or. find_e0) then
           le = max(1, istrln(en_arr))
           lx = max(1, istrln(xmuarr))
           l1 = max(1, istrln(name1))
@@ -300,7 +300,7 @@ cc          print*, ' find_e0 in pre_edge: ', find_e0, e0
           outstr = 'energy='//en_arr(1:le)//', xmu='
      $         //xmuarr(1:lx)//tmpstr(1:l1)
           l1 = istrln(outstr)
-          write(tmps2,'(a,f13.4,a,f13.4,a,f13.4,a,f13.4,a,f23.4)') 
+          write(tmps2,'(a,f13.4,a,f13.4,a,f13.4,a,f13.4,a,i3)') 
      $    ', pre1=', pre1,',pre2=',pre2,
      $    ',norm1=',enor1,',norm2=',enor2, ',norm_order=',nnorm
           lx = istrln(tmps2)

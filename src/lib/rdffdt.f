@@ -105,6 +105,10 @@ c  read in q, amplit, phase, and real and imag parts of p
        call sclean(line)
        nwords  = 7
        do 500 i = 1, mpts + 1
+c
+c          read(iunit,*, end = 505) xk, cdel, afeff, phfeff,
+c     $        redfac, xlmda, preal
+
           if (i.gt.mpts) then
              call echo('  not enough memory for feff file: '//filnam)
              write(messg,'(2x,a,i3,a)') 'results above k = ',
@@ -116,7 +120,6 @@ c  read in q, amplit, phase, and real and imag parts of p
           call sclean(line)
           if (istrln(line).ge.1)  then 
              call bwords(line, nwords, words)
-ccc             print*, i, istrln(line), nwords
              if (nwords .lt. 7) then
                 call echo(' invalid feff file: '//filnam)
                 go to 505
