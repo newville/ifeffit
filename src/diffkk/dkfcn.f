@@ -10,17 +10,20 @@ c
           do 100 i = 1, npts
              e    = energy(i) + x(1)
              call lintrp(energy,expdat,npts,e,ipos,fx)
-             f(i) = -f2cl(i) + x(2) + x(3) * fx
-     $            + e * (x(4) + x(5)  * e )
+             f(i) = -f2cl(i) + x(2) + x(3) * fx + x(4) * e
+c             f(i) = -f2cl(i) + x(2) + x(3) * fx
+c     $            + e * (x(4) + x(5)  * e )
  100      continue 
        else
           do 200 i = 1, npts
              e    = energy(i) + x(1)
              call lintrp(energy,expdat,npts,e,ipos,fx)
-             f(i) = -f1cl(i) + x(2) + x(3) * fx
-     $            + e * (x(4) + x(5)  * e )
+             f(i) = -f1cl(i) + x(2) + x(3) * fx + x(4) * e
+
+c             f(i) = -f1cl(i) + x(2) + x(3) * fx
+c     $            + e * (x(4) + x(5)  * e )
  200      continue 
        endif
-ccc      print *, 'dkfcn ' , f2tof1, npts, x
+       print *, 'dkfcn ' , f2tof1, npts, x
        return
        end

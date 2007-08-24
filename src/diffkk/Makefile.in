@@ -105,7 +105,6 @@ dklog.o:  dkcom.f
 diffkk_LDADD =  ../pgstub/pgstub.o ../lib/libifeffit.a 	 $(MN_FLIBS)
 
 
-# diffkk_LDADD        =  ../lib/libifeffit.a ../pgstub/libnopgplot.a $(MN_FLIBS)
 diffkk_DEPENDENCIES =  ../lib/libifeffit.a ../pgstub/libnopgplot.a
 diffkk_LDFLAGS = 
 

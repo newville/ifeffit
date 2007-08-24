@@ -25,13 +25,13 @@ c initialize variables
           xvarys(i) = 0.d0
  10    continue
 c xvarys(3) should be ~1
-       xvarys(3) = 1.d0
-       numvar = 5
+       xvarys(3) = 1.0
+       numvar = 4
        lminfo = 0
 c  call lmdif1
 
        call lmdif1 (dkfcn, npts, numvar, xvarys, fvect,
-     $               toler, lminfo, iwork, work, lenwrk)
+     $      toler, lminfo, iwork, work, lenwrk)
 c done!
        return
        end

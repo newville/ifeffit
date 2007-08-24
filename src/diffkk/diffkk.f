@@ -108,8 +108,8 @@ c
        i = ifeffit('set w.expdat = linterp(dat.energy,'//
      $      'dat.expdat,w.energy)')
        if (f2tof1) then 
-          i  = ifeffit('set w.expdat = w.expdat * '//
-     $         'w.energy/(max(1,e0))')
+cc          i  = ifeffit('set w.expdat = w.expdat * '//
+cc     $         'w.energy/(max(1,e0))')
        endif
        npts = iffgetarr('w.energy', energy)
        npts = iffgetarr('w.expdat', expdat)
@@ -126,17 +126,21 @@ c generate initial tables of f' f'' on the same energy grid
        if (ewidth.gt.0.d0) i = iffputsca('wid', ewidth)
 
        i =  ifeffit('f1f2(energy=w.energy, z=iz,width=wid)')
-       i=ifeffit('pre_edge(w.energy, w.f2, e0=e0)')
-       i=ifeffit('set cl_step = edge_step')
-       i=ifeffit('set cl_0 = pre_slope*floor(w.energy)+pre_offset')
+c       i=ifeffit('pre_edge(w.energy, w.f2, e0=e0)')
+c       i=ifeffit('set cl_step = edge_step')
+c       i=ifeffit('set cl_0 = pre_slope*floor(w.energy)+pre_offset')
+c
+c       i=ifeffit('pre_edge(w.energy, w.expdat, e0=e0)')
+c
+c       i=ifeffit('set dt_step = edge_step')
+c       i=ifeffit('set dt_0 = pre_slope*floor(w.energy)+pre_offset')
+c
+c       i=ifeffit('set w.expscal = (cl_0-dt_0)+'//
+c     $      ' w.expdat*cl_step/dt_step')
 
-       i=ifeffit('pre_edge(w.energy, w.expdat, e0=e0)')
-
-       i=ifeffit('set dt_step = edge_step')
-       i=ifeffit('set dt_0 = pre_slope*floor(w.energy)+pre_offset')
-
-       i=ifeffit('set w.expscal = (cl_0-dt_0)+'//
-     $      ' w.expdat*cl_step/dt_step')
+       i=ifeffit('set w.expscal =w.expdat')
+       print*, ' hello expdat is simple! ' 
+c
 
        npts = iffgetarr('w.expscal', expdat)
 
@@ -163,8 +167,15 @@ c align/shift/scale improved f''  to tabulated f''(df2 = expdat - f2cl)
           call messag(' f'' ')
        end if
 
-       call dkfit
-       call dkfcn(npts,numvar,xvarys,df2,ierr)
+c$$$       call dkfit
+c$$$       call dkfcn(npts,numvar,xvarys,df2,ierr)
+          
+       
+       do 20 i = 1, npts
+          df2(i) = -f2cl(i) +  expdat(i)
+c     f(i) = -f2cl(i) + x(2) + x(3) * fx
+c     $            + e * (x(4) + x(5)  * e )
+ 20      continue 
 
 c do kk transform of delta f''  -> delta f'
        call messag(' Doing difference Kramers-Kronig transform')
