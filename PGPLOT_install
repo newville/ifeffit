@@ -85,13 +85,14 @@ done
 
 
 
+
 echo " = = = = = = = = = = = = = = = = = = = = = = = = = = "
 echo " = PGPLOT installation script"
 echo " ="
 #
 # place to put pgplot  and the final libraries
 #
-pgp_dir=$prefix/pgplot/
+pgp_dir=$prefix/share/ifeffit/pgplot/
 
 pgp_sys=$system
 
@@ -108,7 +109,8 @@ echo " prefix = " $prefix
 
 
 if test $do_log = 1 ;  then 
-  echo "# PGPLOT install log " >  $logfile
+  echo "#!/bin/sh " >  $logfile
+  echo "# PGPLOT install log " >>  $logfile
   echo "# system = " $system " == "  $pgp_sys >> $logfile
   echo "# prefix = " $prefix    >> $logfile
 fi
@@ -178,7 +180,7 @@ else
    echo " = then run this script again"    
  
    if test $do_log = 1 ;  then 
-      echo "# pgplot tar file not found " >>  $logfile
+      echo "# pgplot tar file not found! " >>  $logfile
    fi
    exit 1
 fi
@@ -200,13 +202,58 @@ else
   fi
 fi
 
+##
+echo " = Looking for fortran compiler "
+fcompl=''
+
+gfortran -v > /dev/null 2>&1
+if [ $? = 0 ] ; then
+  echo ' using gfortran'
+  fcompl='gfortran'
+else
+  g77 -v > /dev/null 2>&1
+  if [ $? = 0 ] ; then
+      echo ' using g77'
+      fcompl='g77'
+  else
+     g95 -v > /dev/null 2>&1
+     if [ $? = 0 ] ; then
+       echo ' using g95'
+       fcompl='g95'
+     fi
+  fi
+fi
+
+if test $do_log = 1 ;  then 
+     echo "# fortran compiler = " $fcompl >>  $logfile
+fi
+
+if test x$fcompl = 'x' ; then
+   echo ' No fortran compiler found -- cannot install PGPLOT!'
+   exit 1
+fi
+
+
 ## unpack kit
 
 echo " = Unpacking PGPLOT: "
-gzip -dc  $pgp_file | tar xf -
+
+gzip -dc  $pgp_file | tar xf - 
+if test $do_log = 1 ;  then 
+    echo "gzip -dc  $pgp_file | tar xf -" >> $logfile
+fi
+#
+# copy Fortran90 gidriv.f for modern fortrans -- yick!
+if [ x$fcompl != 'xg77' ] ; then 
+   echo 'copying fortran90 gif driver to PGPLOT'
+   cp -fp pgplot_extras/gidriv.f pgplot/drivers/gidriv.f
+fi
 
 echo " = Creating $pgp_dir and drivers.list "
 mkdir -p $pgp_dir
+if test $do_log = 1 ;  then 
+    echo "mkdir -p $pgp_dir" >> $logfile
+fi
 
 ##
 ## create drivers.list
@@ -237,8 +284,10 @@ fi
 
 echo  " = Running the PGPGLOT makemake script "
 cd $pgp_dir/
-rm -f grfont.dat pgplot.doc pgxwin_server lib*pgplot* pgdemo*
+rm -f grfont.dat pgplot.doc pgxwin_server lib*pgplot* pgdemo* *.o
 $dir/pgplot/makemake $dir/pgplot $pgp_sys
+
+
 
 if test $do_log = 1 ;  then 
    echo "cd  $pgp_dir/"  >>  $logfile
@@ -246,53 +295,92 @@ if test $do_log = 1 ;  then
    echo $dir/pgplot/makemake $dir/pgplot $pgp_sys   >>  $logfile
 fi
 
+# hack grgfil to use $pgp_dir as default location 
+sed 's|/usr/local/pgplot/|'$pgp_dir'|g' $dir/pgplot/src/grgfil.f >  $dir/pgplot/src/grgfil_iff.f
+mv makefile Tmp
+sed 's|grgfil|grgfil_iff|g' Tmp > makefile
 
+sed 's|libpgplot|libpgplot_iff|g' makefile > Tmp
+sed 's|-lpgplot|-lpgplot_iff|g'   Tmp > makefile
+
+echo 'customized grgfil.f for ifeffit'
+if test $do_log = 1 ;  then 
+    echo "# customizing grgil.f for ifeffit " >> $logfile
+    echo "sed 's|/usr/local/pgplot/|$pgp_dir|g' $dir/pgplot/src/grgfil.f >  $dir/pgplot/src/grgfil_iff.f" >> $logfile
+    echo "mv makefile Tmp"     >>  $logfile
+    echo "sed 's|grgfil|grgfil_iff|g' Tmp > makefile" >>  $logfile
+    echo "sed 's|libpgplot|libpgplot_iff|g' makefile > Tmp"  >>  $logfile
+    echo "sed 's|-lpgplot|-lpgplot_iff|g'   Tmp > makefile"  >>  $logfile
+fi
+
+
+# hack xwdriv.c to use $pgp_dir a
+sed 's|getenv("PGPLOT_DIR")|'\"$pgp_dir\"'|g' $dir/pgplot/drivers/xwdriv.c >  $dir/pgplot/drivers/xwdriv_iff.c
+mv makefile Tmp
+sed 's|xwdriv|xwdriv_iff|g' Tmp > makefile
+
+echo 'customized xwdriv.c for ifeffit'
+if test $do_log = 1 ;  then 
+    echo "# customizing xwdriv.c for ifeffit " >> $logfile
+    echo " sed 's|getenv(\"PGPLOT_DIR\")|'\"$pgp_dir\"'|g' $dir/pgplot/drivers/xwdriv.c >  $dir/pgplot/drivers/xwdriv_iff.c" >> $logfile
+    echo "mv makefile Tmp" >> $logfile
+    echo "sed 's|xwdriv|xwdriv_iff|g' Tmp > makefile" >> $logfile
+fi
+
+# for 64-bit systems
 if test  $use_64 = 1; then
   sed 's|/usr/X11R6/lib|/usr/X11R6/lib64|g' makefile > Tmp
   sed 's|/usr/X11/lib|/usr/X11/lib64|g'     Tmp > makefile
+  if test $do_log = 1 ;  then 
+     echo "# 64-bit  " >> $logfile
+     echo " sed 's|/usr/X11R6/lib|/usr/X11R6/lib64|g' makefile > Tmp " >> $logfile
+     echo " sed 's|/usr/X11/lib|/usr/X11/lib64|g'     Tmp > makefile  " >> $logfile
+  fi
 fi
 
 
 if test $with_png = 1 ; then
-  sed 's|pndriv.o : ./png.h|#### pndriv.o : ./png.h|g' makefile > Tmp
-  mv Tmp makefile
+  mv makefile Tmp
+  sed 's|pndriv.o : ./png.h|#### pndriv.o : ./png.h|g' Tmp > makefile
 
  if test $do_log = 1 ;  then 
-    echo "# this is a kludge to fix png driver"  >>  $logfile
-    echo "sed 's|pndriv.o : ./png.h|#### pndriv.o : ./png.h|g' makefile > Tmp "  >>  $logfile
-    echo "mv Tmp makefile " >> $logfile
-    echo "# end kludge"     >> $logfile
+    echo "# fix png driver"  >>  $logfile
+    echo "mv makefile Tmp " >> $logfile
+    echo "sed 's|pndriv.o : ./png.h|#### pndriv.o : ./png.h|g' Tmp > makefile "  >>  $logfile
  fi
 fi
 
 echo  " = Running make for PGPLOT "
-make FFLAGC='-O2 -fPIC' libpgplot.a 
-make grfont.dat prog pgplot.doc pgxwin_server cpg
+make FCOMPL=$fcompl FFLAGC='-O2 -fPIC' libpgplot_iff.a 
+make FCOMPL=$fcompl grfont.dat prog pgplot.doc pgxwin_server cpg
 
  if test $do_log = 1 ;  then 
-    echo "make FFLAGC=-O1 libpgplot.a  " >> $logfile
-    echo "make grfont.dat prog pgplot.doc pgxwin_server cpg" >> $logfile
+    echo "make FCOMPL=" $fcompl "FFLAGC=-O1 libpgplot_iff.a  " >> $logfile
+    echo "make FCOMPL=" $fcompl "grfont.dat prog pgplot.doc pgxwin_server cpg" >> $logfile
  fi
 
 
 if test $do_clean = 1 ; then
   echo " = Cleaning up and preparing for test"
   make clean
+  if test $do_log = 1 ;  then 
+     echo "make clean  " >> $logfile
+  fi
 fi
 
 cd  $dir
 ls  $pgp_dir/ > Tmp_file.lis
 
 echo " = = = = = = = = = = = = = = = = = = = = = = = = = = "
-if ((grep "pgxwin_server" Tmp_file.lis >/dev/null)  && 
-    (grep "rgb.txt"       Tmp_file.lis >/dev/null)  &&
-    (grep "libpgplot.a"   Tmp_file.lis >/dev/null)  &&
-    (grep "pgdemo1"       Tmp_file.lis >/dev/null)  &&
-    (grep "grfont.dat"    Tmp_file.lis >/dev/null)) ; then
+if ((grep "pgxwin_server"  Tmp_file.lis >/dev/null)  && 
+    (grep "rgb.txt"        Tmp_file.lis >/dev/null)  &&
+    (grep "libpgplot_iff.a" Tmp_file.lis >/dev/null)  &&
+    (grep "pgdemo1"        Tmp_file.lis >/dev/null)  &&
+    (grep "grfont.dat"     Tmp_file.lis >/dev/null)) ; then
  if test $do_clean = 1 ; then
    rm -rf pgplot/
  fi
- echo " = PGPLOT appears to be correctly installed.  Good!"
+ echo " = PGPLOT appears to be correctly installed!"
  echo " ="
  echo " = Please read README.PGPLOT for more on setting up " 
  echo " = PGPLOT for your system and try running the demo"
@@ -300,19 +388,13 @@ if ((grep "pgxwin_server" Tmp_file.lis >/dev/null)  &&
 
 else
  echo " = Uh-oh.  PGPLOT is missing some important files!"
- echo " = It looks like PGPLOT failed during building, or"
+ echo " = It looks like PGPLOT failed during building or"
  echo " = is only partially installed."
  echo " = "
  echo " = Please consult the PGPLOT installation instructions"
- echo " = in the subdirectory  pgplot/."
- echo " = "
- echo " = After creating a drivers.list file in $pgp_dir"
- echo " = this script did the following commands:"
- echo "    cd $pgp_dir"
- echo "    $dir/pgplot/makemake $dir/pgplot $pgp_sys"
- echo "    make FFLAGC=-O1 libpgplot.a "
- echo "    make grfont.dat prog pgplot.doc pgxwin_server cpg"
- echo "    make clean"
+ echo " = in the subdirectory  pgplot/, and the log file:"
+ echo " =    $logfile"
+ echo " = which contains a full list of commands run."
  echo " ="
  echo " = You may want to repeat these steps by hand or "
  echo " = consult the PGPLOT installations instructions "
