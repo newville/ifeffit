@@ -1,0 +1,28 @@
+
+read_data(../data/cu150k.chi , group=a, type=chi)
+
+set b.chi = a.chi
+
+set a.chik  = a.chi * a.k^2
+fftf(a.chi,  kweight=2, kmin=1, kmax=24, dk=2, kwindow='hanning',rmax_out=16)
+
+plot(a.r, a.chir_re, new=1)
+plot(a.r, a.chir_im)
+plot(a.r, a.chir_mag)
+
+
+fftr(real=a.chir_re, imag=a.chir_im,  rmin=0, rmax=15, dr=0)
+
+
+pause
+
+
+plot( a.k, (a.chiq_re)*1, new=1)
+
+plot( a.k, a.chik+2)
+
+pause
+
+
+plot( a.k, (a.chik-a.chiq_re)*10, new=1)
+plot( a.k, a.chik)
