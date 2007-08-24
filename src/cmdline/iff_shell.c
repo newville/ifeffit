@@ -38,10 +38,10 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#if defined (HAVE_STRING_H)
-#  include <string.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
 #else 
-#  include <strings.h>
+#include <strings.h>
 #endif
 
 #ifdef MY_READLINE
@@ -125,7 +125,6 @@ int main (int argc, char **argv) {
     }
   }
     
-    
   if (quiet == 0) {
     s1 = calloc(256,sizeof(char));
     i = iff_get_string("&build",s1);
@@ -136,6 +135,7 @@ int main (int argc, char **argv) {
   }
 
   /* get environmental variables associated with history file */
+
   tmp = getenv("IFF_HISTORY_LINES");
   if (tmp) {   hist_lines = atoi(tmp);  }   
   tmp = getenv("IFF_HISTORY_FILE");
