@@ -1,23 +1,45 @@
 Installing PGPLOT for IFEFFIT
 -----------------------------
 
-This file provides hints and tips for installing and using the PGPLOT
-graphics library with Ifeffit.  PGPLOT must be installed __BEFORE__ Ifeffit
-is installed, or Ifeffit will not have graphics capabilities.  To date, the
-installation of PGPLOT has proven to be 'the hard part' of the Ifeffit
-installation.  Because of this, all the wisdom I can muster has been put
-into the installation script PGPLOT_install.  This file tries to give as
-many hints as possible.
+Starting with Ifeffit 1.2.10, PGPLOT must be installed BEFORE Ifeffit is
+built, and must be built with the PGPLOT_Install script.   Specifically,
+pre-compiled binary packages from linux distributions (debian, ubuntu, etc)
+WILL NOT WORK.  If you try to use of these, IFEFFIT will not find PGPLOT.
 
-Installation (Semi-Automated with PGPLOT_install):
--------------------------------------------------
+To install PGPLOT, type 
+
+  ~> sh ./PGPLOT_install
 
 The shell script 'PGPLOT_install' will attempt to download, build and 
 install PGPLOT for you.  Running PGPLOT_install can be as simple as 
   ./PGPLOT_install --system=linux
 
-which will download the PGPLOT kit, configure, build, and install
-PGPLOT for you.  The script has the following requirements:
+This will install Ifeffit to /usr/local/share/ifeffit/pgplot.  You can
+specifiy a different location for the 'share/ifeffit/pgpplot' tree, but
+it is recommended that you use the same prefix for PGPLOT_install and 
+Ifeffit's configure script.
+
+Other options for PGPLOT_Install are:
+    --prefix=/usr/local/    base name of install directory
+    --system=linux          name of system type
+    --with-64bit            for 64bit systems (not always needed)
+    --no-clean              do not clean up temporary files from install folder.
+    --no-log                do not write it PGPLOT_install.log
+    --with-png              use png driver
+    --with-gif              use gif driver (may fail on some systems)
+    --no-png
+    --no-gif
+    --help                  show help
+
+I've not tried installing PGPLOT with this script on any non-linux system
+in many years.
+
+Note: You will need libpng and X Windows development tools.  For some
+modern linux systems (notably Ubuntu), you may need to install libpng-devel
+and Xorg-devel packages. 
+
+The PGPLOT_install script will will download the PGPLOT kit, configure,
+build, and install PGPLOT for you.  The script has the following requirements:
 
   1. If the file pgplot5.2.tar.gz isn't already here, it will try 
      to download it for you.  This may fail, in which case you'll
@@ -27,17 +49,15 @@ PGPLOT for you.  The script has the following requirements:
      as PGPLOT_install can the installation proceed.
 
   2. By default, PGPLOT_install will install the pgplot files in 
-       /usr/local/pgplot
-     and install the pgplot library (libpgplot.a) in
-       /usr/local/lib
+       /usr/local/share/ifeffit/pgplot
      To do this successfully, you probably need to run PGPLOT_install
      with root access.  If you don't have root access, or want to use
      some other location for the PGPLOT libraries, specify the
      directory prefix with the --prefix switch:
        ./PGPLOT_install --prefix=/home/matt/libs
 
-     which will install to /home/matt/libs/pgplot.  You will want to
-     set the PGPLOT_DIR variable accordingly.
+     which will install to /home/matt/libs/share/ifeffit/pgplot.  You 
+     will want configure Ifeffit to use the same prefix.
 
   3. PGPLOT_install assumes it's building on a linux system with
      g77 and gcc.  It will probably work on an IRIX or other Unix 
@@ -63,10 +83,10 @@ can run this yourself:
 
 which should write out a set of link options for how to successfully link
 with the PGPLOT library.  Something like
-    -L/usr/local/pgplot -lpgplot -lpng -lz -L/usr/X11R6/lib -lX11
+    -L/usr/local/share/ifeffit/pgplot -lpgplot_iff -lpng -lz -L/usr/X11R6/lib -lX11
 
 should get written out.  If you get something like
-    ...ifeffit_1.0b/src/pgstub/libnopgplot.a
+    .../src/pgstub/libnopgplot.a
 
 then Ifeffit will be built without plotting capabilities.
 
@@ -74,21 +94,10 @@ then Ifeffit will be built without plotting capabilities.
 PGPLOT Environmental Variables:
 -------------------------------
 
-After installation, you should set some environmental variables 
-associated with PGPLOT.  You'll definitely want to set PGPLOT_DIR 
-to /usr/local/pgplot (or wherever you installed PGPLOT):
- csh:     setenv PGPLOT_DIR /usr/local/pgplot
- bash:    export PGPLOT_DIR=/usr/local/pgplot
-
-
-You'll also want to set up a default PGPLOT device. Assuming you are
-using X windows, you'll want to set PGPLOT_DEV to either /xwindow
-or /xserve.  These two devices are essentially identical, except
-that the /xserve plot area will remain after IFEFFIT is ended, and
-the same plot area will be used if IFEFFIT is restarted.
- csh:     setenv PGPLOT_DEV /xserve
- bash:    export PGPLOT_DEV=/xserve
-
+After installation, you may want to set some environmental variables 
+associated with PGPLOT.  You will not need to set PGPLOT_DIR  or PGPLOT_DEV
+unless you want to change the defaults (PGPLOT_DIR being set to the
+originial installation directory and PGOLOT_DEV = /xserve
 
 For Postscript and / or GIF output from IFEFFIT, you may want to
 set the height and widths of the resulting output plots.  For the
@@ -127,12 +136,3 @@ After changing your .Xdefaults file you'll have to restart your X
 session or issue a 'xrdb --merge .Xdefaults' command.
 
 
-Adding More PGPLOT Devices
---------------------------
-
-If you're interested in using other PGPLOT devices (say PNG, or a
-printer-specific driver), I recommend starting with the drivers
-listed in drivers.list and add each new driver one at a time.  You
-may have to tweak the Makefiles and test extensively.  At this
-point, you're sort of on your own -- the PGPLOT documentation is
-pretty good.

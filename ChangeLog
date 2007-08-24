@@ -1,7 +1,13 @@
-2007-05-31  Matt Newville  <newville@cars.uchicago.edu>
+2007-08-24  Matt Newville  <newville@cars.uchicago.edu>
+
 	* Version 1.2.10:  
+
 	- fixed rdffdt.f to read feff.dat files without being 
 	  sensitive to unix / dos / mac  line endings
+	- fixed several small bugs
+	- PGPLOT installation and use (ie, linking and placement of grfont
+  	  file) now moved to '/usr/local/share/ifeffit/pgplot'.
+	
 
 2006-05-26  Matt Newville  <newville@cars.uchicago.edu>
 	* Version 1.2.9:  
