@@ -128,7 +128,7 @@ c
        save mag01,y
 c                        mag01(x) = x * mata for x=0,1
 c      
-       umask = -2147483648  ! most significant w-r bits
+       umask = lmask + 1
        if(mti.ge.n) then
           if (mti.eq.n1) call seed_randmt(4357)
 c  generate n words at one time
