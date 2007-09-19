@@ -31,7 +31,7 @@ RL_LIBRARY_NAME = readline
 srcdir = .
 VPATH = .:..
 topdir = ..
-BUILD_DIR = /home/newville/Codes/ifeffit/w/readline
+BUILD_DIR = /home/newville/Codes/ifeffit/ifeffit_work/readline
 
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}

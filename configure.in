@@ -9,8 +9,7 @@ AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE(ifeffit,1.2.10)
 AC_PROG_CC(gcc cc )
 AC_PROG_CPP(gcc cc)
-AC_PROG_F77(gfortran g77 g95 f77 f90)
-AC_F77_LIBRARY_LDFLAGS
+## AC_PROG_F77(gfortran g77 g95 f77 f90)
 
 AC_ISC_POSIX
 AC_HEADER_STDC
@@ -21,6 +20,15 @@ AC_PATH_PROGS(PERL,   perl perl5 perl5.8 perl5.6 perl5.005, NO_PERL )
 AC_PATH_PROGS(PYTHON, python python2 python2.3 python2.2 python2.1 python1.5, NO_PYTHON)
 
 AC_CONFIG_SUBDIRS(readline) 
+
+################################
+FCLIST='gfortran g77 g95 f77 f90 xlf'
+AC_ARG_WITH(fortran, 
+            [ --with-fortran=compiler specify fortran compiler g77 g95 gfortran],  
+	    [if test "$withval"; then  FCLIST=$withval; fi])
+
+AC_PROG_F77($FCLIST)
+AC_F77_LIBRARY_LDFLAGS
 
 
 ################################

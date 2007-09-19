@@ -33,7 +33,7 @@ with_png=1
 do_clean=1
 do_log=1
 use_64=0
-
+fcompl=
 # get command line options
 for opt
 do
@@ -54,6 +54,7 @@ do
     with-64bit)    use_64=1 ;;
     no-clean)  do_clean=0 ;;
     no-log)    do_log=0 ;;
+    with-fortran)    fcompl=$optarg ;;
     with-png)  with_png=1 ;;
     with-gif)  with_gif=1 ;;
     no-png)    with_png=0 ;;
@@ -204,26 +205,23 @@ fi
 
 ##
 echo " = Looking for fortran compiler "
-fcompl=''
 
-gfortran -v > /dev/null 2>&1
-if [ $? = 0 ] ; then
-  echo ' using gfortran'
-  fcompl='gfortran'
-else
-  g77 -v > /dev/null 2>&1
-  if [ $? = 0 ] ; then
-      echo ' using g77'
-      fcompl='g77'
-  else
-     g95 -v > /dev/null 2>&1
-     if [ $? = 0 ] ; then
-       echo ' using g95'
-       fcompl='g95'
-     fi
-  fi
+if test x$fcompl = 'x' ; then
+    f77 -v > /dev/null 2>&1
+    if [ $? = 0 ] ; then  fcompl='g77' ; fi
+
+    g95 -v > /dev/null 2>&1
+    if [ $? = 0 ] ; then  fcompl='g95' ; fi
+    
+    g77 -v > /dev/null 2>&1
+    if [ $? = 0 ] ; then  fcompl='g77' ; fi
+    
+    gfortran -v > /dev/null 2>&1
+    if [ $? = 0 ] ; then  fcompl='gfortran'; fi
+   
 fi
 
+echo "        fortran compiler = " $fcompl
 if test $do_log = 1 ;  then 
      echo "# fortran compiler = " $fcompl >>  $logfile
 fi

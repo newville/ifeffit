@@ -122,6 +122,7 @@ Configure takes several options.  The most important are:
    --prefix
    --with-arraysize=[small,medium,large]
    --with-pgplot / --without-pgplot
+   --with-fortran=name of fortran compiler
   
 The full set of options can be listed with './configure --help'
  
@@ -154,6 +155,17 @@ better, and sometimes it's just convenient to be able to use much larger
 arrays.  For machines with more that 128Mb of RAM, I've not seen any
 problems with '--with-arraysize=large'.
   
+
+== --with-fortran=[gfortran g77 g95 f77 xlf]
+
+Specify the fortran compiler to use to build Ifeffit.  Note that under
+normal circumstances, this must be the same one used to build PGPLOT.
+Use the --with-fortran option with PGPLOT_Install if the one automatically
+found is not the right one.
+
+This option is provided because some early versions of gfortran (even in
+the 4.0 and 4.1 series) have some problems, though may be the only 
+fortran compiler installed on some linux systems. 
 
 == --with-pgplot, --without-pgplot, --with-pgplot-link
 

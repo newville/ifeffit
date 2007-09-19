@@ -22,6 +22,7 @@ Ifeffit's configure script.
 Other options for PGPLOT_Install are:
     --prefix=/usr/local/    base name of install directory
     --system=linux          name of system type
+    --with-fortran=g77      force name of fortran compiler (default is to autoseek)
     --with-64bit            for 64bit systems (not always needed)
     --no-clean              do not clean up temporary files from install folder.
     --no-log                do not write it PGPLOT_install.log
@@ -90,6 +91,8 @@ should get written out.  If you get something like
 
 then Ifeffit will be built without plotting capabilities.
 
+Note that the same fortran compiler must be used to compile PGPLOT and
+Ifeffit.  Normally, the --with-fortran option can be ignored.
 
 PGPLOT Environmental Variables:
 -------------------------------
