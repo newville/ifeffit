@@ -1,0 +1,35 @@
+
+Description of overall feff scheme, and notes on converting to a more
+modular/library approach, including much of its i/o:
+
+Feff6 executable layout:
+    1. <rdinp> to read feff.inp.
+       passes many parameters in arg list mostly scalar params
+       puts polarization data in common block (??)
+       writes temporary output files geom.dat, potph.dat, paths.dat
+          geom.dat:  subroutine paths,  deleted by feff(main)??
+          paths.dat: subroutine pathsd, subroutine gemfmt
+          potph.dat, subroutine potph deleted by feff(main)??
+
+       Goal: replace with outer scripting language
+
+    2. <potph> for potentials calc
+        uses common blocks:  
+             const.h, dim.h (relatively harmless)
+             array.h   -- no other routine uses this??
+        reads potph.dat
+        writes misc.dat (useless??)
+        writes phase.bin
+
+    3.  <paths>   pathfinder
+    4.  <genfmt>  for xafs path calc
+        uses many common blocks:
+           const.h dim.h clmz.h fmatrx.h lambda.h pdata.h nlm.h rotmat.h
+           vers.h pola.h
+        reads phase.bin
+        reads paths.dat 
+        writes feff.bin / feffNNNN.dat
+	writes files.dat
+        writes nstar.dat
+
+ 
