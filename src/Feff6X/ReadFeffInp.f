@@ -1,5 +1,7 @@
-      subroutine ReadFeffInp(inputfile, geomfile, titles, mtitle, iedge,
-     $     rmax, iexch, viexch, vrexch, rsexch, vpolar, vellip, istat)
+      subroutine ReadFeffInp(inputfile, geomfile, potfile,
+     $     titles, mtitle,
+     $     iedge, iexch, viexch, vrexch, rsexch,
+     $     rmax, vpolar, vellip, istat)
 
 c 
 c read new-style feff.inp
@@ -9,30 +11,33 @@ c    inputfile   name of input parameter file   (feff6.inp) [inp]
 c    titles      array of title lines                       [out]
 c    mtitle      max number of titles                       [inp]
 c    geomfile    name of xyz coordinates file   (atoms.xyz) [out]
+c    potfile     name of potentials/phase file  (atoms.xyz) [out]
 c    iedge       index for absorption edge      (0)         [out]
-c    rmax        max dist (AA) for cluster      (10.0)      [out]
 c    iexch       index of exchange mode         (0)         [out]
 c    viexch      imag potential correction (eV) (0.0)       [out]
 c    vrexch      real potential correction (eV) (0.0)       [out]
 c    rsexch      DH/HL transition threshold (eV)(0.0)       [out]
+c    rmax        max dist (AA) for cluster      (10.0)      [out]
 c    vpolar      polarization vector            (0,0,0)     [out]
 c    vellip      ellipticity vector             (0,0,0)     [out]
 c    istat       output status (0 for success, >1 failure)  [out]
 c
-      character*128  titles(mtitle)
-      character*(*)  inputfile, geomfile
-      character*512  tmpstr
-      integer  iedge, iexch
+      implicit none
+      integer  iedge, iexch, mtitle, istat
       double precision rmax, viexch, vrexch, rsexch
       double precision vpolar(3), vellip(3)
 
-      character*1024  line
-      integer istrln, ilen, jlen, iflen, mwords, nwords, ititle
+      character*128  titles(mtitle)
+      character*(*)  inputfile, geomfile, potfile
+
+      character*1024  line, tmpstr
+      integer istrln, ilen, jlen, iflen, iret, i, ierr, ios
+      integer mwords, nwords, ititle, iread
       logical iscomm, debug
       parameter (mwords = 16)
       character*32 words(mwords), key
      
-      external istrln, iscomm
+      external istrln, iscomm, iread
 
 
       debug = istat.eq.1
@@ -47,7 +52,7 @@ c
       if (ios .gt. 0)  then
          istat = ios
          write(tmpstr,10) inputfile(1:iflen)
- 10      format ("Feff6 cannot open file '",a, "'")
+ 10      format ("Feff6 cannot open Parameter file '",a, "'")
          call echo(tmpstr)
          return
       endif 
@@ -60,6 +65,9 @@ c  set default params
       viexch = 0.d0
       vrexch = 0.d0
       rsexch = 0.d0
+      geomfile = 'atoms.xyz'
+      potfile  = 'potentials.bin'
+
       do 20 i = 1, 3
          vpolar(i) = 0.d0
          vellip(i) = 0.d0
@@ -126,6 +134,9 @@ cc      # if (debug) print*, ' Input Line: ', key, ' :', line(1:jlen)
       elseif (key.eq.'geometry') then 
          geomfile = line
          if (debug) print*, '# Geomfile: ',geomfile(1:istrln(geomfile))
+      elseif (key.eq.'potentials') then 
+         potfile = line
+         if (debug) print*, '# Potfile: ',potfile(1:istrln(potfile))
       else
          print*, '# Unknown input in Feff6 input ', inputfile(1:iflen)
          print*, key, line

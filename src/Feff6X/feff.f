@@ -24,10 +24,6 @@ c
        double precision  angle, cosb, vicorr, vrcorr
 
 
-
-
-c     Following passed to pathfinder, which is single precision.
-c     Be careful to always declare these!
        integer necrit, nbeta
        parameter (necrit=9, nbeta=40)
        double precision fbetac(-nbeta:nbeta,0:npotx,necrit)
@@ -56,14 +52,13 @@ c     Be careful to always declare these!
 
        call get_inpfile('feff6.inp',inputfile,istat)
 
+       istat = 1
 
-       istat = 0
+       call ReadFeffInp(inputfile, geomfile, potfile, titles, mtitle,
+     $      iedge, iexch, viexch, vrexch, rsexch,
+     $      rmax, vpolar, vellip, istat)
 
-       call ReadFeffInp(inputfile, geomfile, titles, mtitle,
-     $      iedge, rmax, iexch, viexch, vrexch, rsexch,
-     $      vpolar, vellip, istat)
-
-
+c istat .ne. 0 means an error reading the input file (no file??)
        if (istat.ne.0) return
        
        do 20  i = 1, mtitle
@@ -73,8 +68,15 @@ c     Be careful to always declare these!
           endif
  20    continue
        
+
        call echo( 'Calculating potentials and phases...')
-       call Potentials(isporb)
+       istat = 1
+
+       call Potentials(geomfile, potfile,
+     $      iedge, iexch, viexch, vrexch, rsexch, istat)
+
+
+       print*, 'Feff6X Devel: Stopping after Potentials.....'
 
        stop
 
