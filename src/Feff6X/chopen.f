@@ -9,7 +9,6 @@ c     open successful
 c     error opening file, tell user and die.
        il = istrln(fname)
        write(s,100) fname(1:il), mod
- 100   format ('cannot open file "',
-     $      a, '" in module ', a)
+ 100   format ('cannot open file "',a, '" in module ', a)
        call fstop(s)
        end

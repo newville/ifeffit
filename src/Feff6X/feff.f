@@ -1,6 +1,9 @@
       program feff
 c
-c  EXAFS only version of FEFF6 
+c  Experimental Feff6: work in progress  -- Matt Newville
+c  This is meant to make an EXAFS only version of FEFF6 that
+c  somewhat simplified in its options, and more modular.
+c 
 c  Modified by Matt Newville from original code by John Rehr
 c  see LICENSE for copying details
 c
@@ -11,7 +14,7 @@ c
 
        integer  mtitle
        parameter (mtitle = 16)
-       character*128  title(mtitle), tmpstr*32, fname*64
+       character*128  titles(mtitle),  fname*64
 
        integer ibeta, ipotn, ik0, ipot, ios, ne, ie
        integer nlegx, nncrit, isporb, ipotnn, i, nlegxx
@@ -21,39 +24,59 @@ c
        double precision  angle, cosb, vicorr, vrcorr
 
 
+
+
 c     Following passed to pathfinder, which is single precision.
 c     Be careful to always declare these!
        integer necrit, nbeta
-      parameter (necrit=9, nbeta=40)
-      real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
-      real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
-      real rmax, critpw, pcritk, pcrith
-      character*6  potlbl(0:npotx)
-      character*512 inputfile, geomfile, potfile
-      integer istat, il, iox, istrln
-      external istrln
+       parameter (necrit=9, nbeta=40)
+       double precision fbetac(-nbeta:nbeta,0:npotx,necrit)
+       double precision fbeta(-nbeta:nbeta,0:npotx,nex)
+
+       double precision ckspc(necrit), cksp(nex)
+       double precision critpw, pcritk, pcrith
+       character*6  potlbl(0:npotx)
+
+       character*512 inputfile, geomfile, potfile
+       double precision  rmax, viexch, vrexch, rsexch
+       double precision  vpolar(3), vellip(3)
+       integer iexch, iedge
+
+       integer istat, il, iox, istrln, ilen
+       external istrln
 
    10 format (1x, a)
        vfeff = 'Feff6LX.01'
 
        call sca_init
        call echo_init
-       call open_echofile('feff.run')
-       call fstop_init('feff.err')
+       call open_echofile('feff6.run')
+       call fstop_init('feff6.err')
        call echo(vfeff)
+
+       call get_inpfile('feff6.inp',inputfile,istat)
+
+
+       istat = 0
+
+       call ReadFeffInp(inputfile, geomfile, titles, mtitle,
+     $      iedge, rmax, iexch, viexch, vrexch, rsexch,
+     $      vpolar, vellip, istat)
+
+
+       if (istat.ne.0) return
        
-       call get_inpfile('feff.inp',inputfile,istat)
+       do 20  i = 1, mtitle
+          ilen = istrln(titles(i))
+          if (ilen.ge.1) then
+             call echo(titles(i)(1:istrln(titles(i))))
+          endif
+ 20    continue
+       
+       call echo( 'Calculating potentials and phases...')
+       call Potentials(isporb)
 
-       call ReadFeffInp(titles, inputfile, geomfile,
-     $      iedge, rmax, iexch, viexch, vrexch, vpolar, vellip)
-
-
-      do 20  i = 1, ntitle
-         call echo(title(i))
-   20 continue
-
-      call echo( 'Calculating potentials and phases...')
-      call Potentials(isporb)
+       stop
 
 
       if (ms.eq.1  .and.  mpath.eq.1)  then

@@ -1,0 +1,16 @@
+# This is an example input file for Feff6X
+##
+
+Title   Title #1
+Title   Title #2:  This is a very long title, let's see if the entire line is read in and used, or when it will fail: abcdefghijklmnopqrstuvwxyz
+
+
+Hole  L3
+
+Rmax  9.0
+
+Exchange HL  0.2  0.3
+
+Polarization  1.0  1.0  0.0
+
+Geometry  mystructure.xyz
