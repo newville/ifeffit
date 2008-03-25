@@ -97,7 +97,7 @@ feff6_SOURCES = feff.f rdinp.f chopen.f mkptz.f setgam.f terp.f potph.f\
 	 mrb.f mcrith.f mcritk.f ipack.f heap.f pathsd.f timrep.f mpprmp.f\
 	 phash.f outcrt.f strap.f mpprmd.f genfmt.f snlm.f rdpath.f\
 	 setlam.f rot3i.f mmtr.f sclmz.f mmtrxi.f fmtrxi.f trap.f pijump.f\
-	 ff2chi.f sigms.f feffbd.f \
+	 ff2chi.f sigms.f \
 	 dist.f sdist.f xx.f getxk.f dalp.f fpot.f exchan.f exchee.f pertab.f
 
 feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
@@ -110,7 +110,7 @@ feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
 	 mrb.o mcrith.o mcritk.o ipack.o heap.o pathsd.o timrep.o mpprmp.o\
 	 phash.o outcrt.o strap.o mpprmd.o genfmt.o snlm.o rdpath.o\
 	 setlam.o rot3i.o mmtr.o sclmz.o mmtrxi.o fmtrxi.o trap.o pijump.o\
-	 ff2chi.o sigms.o feffbd.o \
+	 ff2chi.o sigms.o \
 	 dist.o sdist.o xx.o getxk.o dalp.o fpot.o exchan.o exchee.o pertab.o
 
 feff6_INC = vers.h dim.h const.h pola.h arrays.h pdata.h clmz.h fmatrx.h\
@@ -201,8 +201,8 @@ distclean-compile:
 
 maintainer-clean-compile:
 
-feff6: $(feff6_OBJECTS) $(feff6_DEPENDENCIES)
-	@rm -f feff6
+feff6x: $(feff6_OBJECTS) $(feff6_DEPENDENCIES)
+	@rm -f feff6x
 	$(F77LINK) $(feff6_LDFLAGS) $(feff6_OBJECTS) $(feff6_LDADD) $(LIBS)
 .f.o:
 	$(F77COMPILE) -c $<

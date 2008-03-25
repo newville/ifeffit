@@ -9,10 +9,9 @@ c
        include 'dim.h'
        include 'const.h'
 
-       integer ntitx
-       parameter (ntitx = 16)
-       character*128  title(ntitx), tmpstr*32, fname*64
-       integer       ltit(ntitx)
+       integer  mtitle
+       parameter (mtitle = 16)
+       character*128  title(mtitle), tmpstr*32, fname*64
 
        integer ibeta, ipotn, ik0, ipot, ios, ne, ie
        integer nlegx, nncrit, isporb, ipotnn, i, nlegxx
@@ -20,6 +19,8 @@ c
        integer mphase, mpath, mfeff, mchi, ms, ntitle
        double precision s02, tk, thetad, sig2g, critcw
        double precision  angle, cosb, vicorr, vrcorr
+
+
 c     Following passed to pathfinder, which is single precision.
 c     Be careful to always declare these!
        integer necrit, nbeta
@@ -28,12 +29,12 @@ c     Be careful to always declare these!
       real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
       real rmax, critpw, pcritk, pcrith
       character*6  potlbl(0:npotx)
-      character*128 inpfil, lfile
+      character*512 inputfile, geomfile, potfile
       integer istat, il, iox, istrln
-       external istrln
+      external istrln
 
    10 format (1x, a)
-       vfeff = 'Feff 6L.02'
+       vfeff = 'Feff6LX.01'
 
        call sca_init
        call echo_init
@@ -41,29 +42,19 @@ c     Be careful to always declare these!
        call fstop_init('feff.err')
        call echo(vfeff)
        
-       call get_inpfile('feff.inp',inpfil,istat)
+       call get_inpfile('feff.inp',inputfile,istat)
 
-       call rdinp (inpfil,
-     $      mphase, mpath, mfeff, mchi, ms,
-     1      ntitle, title, ltit,
-     2      critcw, 
-     1      ipr2, ipr3, ipr4,
-     1      s02, tk, thetad, sig2g,
-     1      nlegxx,
-     1      rmax, critpw, pcritk, pcrith, nncrit,
-     2      icsig, iorder, vrcorr, vicorr, isporb)
+       call ReadFeffInp(titles, inputfile, geomfile,
+     $      iedge, rmax, iexch, viexch, vrexch, vpolar, vellip)
+
 
       do 20  i = 1, ntitle
-         call echo(title(i)(1:ltit(i)))
+         call echo(title(i))
    20 continue
 
-      if (mphase .eq. 1)  then
-         call echo( 'Calculating potentials and phases...')
-         call potph (isporb)
-         open (unit=1, file='potph.dat', status='old', iostat=ios)
-         call chopen (ios, 'potph.dat', 'feff')
-         close (unit=1, status='delete')
-      endif
+      call echo( 'Calculating potentials and phases...')
+      call Potentials(isporb)
+
 
       if (ms.eq.1  .and.  mpath.eq.1)  then
 
@@ -105,11 +96,11 @@ c        Dump out fbetac for central atom and first pot
      1                critpw, ipotnn, ipr2, 
      1                pcritk, pcrith, nncrit, potlbl)
 
-         if (ipr2 .lt. 2)  then
-            open (unit=1, file='geom.dat', status='old')
-            call chopen (ios, 'geom.dat', 'feff')
-            close (unit=1, status='delete')
-         endif
+c         if (ipr2 .lt. 2)  then
+c           open (unit=1, file='geom.dat', status='old')
+c           call chopen (ios, 'geom.dat', 'feff')
+c           close (unit=1, status='delete')
+c         endif
       endif
 
       if (mfeff .eq. 1)  then

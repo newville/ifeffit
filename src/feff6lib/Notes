@@ -22,6 +22,10 @@ Feff6 executable layout:
         writes phase.bin
 
     3.  <paths>   pathfinder
+        reads geom.dat
+        writes paths.dat
+        OK, doesn't matter so much -- we'll replace it
+
     4.  <genfmt>  for xafs path calc
         uses many common blocks:
            const.h dim.h clmz.h fmatrx.h lambda.h pdata.h nlm.h rotmat.h
@@ -32,4 +36,136 @@ Feff6 executable layout:
 	writes files.dat
         writes nstar.dat
 
+=== Proposed Format Changes:
+
+0.  Remove all 'hardwired' file names 'feff.inp', 'phase.bin', 
+    'paths.dat', etc, and pass in file names where needed.
+
+1.  Pathfinder dropped in favor of some non-Fortran version.
+    The needed modules are then:
+     <Potentials>  (pot):  atoms/potentials list -> phase.bin
+     <Pathfinder>       :  atoms list -> path list
+     <GenFMT>   (genfmt):  phase.bin + path data -> chi_path(k)
+
+2.  Replace feff.inp with an input file as follows:
+   
+ a) remove need for explicit potentials list, and simply list 
+    Atomic Positions as x,y,z, atomic number, [ipot] , [tag]
+    something like 
+         iz  x y z  [ipot]  [tag]
+    or 
+         sym x y z  [ipot]  [tag]
+
+    I'd recommend using either an established format such as
+    XYZ or UniChem XYZ (as above), or at least a format that 
+    is easily converted to one of these (say, by stripping 
+    trailing words).   These two start with a single line title, 
+    and the number of atoms listed -- fine by me.
+
+    The ipot should be optional, and automatically determined
+    from the Atomic Number/Symbol. 
+   
+    The first atom listed should be the central atom.
+
+
+ b) With the potentials list gone, the atomic coordinates in
+    a separate file, and no Pathfinder, the needed inputs are:
+      1. Edge / Hole
+      2. Rmax
+      3. Exchange Model, vi, vr.
+      4. Polarization vector / Ellipticity
+
+   That is, these are enough to pass directly into the Potentials Calc.
+   For a 'standalone executable', a feff.inp could look like:
+       Title XXX 
+       Hole  K
+       Rmax  6.0 
+       Exchange  HL 0 0
+       Polarization   1.0  0.0  0.0  
+       Geometry   MyStructure.xyz
+
+   I'm not commited to this syntax, but it seems reasonable.  
+
+   As an aside, this is a simple enough to have 'feff_potentials()' and
+   'genfmt()' be ifeffit commands....
+
+
+
+3. Potentials Calc:
+    Right now, this is actually pretty clean, and I'd propose to make
+    few changes except I/O.  That is, have the Fortran call look like:
+     
+      subroutine potentials(geom_file_name, hole, exchange_model, vr, vi)
+
+    and have the output be one file Potentials.bin, largely unchanged
+    (except using PAD format for portability).  
+  
+
+4. Pathfinder: 
+    I'd propose the output be simpler than the current paths.dat, and
+    simply list iz,x,y,z,[ipot] for each non-central atom in the path.   
+    Again, I think ipot can be optional.   So something like:
+
+    0   29   0.  0.  0.    # That is, the central atom
+    1    8   1.  1.  1.    # SS
+    2    8  -1.  1.  1.    # Another SS
+    3    8   1.  1.  1.   8   1.  1.  1.    # Triangle
+
+    That's just a suggestion.... I think the goal should be simplicity, 
+    and there's no need to include any angular info (GenFMT can do that).
+    
+5.  GenFMT:
+    This has fairly substantial changes.  I propose breaking this
+    into three routines:
+        GenFMT_init (to set potentials data, polarization data)
+        GenFMT_path (to calculate chi(k) for a path)
+        GenFMT_out  (to write feff.dat)
+  
+    GenFMT_init(potential_file, pol_vec, ellip_vec)
+       This sets up for later chi(k) calcs.
+
+       I propose a minor change to polarization / ellipticity 
+       so that pol_vector was the major axis, and ellip_vector
+       was the minor axis of the polarization ellipse
+   
+    GenFMT_path(ipot_vec, x_vec, y_vec, z_vec, nlegs, 
+                kout, ampout,   phaseout)
+
+        ipot_vec, x_vec, y_vec, z_vec each on length nlegs, 
+            giving ipot, x, y, z for all atoms in path.
+        
+        kout, ampout, phaseout are  output |chi(k)|, phase(k)
+
+        This could be used inside a feffit loop.....
+
+    GenFMT_path(path_index, ipot_vec, x_vec, y_vec, z_vec, nlegs, 
+                k, amp, phase)
+        (here all args are input)  write a feffNNNN.dat
+
+
+    Note that neither GenFMT_init nor GenFMT_path actually read 
+    the paths data.... an outer loop will do that, either in 
+    Fortran (for the standalone executable) or Ifeffit or Artemis.
+
+    subroutine genfmt_main(potentials_file, paths_file, 
+                           pol_vec, ellip_vec)
+          GenFMT_init(potentials_file, pol_vec, ellip_vec)
+          open(paths.dat)
+          read central_atom
+          loop over lines in paths.dat:
+              read path_data
+              create ipot, x, y, z arrays
+              GenFMT_path(ipot,x,y,z, k, amp, phase)
+              GenFMT_out(index, ipot,x,y,z, k, amp, phase)
+          end loop
+  
+=== Issues:
+
+I think the main issues with this change are:
+
+  a) possible lack of functionality, especially wrt Potentials options
+     (no AFOLP, NOHOLE, etc). I think this is worth it.
  
+  b) handling of polarization is now more explicit, but clearer.
+
+  
