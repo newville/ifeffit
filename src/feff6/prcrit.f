@@ -35,7 +35,7 @@ c     Local variables
       dimension pl(ltot+1)
       dimension iecrit(necrit)
 
-
+      print*, 'prcrit 01 ne = ' , ne
 c     Need stuff from phase.bin
 c     Read phase calculation input, data returned via commons
       open (unit=1, file='phase.bin', status='old',
@@ -45,6 +45,7 @@ c     Read phase calculation input, data returned via commons
       close (unit=1)
 c     Pass out ne, ik0, potlbl (from rphbin via /pdata/)
       neout = ne
+      print*, 'prcrit 02 ne = ' , ne
       ik0out = ik0
       do 40  i = 0, npotx
          potlb0(i) = potlbl(i)

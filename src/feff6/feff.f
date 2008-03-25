@@ -67,9 +67,12 @@ c     Be careful to always declare these!
 
       if (ms.eq.1  .and.  mpath.eq.1)  then
 
+
          call echo('Preparing plane wave scattering amplitudes...')
+         print*, 'feff-> prcrit  ne, nncrit = ' , ne, nncrit
          call prcrit (ne, nncrit, ik0, cksp, fbeta, ckspc, 
      1                fbetac, potlbl)
+         print*, 'after prcrit  ne, nncrit = ' , ne, nncrit
 
 c        Dump out fbetac for central atom and first pot
          if (ipr2 .ge. 3 .and. ipr2.ne.5)  then

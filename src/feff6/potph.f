@@ -144,11 +144,14 @@ c     Make energy mesh and position grid
       dx = .05d0
       x0 = 8.8d0
       edge = xmu - vr0
+      print*,  'potph -> phmesh ', ne
+
       call phmesh (nr, dx, x0, nemax, iprint,
      1             ixanes, edge, xmu, vint, vr0,
      1             imt, edens, nph,
      2             ri, ne, em, ik0)
 
+      print*,  'potph after phmesh ', ne
 c     Cross section calculation, use phase mesh for now
 c     remove xanes calculation in feff6l
 
@@ -160,10 +163,12 @@ c        fix up variable for phase
      1                vint, rhoint, nr, dx, x0, ri,
      2                vtotph, rhoph)
 
+         print*,  'potph -> phase ', ne
          call phase (iph, nr, dx, x0, ri, ne, em, edge,
      1               ixc, rmt(iph), xmu, vi0, rs0, gamach,
      2               vtotph, rhoph,
      3               eref, ph(1,1,iph), lmax(iph))
+         print*,  'potph after phase ', ne
    60 continue
 
       if (iprint .ge. 2)  then

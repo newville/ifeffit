@@ -7,15 +7,19 @@
      overlapped potential and density for unique potential    1
      muffin tin radii and interstitial parameters
      phase shifts for unique potential    0
+   Hard tests failed in fovrg.
+  Muffin-tin radius may be too large; coordination number too small.
      phase shifts for unique potential    1
+   Hard tests failed in fovrg.
+  Muffin-tin radius may be too large; coordination number too small.
  Preparing plane wave scattering amplitudes...
    nncrit in prcrit       9
  Searching for paths...
      Rmax  5.5000  keep and heap limits   0.0000000   0.0000000
     Preparing neighbor table
      nfound  nheap  nheapx  nsc    r
-     Rmax  5.5000  keep and heap limits   0.0000000   0.0000000
-     Paths found     1038   (nheapx, nbx     186   4)
+       1000     17     178   4    5.2920
+     Paths found     1038   (nheapx, nbx     178   4)
  Eliminating path degeneracies...
      Plane wave chi amplitude filter   2.50%
      Unique paths     19,  total paths     654
