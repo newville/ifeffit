@@ -37,30 +37,3 @@ c
       print *, ' Potentials Done'
       return 
       end
-
-      subroutine ReadXYZ(geomfile, natx, ipot, iatnum, rat,
-     $     natoms, title)
-
-      character*(*) geomfile
-      integer iflen, ios, istrln, iret, iread
-      character  line*256, tmpstr*1024
-      
-      iflen = istrln(geomfile)
-
-      open (unit=1, file=geomfile, status='old', iostat=ios)
-      if (ios .gt. 0)  then
-         istat = ios
-         write(tmpstr,10) geomfile(1:iflen)
- 10      format ("Feff6 cannot open Geometry file '",a, "'")
-         call echo(tmpstr)
-         return
-      endif 
-      
-c     
-
-      print*, ' reading Geometry file'
- 100  continue
-      iret = iread(1, line)
-
-      return 
-      end

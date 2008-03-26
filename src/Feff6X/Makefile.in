@@ -99,7 +99,7 @@ feff6_SOURCES = feff.f rdinp.f chopen.f mkptz.f setgam.f terp.f potph.f\
 	 setlam.f rot3i.f mmtr.f sclmz.f mmtrxi.f fmtrxi.f trap.f pijump.f\
 	 ff2chi.f sigms.f \
 	 dist.f sdist.f xx.f getxk.f dalp.f fpot.f exchan.f exchee.f pertab.f \
-	 ReadFeffInp.f Potentials.f
+	 ReadFeffInp.f ReadXYZ.f Potentials.f 
 
 feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
 	 rpotph.o rdhead.o atom.o indata.o getorb.o dirac.o inouh.o\
@@ -113,7 +113,7 @@ feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
 	 setlam.o rot3i.o mmtr.o sclmz.o mmtrxi.o fmtrxi.o trap.o pijump.o\
 	 ff2chi.o sigms.o \
 	 dist.o sdist.o xx.o getxk.o dalp.o fpot.o exchan.o exchee.o pertab.o \
-	 ReadFeffInp.o Potentials.o 
+	 ReadFeffInp.o ReadXYZ.o Potentials.o 
 
 feff6_INC = vers.h dim.h const.h pola.h arrays.h pdata.h clmz.h fmatrx.h\
 	 lambda.h nlm.h rotmat.h echo.h
