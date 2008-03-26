@@ -342,6 +342,23 @@ c
        return
 c end subroutine str2il
        end
+
+      logical function is_comment(line)
+c
+c  returns true if line is a comment or blank line, false otherwise
+c  comment lines start with one of:  '#', '*', ';', '%'
+      character*(*) line, l1*1, com*4
+      parameter(com = '#*;%')
+      integer istrln
+      external istrln
+      is_comment = .false.
+      l1 = line(1:1)
+      if ((istrln(line).le.0) .or. (index(com,l1).ge.1)) then
+         is_comment = .true.
+      endif
+      return
+      end
+
        
        logical function isnum (string)
 c  tests whether a string can be a number. not foolproof!

@@ -33,11 +33,11 @@ c
       character*1024  line, tmpstr
       integer istrln, ilen, jlen, iflen, iret, i, ierr, ios
       integer mwords, nwords, ititle, iread
-      logical iscomm, debug
+      logical is_comment, debug
       parameter (mwords = 16)
       character*32 words(mwords), key
      
-      external istrln, iscomm, iread
+      external istrln, is_comment, iread
 
 
       debug = istat.eq.1
@@ -84,7 +84,7 @@ c  reading loop for lines in inputfile
       if (iret.eq. 0) goto  100     ! blank line, get next
       if (iret.le.-1) goto  300     ! end of input, finish loop
       call triml(line)
-      if (iscomm(line))  goto 100
+      if (is_comment(line))  goto 100
       nwords = mwords
       do 105 i = 1, 5 
          words(i) = '0.0'

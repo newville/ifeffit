@@ -148,14 +148,14 @@ XAFS_SRC = str.f kkmclr.f fftpack.f conv_lor.f specfun.f  \
 	padlib.f sort2.f  preedg.f clcalc.f clbfun.f minpack.f  \
 	spline.f splfun.f bvalue.f fitfft.f xafsft.f window.f fitfun.f \
 	genfun.f fiterr.f misc_num.f iread.f misc_io.f compat.f \
-	inpout.f uwxrdf.f chiout.f rdffdt.f get_inpfile.f echo.f
+	inpout.f uwxrdf.f chiout.f rdffdt.f get_inpfile.f echo.f atomic.f
 
 
 XAFS_OBJ = str.o kkmclr.o fftpack.o conv_lor.o specfun.o  \
 	padlib.o sort2.o  preedg.o clcalc.o clbfun.o minpack.o  \
 	spline.o splfun.o bvalue.o fitfft.o xafsft.o window.o fitfun.o \
 	genfun.o fiterr.o misc_num.o iread.o misc_io.o compat.o \
-	inpout.o uwxrdf.o chiout.o rdffdt.o get_inpfile.o echo.o
+	inpout.o uwxrdf.o chiout.o rdffdt.o get_inpfile.o echo.o atomic.o
 
 ########
 # Scanning files ...  

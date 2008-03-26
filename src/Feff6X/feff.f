@@ -52,7 +52,7 @@ c
 
        call get_inpfile('feff6.inp',inputfile,istat)
 
-       istat = 1
+       istat = 0
 
        call ReadFeffInp(inputfile, geomfile, potfile, titles, mtitle,
      $      iedge, iexch, viexch, vrexch, rsexch,
@@ -64,13 +64,13 @@ c istat .ne. 0 means an error reading the input file (no file??)
        do 20  i = 1, mtitle
           ilen = istrln(titles(i))
           if (ilen.ge.1) then
-             call echo(titles(i)(1:istrln(titles(i))))
+             call echo('    '//titles(i)(1:istrln(titles(i))))
           endif
  20    continue
        
 
        call echo( 'Calculating potentials and phases...')
-       istat = 1
+       istat = 0
 
        call Potentials(geomfile, potfile,
      $      iedge, iexch, viexch, vrexch, rsexch, istat)

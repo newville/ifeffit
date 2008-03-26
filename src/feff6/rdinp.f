@@ -634,6 +634,7 @@ c        set to min (2+ times ratmin, ratmax)
 c     Set core hole lifetime (central atom quantity)
       ifr = ifrph(0)
       call setgam (iz(ifr), ihole, gamach)
+ccc      print*, ' RDINP SETGAM ', ifr, iz(ifr), ihole, gamach
 
 c     Set s02 if necessary
       if (s02 .le. 1.0e-10)  s02 = 1

@@ -2,10 +2,12 @@
 ##
 
 Title   Title #1
-Title   Title #2:  This is a very long title, let's see if the entire line is read in and used, or when it will fail: abcdefghijklmnopqrstuvwxyz
+Title  this is a a longer title line
 
+# Title  And this is a really really long title line.  Let's see if the entire line is read in and used, or when it will fail: abcdefghijklmnopqrstuvwxyz
+ 
 
-Hole  L3
+Hole  K
 
 Rmax  9.0
 
@@ -13,4 +15,6 @@ Exchange HL  0.2  0.3
 
 Polarization  1.0  1.0  0.0
 
-Geometry  mystructure.xyz
+Geometry  test.xyz
+
+Potentials mypot.bin

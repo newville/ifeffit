@@ -44,7 +44,7 @@ c     Local stuff
       character*128  title(ntitx), messag
       dimension ltit(ntitx)
       dimension ionph(0:nphx), izph(0:nphx)
-      logical iscomm
+      logical is_comment
       parameter (nssx = 16)
       dimension indss(nssx), iphss(nssx)
       dimension degss(nssx), rss(nssx)
@@ -188,7 +188,7 @@ cc         print*, ' line: ', iret, ': ', line(1:40)
          if (iret.eq. 0) goto  200
          if (iret.le.-1) line = 'END'
          call triml (line)
-         if (iscomm(line))  goto 200
+         if (is_comment(line))  goto 200
          nwords = nwordx
          call bwords (line, nwords, words)
          itok = itoken (words(1))
@@ -899,15 +899,7 @@ c     returns 0 if not a token, otherwise returns token
       endif
       return
       end
-      logical function iscomm (line)
-c     returns true if line is a comment or blank line, false otherwise
-      character*(*) line, l1*1,com*3
-       parameter(com = '*#;')
-       iscomm = .false.
-       l1 = line(1:1)
-       if (istrln(line).le.0 .or. index(com,l1).ge.1)  iscomm = .true.
-       return
-      end
+
       subroutine phstop (iph,line)
       implicit double precision (a-h, o-z)
       character*(*) line, messag*128

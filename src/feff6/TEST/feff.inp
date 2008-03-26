@@ -6,7 +6,7 @@
 
 
  POTENTIALS
-       0   29   Cu
+       0   26   Cu
        1   29   Cu
 
  ATOMS
@@ -91,3 +91,9 @@
   -1.80500    -5.41500     0.00000    1   Cu1        5.70791
  END
 
+*%# Input-mode Time-stamp: <2008/03/26 13:10:20 newville>
+
+
+*!!&& Local Variables:
+*!!&& input-program-name: "feff"
+*!!&& End:
