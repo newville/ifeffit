@@ -74,7 +74,7 @@ RANLIB = @RANLIB@
 VERSION = @VERSION@
 canonical_host_type = @canonical_host_type@
 
-SUBDIRS = pgstub cldata fefftab lib test cmdline autobk feffit diffkk feff6 feff6lib
+SUBDIRS = pgstub cldata fefftab lib test cmdline autobk feffit diffkk feff6 Feff6X
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 

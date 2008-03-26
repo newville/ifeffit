@@ -17,7 +17,7 @@ AC_PROG_RANLIB
 AC_INCLUDES_DEFAULT
 
 AC_PATH_PROGS(PERL,   perl perl5 perl5.8 perl5.6 perl5.005, NO_PERL )
-AC_PATH_PROGS(PYTHON, python python2 python2.3 python2.2 python2.1 python1.5, NO_PYTHON)
+AC_PATH_PROGS(PYTHON, python python2 python2.5 python2.4 python2.3 python2.2 python2.1, NO_PYTHON)
 
 AC_CONFIG_SUBDIRS(readline) 
 
@@ -109,6 +109,7 @@ AC_OUTPUT([src/Makefile
           src/diffkk/Makefile
 	  src/test/Makefile 
 	  src/feff6/Makefile
+	  src/Feff6X/Makefile
           Makefile ])
 
 # $SHELL ./config.status
