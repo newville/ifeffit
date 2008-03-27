@@ -58,7 +58,27 @@ c
 c  get core-hole width
       call setgam (iatnum(ipot0), ihole, gamach)
 
+c
+c  get free atom potentials and densities
+c     NB wsatom is needed in SUMAX, if changed here, change it there
+      wsatom = 15
+c     do not save spinors
+      ispinr = 0
+      do 20  ifr = 0, nfr
+         itmp = 0
+         if (ifr .eq. 0)  itmp = ihole
+         write(messag,10)
+     $        'free atom potential and density for atom type', ifr
+         call echo(messag)
+         call atom (head0(1)(1:40), ifr, iz(ifr), itmp, wsatom,
+     1              ion(ifr), vcoul(1,ifr), rho(1,ifr),
+     2              ispinr, dgc0, dpc0, et)
+c        etfin is absorbing atom final state total energy
+c        etinit is absorbing atom initial state (no hole)
+         if (ifr .eq. 0)  etfin = et
+   20 continue
 
+c
 c done!
       print*, 'Potentials done.  ', potfile(1:istrln(potfile))
       print*, '   Edge: ', ihole, ipot0, iatnum(ipot0), gamach

@@ -130,7 +130,7 @@ c if this ipot has been seen before, check that it was for the same IZ!!
             endif
             if (nwords.ge.6) then 
                potkey(ipot(iat)) = words(6)
-               call strreplace(potkey(ipot(iat)),'&','_')
+               call strreplace(potkey(ipot(iat)),'$','_')
             else if (potkey(ipot(iat)).eq.'') then 
                potkey(ipot(iat)) = at_symbol(iz)
             endif
@@ -218,7 +218,7 @@ c ipots are set, now set ipot array and <tab> delimited pot labels.
             izpot(i) = ipot2iz(i)
             k = istrln(potlbl)
             j = istrln(potkey(i))
-            write(potlbl,'(3a)') potlbl(1:k),'&',potkey(i)(1:j)
+            write(potlbl,'(3a)') potlbl(1:k),'$',potkey(i)(1:j)
          endif
  500  continue 
 
