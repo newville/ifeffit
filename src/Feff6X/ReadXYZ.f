@@ -1,5 +1,5 @@
-      subroutine ReadXYZ(geomfile, natx, iatnum, ipot, x, y, z,
-     $     natoms, title, istat)
+      subroutine ReadXYZ(geomfile, natx, nphx, iatnum, ipot, 
+     $     x, y, z, natoms, izpot, potlbl, title, istat)
 c
 c  Read an XYZ file (or Feff-extended XYZ file) for Feff cluster of atoms
 c
@@ -20,26 +20,23 @@ c  The approaches here are:
 c       allow a fourth column detaermining the Absorbing Atom
 c 
       implicit none
-      character*(*) geomfile, title
-      integer iflen, ios, istrln, iret, iread, natoms, iz, natx
+      integer iflen, ios, istrln, iret, iread, natoms, iz, natx, nphx
       integer mpots, mwords, nwords, ititle, nat1, iat
-      integer ipottmp, istat, ierr, nline, i, j, max_ipot
-
-      character  line*256, tmpstr*1024
-
-      integer iatnum(natx), ipot(natx)
-      double precision x(natx), y(natx), z(natx)
+      integer istat, ierr, nline, i, j, k, max_ipot
 
       logical is_comment, debug, has_ipot0, re_order_ipots
-
-
       parameter (mwords = 8, mpots = 9)
 
-      integer ipot2iz(0:mpots+1)
+      character*(*) geomfile, title, potlbl
+      character  line*256, tmpstr*1024, at_symbol*2
+      character*32 words(mwords), key, potkey(0:mpots+1)
 
-      character*32 words(mwords), key
+      double precision x(natx), y(natx), z(natx)
+
+      integer iatnum(natx), ipot(natx), izpot(0:nphx)
+      integer ipot2iz(0:mpots+1)
      
-      external istrln, is_comment
+      external istrln, is_comment, at_symbol
 
       iflen = istrln(geomfile)
 
@@ -56,7 +53,7 @@ c
 
       if (istat.ne.0) return
 
-c
+c initialize
       do 20 i = 1, natx
          x(i) = 0.d0
          y(i) = 0.d0
@@ -64,9 +61,13 @@ c
          iatnum(i) = -1
          ipot(i)   = -1
  20   continue
+      do 22 i = 1, nphx
+         izpot(i) = 0
+ 22   continue 
 
       do 25 i = 0, mpots+1
          ipot2iz(i) = -1
+         potkey(i) = ''
  25   continue 
       nline = 0
       iat   = 0
@@ -115,8 +116,7 @@ c     read geometry file
                   call echo('Warning: '//
      $                 'IPOT must be in range 0 to 9')
                else
-c                 if this ipot has been seen before, check that
-c                 it was for the same IZ!!
+c if this ipot has been seen before, check that it was for the same IZ!!
                   do 110 i = 0, mpots
                      if ((ipot2iz(i) .eq. iz).and.
      $                    (ipot(iat) .ne. i)) then
@@ -128,24 +128,32 @@ c                 it was for the same IZ!!
                   ipot2iz(ipot(iat)) = iz                     
                endif
             endif
+            if (nwords.ge.6) then 
+               potkey(ipot(iat)) = words(6)
+               call strreplace(potkey(ipot(iat)),'&','_')
+            else if (potkey(ipot(iat)).eq.'') then 
+               potkey(ipot(iat)) = at_symbol(iz)
+            endif
          endif
       endif
       goto 100
  200  continue
+c
 c   finished reading geometry file
       close(unit=1)
-c   on error, return now
 
+c   on error, return now
       if (istat .ge. 1) return
 
-c  now, clean up the ipot assignments.
 
+c  now, clean up the ipot assignments.
 c  if IPOT=0 is not set, assign it to the first atom without an IPOT 
       if (.not.has_ipot0) then 
          do 380 i = 1, iat
             if (ipot(i).lt.0) then
                ipot(i) = 0
                ipot2iz(0) = iatnum(i)
+               potkey(0)  = at_symbol(iatnum(i))
                goto 382
             endif
  380     continue 
@@ -155,7 +163,6 @@ c  if IPOT=0 is not set, assign it to the first atom without an IPOT
 
 c
 c  loop over atoms to assign ipots
-c
       do 410 i = 1, iat
 c
 c   if the ipot is not assigned, loop (while-loop) to find
@@ -170,12 +177,13 @@ c   not that we start at ipot=1, ignoring ipot 0
             else if (ipot2iz(j) .lt. 0) then
                ipot(i) = j
                ipot2iz(j) = iatnum(i)
+               potkey(j)  = at_symbol(iatnum(i))
             else if (j.lt.mpots) then
                goto 405
             endif
          endif
  410  continue 
-
+c
 c now check that ipots are sequential, with now breaks
  450  continue 
       max_ipot = 0
@@ -188,6 +196,8 @@ c now check that ipots are sequential, with now breaks
          if (ipot2iz(i).lt.0) then 
             ipot2iz(i) = ipot2iz(max_ipot)
             ipot2iz(max_ipot) = -1
+            potkey(i)  = potkey(max_ipot)
+            potkey(max_ipot) = ''
             do 485 j = 1, iat
                if (ipot(j) .eq. max_ipot) ipot(j) = i
  485        continue 
@@ -198,17 +208,30 @@ c now check that ipots are sequential, with now breaks
  492  continue 
       if (re_order_ipots) goto 450
 
+c
+c ipots are set, now set ipot array and <tab> delimited pot labels.
+      izpot(0) = ipot2iz(0)
+      potlbl   = potkey(0)(1:istrln(potkey(0)))
 
-      print*, ' Final IPOT->IZ mapping'
-      do i = 0, mpots
-         if (ipot2iz(i).ge.0)  print*, i, ipot2iz(i)
-      enddo
-
-      print*, ' Final Atom list:'
-      do 500 i = 1, iat
-         print*, iatnum(i), ipot(i), x(i),y(i),z(i)
+      do 500 i = 1, mpots
+         if (ipot2iz(i).ge.0) then
+            izpot(i) = ipot2iz(i)
+            k = istrln(potlbl)
+            j = istrln(potkey(i))
+            write(potlbl,'(3a)') potlbl(1:k),'&',potkey(i)(1:j)
+         endif
  500  continue 
 
+c$$$      print*, ' Final IPOT->IZ mapping'
+c$$$      do i = 0, mpots
+c$$$         if (ipot2iz(i).ge.0)  print*, i, ipot2iz(i), potkey(i)
+c$$$      enddo
+
+c$$$      print*, ' Final Atom list:'
+c$$$      do 500 i = 1, iat
+c$$$         print*, iatnum(i), ipot(i), x(i),y(i),z(i)
+c$$$ 500  continue 
+c$$$
 
       return 
       end

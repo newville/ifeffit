@@ -104,6 +104,28 @@ c replace tabs with blanks :    tab is ascii dependent
        return
 c end subroutine untab
        end
+       subroutine strreplace(s,s1,s2)
+c replace s1 with s2 in string s
+       integer      i, j, i1, i2, istrln, n
+       character*(*) s, s1, s2
+       i1 = istrln(s1)
+       i2 = istrln(s2)
+
+       j = 1
+       n = 0
+ 30    continue
+       i = index(s(j:),s1(1:i1))
+       n = n+1
+       if ((n.le.1024).and.(i .ne. 0)) then
+          i = i+j-1
+          s = s(1:i-1)//s2(1:i2)//s(i+i1:)
+          j = i + i2
+          go to 30
+       end if
+       return
+c end subroutine strreplace
+       end
+
       subroutine uncomm(str)
 c
 c purpose: remove comments from a string
