@@ -13,6 +13,10 @@ LIB=''
 found='n'
 
 find_lib() {
+  if [ -f $1/lib$2.dylib ] ; then 
+       DIR=$1 
+       LIB=$2
+   fi	
   if [ -f $1/lib$2.a ] ; then 
        DIR=$1 
        LIB=$2
