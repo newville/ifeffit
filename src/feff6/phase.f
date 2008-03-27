@@ -72,6 +72,7 @@ c     rmt = (exp (x-1)*dx - x0).  xmt used in fovrg
 c     calculate phase shifts
       do 220 ie = 1, ne
 
+         ihard = 0
          call xcpot (iph, ie, nr, index, ifirst, jri,
      1               em(ie), xmu, vi0, rs0, gamach,
      2               vtot, edens,
