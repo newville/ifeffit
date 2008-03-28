@@ -6,13 +6,13 @@ c wrapper for Feff's Potentials Calculation
 c     
       implicit none
       include 'dim.h'
-
+      include 'const.h'
       character*(*)     geomfile, potfile
       double precision  viexch, vrexch, rsexch
-      integer iexch, ihole, istat
+      integer iexch, ihole, istat, j
 
       character*1024  line, tmpstr
-      integer istrln, ilen, jlen, iflen, iret, i, ierr, ios
+      integer istrln, ilen, jlen, iflen, iret, i, ierr, ios, jmt
       integer mwords, nwords, ititle, jstat, ipot0, itmp,ifr, nph
       integer mrpts
       logical debug
@@ -23,14 +23,9 @@ c
       double precision  dgc0(mrpts), dpc0(mrpts)
       double precision  rho(mrpts,0:nphx)
       double precision  xf, xmu, x0, rs, rhoint, rnrmav, vint, edge
-      double precision dx,  em
+      double precision dx,  em(nex)
       integer  imt(0:nphx)	!r mesh index just inside rmt
       integer  inrm(0:nphx)	!r mesh index just inside rnorman
-      integer  novr(0:nphx)	!number of overlap shells for unique pot
-      integer  iphovr(novrx,0:nphx) !unique pot for this overlap shell
-      integer  nnovr(novrx,0:nphx) !number of atoms in overlap shell
-
-      integer  ifrph(0:nphx)	!given unique pot, which free atom?
       integer  iatph(0:nphx)	!given unique pot, which atom is model?
 				!(0 if none specified for this unique pot)
 
@@ -40,20 +35,18 @@ c
       double precision edens(mrpts,0:nphx) !overlapped density*4*pi
       double precision vclap(mrpts,0:nphx) !overlapped coul pot
       double precision folp(0:nphx)	!overlap factor for rmt calculation
-      double precision rovr(novrx,0:nphx) !r for overlap shell
 
       integer  iphat(natx)	!given specific atom, which unique pot?
       double precision rat(3,natx)	!cartesian coords of specific atom
 
       double precision  ri(mrpts), vtotph(mrpts), rhoph(mrpts)
 
-
       complex*16 eref(nex)		!interstitial energy ref
       complex*16 ph(nex,ltot+1,0:nphx)	!phase shifts
       integer    lmax(0:nphx)    !number of ang mom levels
 
       integer ionin
-      integer nr, ne, nemax, nat, ik0, iph, intclc, ixanes, iprint
+      integer nr, ne,  nat, jat, ik0, iph, iprint
       character*6 potlbl(0:nphx)
 
       character*32 words(mwords), key
@@ -61,18 +54,35 @@ c
       integer natoms, ipot(natx), iatnum(natx), izpot(0:nphx)
       double precision xat(natx), yat(natx), zat(natx)
       double precision gamach, etfin, et
-      external istrln
+      integer ii
+      external istrln,ii
 c
-      intclc  = 0
       iprint  = 0
-      ixanes  = 0
       debug = istat.eq.1
       if (istrln(potfile) .le. 1) potfile = 'potentials.bin'
 
+      do 25 i = 0, nphx
+         iatph(i)  = 0
+         imt(i)	   = 0
+         iatph(i)  = 0
+         xnatph(i) = 0.d0
+         rmt(i)	 = 0.d0
+         rnrm(i) = 0.d0
+         folp(i) = 1.d0
+         do 21 j = 1, mrpts
+            edens(j,i) = 0.d0
+            vtot(j,i) = 0.d0
+            vclap(j,i) = 0.d0
+ 21      continue 
+ 25   continue 
+
+
 c read XYZ geometry file
       natoms = natx
+      print*, ' Potentials -> ReadXYZ ' 
       call ReadXYZ(geomfile, natx, nphx, iatnum, ipot, 
      $     xat, yat, zat, natoms, izpot, tmpstr, title, jstat)
+
       if (jstat.ne.0) then 
          istat = 1
          return
@@ -86,15 +96,28 @@ c
          if (izpot(i).ge.1) then 
             nph = i
             potlbl(i) = words(i+1)
-            print*, i, izpot(i), potlbl(i)
+            print*, '    POT', i, izpot(i), potlbl(i)
          endif
       enddo
-
-c check which atom is Central Atom
+c
+c check which atom is Central Atom, set iatph, xnatph
       ipot0 = -1
+      nat  = -1
+      
       do 100 i = 1, natoms
-         if (ipot(i) .eq.0) ipot0 = i
+         jat = ipot(i)
+         if (jat .eq.0)  ipot0 = i
+         if (iatph(jat) .eq. 0)  then
+            nat = nat + 1
+            iatph(jat) = i
+         endif
+         xnatph(jat) = 1 + xnatph(jat)
  100  continue 
+
+c$$$      do i = 0, nat
+c$$$         print*, 'iat ', i,  iatph(i), xnatph(i)
+c$$$      enddo
+
       if (ipot0.eq.-1) then 
          istat = 1
          write(tmpstr,'(3a)')
@@ -136,19 +159,21 @@ c     Overlap potentials and densitites
      1    'overlapped potential and density for unique potential', iph
          call echo(tmpstr)
 
-         call ovrlp (iph, iphat, rat, iatph, ifrph, novr,
-     1        iphovr, nnovr, rovr, izpot, nat, rho, vcoul,
-     2        edens, vclap, rnrm)
+cc         print*, '-> ovrlp ', iph, iatph(iph), izpot(iph), nat
+         call ovrlp (iph, iphat, xat, yat, zat, iatph, 
+     1        izpot, nat, rho, vcoul, edens, vclap, rnrm)
+cc         print*, '<- ovrlp ', rho(1,iph), edens(1,iph), rnrm(iph)
    40 continue
 
 c     Find muffin tin radii, add gsxc to potentials, and find
 c     interstitial parameters
        call echo('    muffin tin radii and interstitial parameters')
        call istprm (nph, nat, iphat, xat, yat, zat, iatph, xnatph,
-     1             novr, iphovr, nnovr, rovr, folp, edens,
+     1             folp, edens,
      2             vclap, vtot, imt, inrm, rmt, rnrm, rhoint,
-     3             vint, rs, xf, xmu, rnrmav, intclc)
+     3             vint, rs, xf, xmu, rnrmav)
 
+       print*, 'Potentials after istprm ', rnrmav, nph, xmu, vint
 
 c     Initialize header routine and write misc.dat
 c$$$      call sthead (nhead0, head0, lhead0, nph, iz, rmt, rnrm,
@@ -169,32 +194,47 @@ c$$$      endif
 
 c     Phase shift calculation
 c     Make energy mesh and position grid
-      nr = 250
-      dx = .05d0
-      x0 = 8.8d0
+
       edge = xmu - vrexch
-      call phmesh (nr, dx, x0, nemax, iprint,
-     1             ixanes, edge, xmu, vint, vrexch,
-     1             imt, edens, nph,
-     2             ri, ne, em, ik0)
+      print*, 'Potentials, -> phmesh ', nph, edge, mrpts
+      call phmesh (mrpts, nex, iprint, edge, vint, vrexch,
+     1             imt, edens, nph,   ri, ne, em, ik0)
 
 c     Cross section calculation, use phase mesh for now
 c     remove xanes calculation in feff6l
 
-      do 60  iph = 0, nph
+      print*, 'Potentials, after phmesh ', nph
+      do 160  iph = 0, nph
          write(tmpstr,'(a,i3)')
      $        'phase shifts for unique potential', iph
          call echo(tmpstr)
 c        fix up variable for phase
-         call fixvar (rmt(iph), edens(1,iph), vtot(1,iph),
-     1                vint, rhoint, nr, dx, x0, ri,
-     2                vtotph, rhoph)
+c$$$         call fixvar (rmt(iph), edens(1,iph), vtot(1,iph),
+c$$$     1                vint, rhoint, nr, dx, x0, ri,
+c$$$     2                vtotph, rhoph)
 
+         
+         jmt = ii(rmt(iph))
+         print*, iph, rmt(iph), jmt
+
+         do 152  j = 1, jmt
+            vtotph(j) = vtot(j,iph)
+            rhoph(j)  = edens(j,iph)/(4*pi)
+ 152     continue
+         do 154  j = jmt+1, mrpts
+            vtotph(j) = vint
+            rhoph(j) = rhoint/(4*pi)
+ 154     continue
+
+         print*, ' -> phase ', iph
+
+         dx = .05d0
+         x0 = 8.8d0
          call phase (iph, nr, dx, x0, ri, ne, em, edge,
      1               iexch, rmt(iph), xmu, viexch, rsexch, gamach,
      2               vtotph, rhoph,
      3               eref, ph(1,1,iph), lmax(iph))
-   60 continue
+ 160  continue
 
 c     Write out phases for genfmt
 c     May need stuff for use with headers only

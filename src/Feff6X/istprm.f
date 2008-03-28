@@ -1,8 +1,8 @@
-      subroutine istprm (nph, nat, iphat, rat, iatph, xnatph,
-     1                   novr, iphovr, nnovr, rovr, folp, edens,
+      subroutine istprm (nph, nat, iphat, xat, yat, zat, iatph, xnatph,
+     1                   folp, edens,
      2                   vclap, vtot, imt, inrm, rmt, rnrm, 
      2                   rhoint,
-     3                   vint, rs, xf, xmu, rnrmav, intclc)
+     3                   vint, rs, xf, xmu, rnrmav)
 
 c     Finds interstitial parameters, rmt, vint, etc.
       implicit double precision (a-h, o-z)
@@ -11,13 +11,10 @@ c     Finds interstitial parameters, rmt, vint, etc.
       include 'dim.h'
 
       dimension iphat(natx)
-      dimension rat(3,natx)
+      dimension xat(natx), yat(natx), zat(natx)
       dimension iatph(0:nphx)
       dimension xnatph(0:nphx)
-      dimension novr(0:nphx)
-      dimension iphovr(novrx,0:nphx)
-      dimension nnovr(novrx,0:nphx)
-      dimension rovr(novrx,0:nphx)
+
       dimension folp(0:nphx)
       dimension edens(nrptx,0:nphx)
       dimension vclap(nrptx,0:nphx)
@@ -27,11 +24,8 @@ c     Finds interstitial parameters, rmt, vint, etc.
       dimension rmt(0:nphx)
       dimension rnrm(0:nphx)
 
-       character*128 messag
-c     intclc = 0, average evenly over all atoms
-c              1, weight be lorentzian, 1 / (1 + 3*x**2), x = r/rnn,
-c                 r   = distance to central atom,
-c                 rnn = distance of near neighbor to central atom
+       character*256 tmpstr
+
 
 c Find muffin tin radii.  We'll find rmt based on norman prescription,
 c ie, rmt(i) = R * folp * rnrm(i) / (rnrm(i) + rnrm(j)),
@@ -52,45 +46,40 @@ c vol_i = (pi/3)*(h_i**2 * (3*rnrm_i - h_i))
 c
 c xl_i = (rnrm_i**2 - rnrm_j**2 + rnn**2) / (2*rnn)
 
+       print*, 'hello istprm 1 ', nph
       do 140  iph = 0, nph
          voltot = 0
          rmtavg = 0
-         if (novr(iph) .gt. 0)  then
-c           Overlap explicitly defined by overlap card
-            do 124  iovr = 1, novr(iph)
-               rnn  = rovr(iovr,iph)
-               inph = iphovr(iovr,iph)
-c              Don't avg if norman spheres don't overlap
-               if (rnrm(iph)+rnrm(inph) .le. rnn)  goto 124
-               voltmp = calcvl (rnrm(iph), rnrm(inph), rnn)
-               voltmp = voltmp + calcvl (rnrm(inph), rnrm(iph), rnn)
-               rmttmp = rnn * folp(iph) * rnrm(iph) /
-     1                  (rnrm(iph) + rnrm(inph))
-               ntmp = nnovr(iovr,iph)
-               rmtavg = rmtavg + rmttmp*voltmp*ntmp
-               voltot = voltot + voltmp*ntmp
-  124       continue
-         else
-            iat = iatph(iph)
-            do 130  inat = 1, nat
-               if (inat .eq. iat)  goto 130
-               rnn = dist (rat(1,inat), rat(1,iat))
-               inph = iphat(inat)
-c              Don't avg if norman spheres don't overlap
-               if (rnrm(iph)+rnrm(inph) .lt. rnn)  goto 130
-               voltmp = calcvl (rnrm(iph), rnrm(inph), rnn)
-               voltmp = voltmp + calcvl (rnrm(inph), rnrm(iph), rnn)
-               rmttmp = rnn * folp(iph) * rnrm(iph) /
-     1                  (rnrm(iph) + rnrm(inph))
-               rmtavg = rmtavg + rmttmp*voltmp
-               voltot = voltot + voltmp
-  130       continue
-         endif
+
+         iat = iatph(iph)
+         print*, ' IPH ', iph, iat
+         do 130  inat = 1, nat
+            if (inat .eq. iat)  goto 130
+cc            rnn = dist (rat(1,inat), rat(1,iat))
+            rnn = sqrt( (xat(inat)-xat(iat))**2 +
+     $           (yat(inat)-yat(iat))**2 + (zat(inat)-zat(iat))**2)
+
+            inph = iphat(inat)
+c$$$            print*, '   inat = ', inat, rnn, inph,
+c$$$     $           rnrm(iph), rnrm(inph), rnn
+
+c     Don't avg if norman spheres don't overlap
+            if (rnrm(iph)+rnrm(inph) .lt. rnn)  goto 130
+            voltmp = calcvl (rnrm(iph), rnrm(inph), rnn)
+            voltmp = voltmp + calcvl (rnrm(inph), rnrm(iph), rnn)
+            rmttmp = rnn * folp(iph) * rnrm(iph) /
+     1           (rnrm(iph) + rnrm(inph))
+cc            print*,  ' -> rmtavg',  rmtavg, rmttmp, voltmp
+            rmtavg = rmtavg + rmttmp*voltmp
+            voltot = voltot + voltmp
+ 130     continue
+
+cc         print*, ' istrpm tmpstr: ', iat, iph, rmtavg
          if (rmtavg .le. 0)  then
-            write(messag, 132) iat, iph
-            call echo(messag)
+            write(tmpstr, 132) iat, iph
+            call echo(tmpstr)
   132       format (' WARNING: NO ATOMS CLOSE ENOUGH TO OVERLAP ATOM',
-     1              i5, ',  UNIQUE POT', i5, '!!', /,
+     1              i5, ',  UNIQUE POT', i5, '!!', 
      2              '          Rmt set to Rnorman.  May be error in ',
      3              'input file.')
             rmt(iph) = rnrm(iph)
