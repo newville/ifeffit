@@ -104,6 +104,49 @@ c replace tabs with blanks :    tab is ascii dependent
        return
 c end subroutine untab
        end
+
+       subroutine strsplit(sinp, nwords, words, delim)
+c
+c  breaks string into words using a single delimeter
+c  nwords:  max number of words (input), number of words (output)
+c  words:   pieces of the string
+c  delim:   delimeter to split string on.  Can be multi-character,
+c           but cannot be 'multi-blanks' -- these are folded into
+c           a delimiter of a single blank (the default).
+       implicit none
+       integer ldel, i, j, nwords, mwords, istrln
+       character*(*) sinp, words(nwords), delim
+       external istrln
+
+       ldel = istrln(delim)
+       if ((delim.eq.' ').or.(ldel.lt.1)) then
+          ldel = 1
+          delim = ' '
+       endif
+       mwords = nwords
+       nwords = 0
+       call triml(sinp)
+       if (istrln(sinp) .eq. 0) return
+
+       j = 1
+ 30    continue
+       i = index(sinp(j:),delim(1:ldel))
+       if ((i.gt.0).and.(nwords.lt.mwords-1)) then
+c this ignores blank words (multiple delimeters)
+          if (i.gt.1) then   
+             nwords = nwords + 1
+             words(nwords) = sinp(j:j+i-2)
+          endif
+          j = j+i+ldel-1 
+          go to 30
+       end if
+       nwords = nwords + 1
+       words(nwords) = sinp(j:)
+
+       return
+c end subroutine strsplit
+       end
+
        subroutine strreplace(s,s1,s2)
 c replace s1 with s2 in string s
        integer      i, j, i1, i2, istrln, n
