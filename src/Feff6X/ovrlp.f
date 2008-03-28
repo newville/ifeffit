@@ -1,31 +1,36 @@
-      subroutine ovrlp (iph, iphat, rat, iatph, ifrph, novr,
+      subroutine ovrlp (iph, iphat, xat, yat, zat, iatph, ifrph, novr,
      1                  iphovr, nnovr, rovr, iz, nat, rho, vcoul,
      2                  edens, vclap, rnrm)
 
 c     Overlaps coulomb potentials and electron densities for current
 c     unique potential
-      implicit double precision (a-h, o-z)
+      implicit none !! double precision (a-h, o-z)
 
       include 'const.h'
       include 'dim.h'
 
-      dimension iphat(natx)
-      dimension rat(3,natx)
-      dimension iatph(0:nphx)
-      dimension ifrph(0:nphx)
-      dimension novr(0:nphx)
-      dimension iphovr(novrx,0:nphx)
-      dimension nnovr(novrx,0:nphx)
-      dimension rovr(novrx,0:nphx)
-      dimension iz(0:nfrx)
-      dimension rho(251,0:nfrx)
-      dimension vcoul(251,0:nfrx)
-      dimension edens(nrptx,0:nphx)
-      dimension vclap(nrptx,0:nphx)
-      dimension rnrm(0:nphx)
+      integer iphat(natx)
+      integer iatph(0:nphx)
+      integer ifrph(0:nphx)
+      integer novr(0:nphx)
+      integer iphovr(novrx,0:nphx)
+      integer nnovr(novrx,0:nphx)
+      integer iz(0:nfrx)
+      integer iph, nat, ifr, iat, i, infr, inat, iovr
+      double precision rnn, ann, rlapx
+      double precision xat(natx), yat(natx), zat(natx)
+
+      double precision rovr(novrx,0:nphx)
+
+      double precision rho(251,0:nfrx)
+      double precision vcoul(251,0:nfrx)
+      double precision edens(nrptx,0:nphx)
+      double precision vclap(nrptx,0:nphx)
+      double precision rnrm(0:nphx)
 
 c     find out which free atom we're dealing with
       ifr = ifrph(iph)
+      print*, 'This is ovrlp'
 
 c     start with free atom values for current atom
       do 100  i = 1, 250
@@ -54,7 +59,9 @@ c           don't overlap atom with itself
             if (inat .eq. iat)  goto 110
 
 c           if neighbor is too far away, don't overlap it
-            rnn = dist (rat(1,inat), rat(1,iat))
+            rnn = sqrt( (xat(inat)-xat(iat))**2 +
+     $           (yat(inat)-yat(iat))**2 + (zat(inat)-zat(iat))**2)
+
             if (rnn .gt. rlapx)  goto 110
 
             infr = ifrph(iphat(inat))

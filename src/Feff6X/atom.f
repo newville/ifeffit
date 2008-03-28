@@ -65,8 +65,8 @@ c              eatom       total energy in rydbergs
 c
 c     All data is on a grid r(i) = exp (-8.8 + (i-1)*0.05)
 
-      subroutine atom (title, ifr, iz, ihole, rws, ionin, vcoul, srho,
-     1                 ispinr, dgc0, dpc0, eatom)
+      subroutine atom (title, ifr, iz, ihole, ionin, vcoul, srho,
+     1     dgc0, dpc0, eatom)
 
       implicit double precision (a-h,o-z)
       save
@@ -94,11 +94,15 @@ c     Save central atom dirac components, see comments below.
       character*40 ttl
       character*2  titre
       common /char/ titre(30), ttl
-
+      double precision rws
       dimension tden(30)
       character*30 fname
        external dalp
       data harryd /2./
+
+      rws    = 15
+      ispinr = 0
+
 
       if (iprint .ge. 3)  then
 c        prepare file for atom output

@@ -222,6 +222,7 @@ c ipots are set, now set ipot array and <tab> delimited pot labels.
          endif
  500  continue 
 
+      natoms = iat
 c$$$      print*, ' Final IPOT->IZ mapping'
 c$$$      do i = 0, mpots
 c$$$         if (ipot2iz(i).ge.0)  print*, i, ipot2iz(i), potkey(i)
