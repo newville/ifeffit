@@ -90,7 +90,7 @@ cc         print*, ' istrpm tmpstr: ', iat, iph, rmtavg
 
 c     Need potential with ground state xc, put it into vtot
       do 160  iph = 0, nph
-         call sidx (edens(1,iph), 250, rmt(iph), rnrm(iph),
+         call sidx (edens(1,iph), nrptx, rmt(iph), rnrm(iph),
      1              imax, imt(iph), inrm(iph))
          do 150  i = 1, imax
             rs = (edens(i,iph)/3)**(-third)

@@ -724,6 +724,7 @@ c     For potph...
   701    format (2i5, 1p, 2e14.6, 
      1           ' ixanes, nemax, xkmin, xkmax (inv bohr)')
          write(1,707) nfr, '  nfr'
+         print*, 'RDINP: ', nfr,  nph
   707    format (i5, a)
          do 710  ifr = 0, nfr
             write(1,708)  ifr, iz(ifr), ion(ifr)

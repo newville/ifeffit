@@ -8,7 +8,7 @@ c{vers.h -*-fortran-*-
        parameter (novrx =   8)   !max number of overlap shells
        parameter (natx  = 500)   !max number of atoms in problem
        parameter (ltot  = 24)    !max number of ang mom (arrays 1:ltot+1)
-       parameter (nrptx = 250)   !Loucks r grid used through overlap
+       parameter (nrptx = 251)   !Loucks r grid used through overlap
        parameter (nex   = 100)   !Number of energy points genfmt, etc.
        
        parameter (lamtot=  15)   !Max number of distinct lambda's for genfmt

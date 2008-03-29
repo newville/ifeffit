@@ -1,7 +1,7 @@
       subroutine sidx (rholap, npts, rmt, rnrm, imax, imt, inrm)
 
       implicit double precision (a-h, o-z)
-      dimension rholap (npts)
+      double precision  rholap(npts)
        character messag*128
       imt = ii (rmt)
       inrm = ii (rnrm)

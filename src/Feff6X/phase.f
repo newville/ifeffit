@@ -63,7 +63,10 @@ c     set imt and jri (use general Loucks grid)
 c     rmt is between imt and jri (see function ii(r) in file xx.f)
       imt = (log(rmt) + x0) / dx  +  1
       jri = imt+1
-      if (jri .gt. nr)  call fstop(' at PHASE: jri > nr')
+      if (jri .gt. nr)  then
+         print*, 'error:  ', jri, nr
+         call fstop(' at PHASE: jri > nr')
+       endif
 c     xmt is floating point version of imt, so that
 c     rmt = (exp (x-1)*dx - x0).  xmt used in fovrg
       xmt = (log(rmt) + x0) / dx  +  1

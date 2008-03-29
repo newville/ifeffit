@@ -30,7 +30,7 @@ c T.L.Louck, "Augmented Plane Wave Method", W.A.Benjamin, Inc., 1967
 
       subroutine sumax (npts, rn, ann, aa2, aasum)
       implicit double precision (a-h, o-z)
-      parameter (nptx=250)
+      parameter (nptx=251)
       dimension aa2(nptx), aasum(nptx)
       dimension stor(nptx)
        external xx

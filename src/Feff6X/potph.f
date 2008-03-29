@@ -140,7 +140,7 @@ c     Initialize header routine and write misc.dat
 
 c     Phase shift calculation
 c     Make energy mesh and position grid
-      nr = 250
+      nr = nrptx
       dx = .05d0
       x0 = 8.8d0
       edge = xmu - vr0

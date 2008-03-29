@@ -1,4 +1,4 @@
-       subroutine Potentials(geomfile, potfile,
+      subroutine Potentials(geomfile, potfile,
      $     ihole, iexch, viexch, vrexch, rsexch,istat)
 
 c 
@@ -226,14 +226,15 @@ c$$$     2                vtotph, rhoph)
             rhoph(j) = rhoint/(4*pi)
  154     continue
 
-         print*, ' -> phase ', iph
+         nr = mrpts
+
+         print*, ' -> phase ', iph, nr,  ne,  edge, lmax(iph)
 
          dx = .05d0
          x0 = 8.8d0
          call phase (iph, nr, dx, x0, ri, ne, em, edge,
      1               iexch, rmt(iph), xmu, viexch, rsexch, gamach,
-     2               vtotph, rhoph,
-     3               eref, ph(1,1,iph), lmax(iph))
+     2               vtotph, rhoph, eref, ph(1,1,iph), lmax(iph))
  160  continue
 
 c     Write out phases for genfmt

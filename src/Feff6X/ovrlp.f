@@ -17,8 +17,8 @@ c     unique potential
       double precision xat(natx), yat(natx), zat(natx)
 
 
-      double precision rho(251,0:nfrx)
-      double precision vcoul(251,0:nfrx)
+      double precision rho(nrptx,0:nfrx)
+      double precision vcoul(nrptx,0:nfrx)
       double precision edens(nrptx,0:nphx)
       double precision vclap(nrptx,0:nphx)
       double precision rnrm(0:nphx)
@@ -28,7 +28,7 @@ cc      ifr = ifrph(iph)
       ifr = iph
 
 c     start with free atom values for current atom
-      do 100  i = 1, 250
+      do 100  i = 1, nrptx
          vclap(i,iph) = vcoul(i,ifr)
          edens(i,iph) = rho  (i,ifr)
   100 continue
@@ -53,8 +53,8 @@ c     if neighbor is too far away, don't overlap it
          
 cc         infr = ifrph(iphat(inat))
          infr = iphat(inat)
-         call sumax (250, rnn, one, vcoul(1,infr), vclap(1,iph))
-         call sumax (250, rnn, one, rho  (1,infr), edens(1,iph))
+         call sumax(nrptx, rnn, one, vcoul(1,infr), vclap(1,iph))
+         call sumax(nrptx, rnn, one,   rho(1,infr), edens(1,iph))
  110  continue
 
 c     set norman radius
