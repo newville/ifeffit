@@ -32,10 +32,10 @@ c        q and q arrays  upper and lower components (see comments)
       complex*16 p(nr), q(nr), ps(nr), qs(nr), vm(nr)
 
       include 'const.h'
-      parameter (c = clight)
-      parameter (csq = c**2)
+cc      parameter (c = clight)
+      parameter (csq = clight*clight)
 
-      double precision lp1, ldcsq
+      double precision  ldcsq
       complex*16 c1,c2,c3,pc,qc,dp1,dq1,dp2,dq2,dp3,dq3,dp4,dq4
       complex*16 vh,vmh,vmnp1,psn,qsn,psnm1,qsnm1,psnm2,qsnm2
       complex*16 psnm3,qsnm3,psnm4,qsnm4,pp,qp,psnp1,qsnp1,prel,qrel
@@ -43,22 +43,22 @@ c        q and q arrays  upper and lower components (see comments)
       complex*16 vn,vmn
 
 c     test=1.e+04 value in loucks
-      test=1.e+05
+      test=1.0d5
       nrk=6
 
-      expdxh=exp(dx/2.0)
-      dxd4=dx/4.0
-      dxd8=dx/8.0
-      a1=dx*3.30
-      a2=-dx*4.20
-      a3=dx*7.80
-      a4=dx*14.0/45.0
-      a5=dx*64.0/45.0
-      a6=dx*24.0/45.0
+      expdxh=exp(dx/2)
+      dxd4=dx/4
+      dxd8=dx/8
+      a1=dx*3.3d0
+      a2=-dx*4.2d0
+      a3=dx*7.8d0
+      a4=dx*14.d0/45.d0
+      a5=dx*64.d0/45.d0
+      a6=dx*24.d0/45.d0
       call diff (v,dx,jri,vm)
       twoz=-dble (v(1))/ri(1)
       l=il-1
-      lp1=l+1.0
+      il=l+1
       ldcsq=l/csq
       ie=1
       r=ri(1)
@@ -66,18 +66,18 @@ c     test=1.e+04 value in loucks
       vmn=vm(1)
 cv    p(1)=1.0
       p(1)=1.e-20
-      q(1)=-e/(2.0*l+3.0)*r*p(1)
-      beta=lp1
+      q(1)=-e/(2*l+3)*r*p(1)
+      beta=il
       if (twoz.eq.0.0) go to 10
-      beta=sqrt(lp1*l+1.0-(twoz/c)**2)
-      sb0=(beta-lp1)*csq/twoz
-      sa1=(3.0*beta-(twoz/c)**2)/(2.0*beta+1.0)
+      beta=sqrt(il*l+1.0-(twoz/clight)**2)
+      sb0=(beta-il)*csq/twoz
+      sa1=(3.0*beta-(twoz/clight)**2)/(2.0*beta+1.0)
       sb1=csq/twoz*((beta-l)*sa1-1.0)-sb0
-      sa2=((beta+3.0*lp1)*sa1-3.0*l+twoz/csq*(beta+lp1+3.0)*sb1)/
+      sa2=((beta+3.0*il)*sa1-3.0*l+twoz/csq*(beta+il+3.0)*sb1)/
      1 (beta+1.0)/4.0
-      sb2=(csq/twoz*(2.0*l*(beta+2.0-lp1)-l-(twoz/c)**2)*sa1-3.0*l
-     1 *csq/twoz*(beta+2.0-lp1)+(beta+3.0-2.0*lp1-(twoz/c)**2)*sb1)/
-     2 (beta+1.0)/4.0
+      sb2=(csq/twoz*(2.0*l*(beta+2.0-il)-l-(twoz/clight)**2)*sa1-3*l
+     1 *csq/twoz*(beta+2-il)+(beta+3-2*il-(twoz/clight)**2)*sb1)/
+     2 (beta+1)/4
       delta=r*csq/twoz
       q(1)=(sb0+delta*(sb1+delta*sb2))/(1.0+delta*(sa1+delta*sa2))*p(1)
    10 continue
@@ -85,14 +85,14 @@ c     runge kutta method  (see loucks)
       c1=vn/r**2-e
       c2=1.0-c1/csq
       c3=(vmn-2.0*vn)/c2/c2*ldcsq
-      ps(1)=r*c2*q(1)+lp1*p(1)
-      qs(1)=-lp1*q(1)+(r*c1-c3/r**3)*p(1)
+      ps(1)=r*c2*q(1)+il*p(1)
+      qs(1)=-il*q(1)+(r*c1-c3/r**3)*p(1)
       n=1
    20 continue
       pc=p(n)
       qc=q(n)
-      dp1=dx*(r*c2*qc+lp1*pc)
-      dq1=dx*(-lp1*qc+(r*c1-c3/r**3)*pc)
+      dp1=dx*(r*c2*qc+il*pc)
+      dq1=dx*(-il*qc+(r*c1-c3/r**3)*pc)
       pc=pc+0.50*dp1
       qc=qc+0.50*dq1
       r=r*expdxh
@@ -101,14 +101,14 @@ c     runge kutta method  (see loucks)
       vh=(vn+vnp1)*.50+(vmn-vmnp1)*dxd8
       vmh=(1.50*(vnp1-vn)-(vmn+vmnp1)*dxd4)/dx
       c1=vh/r/r-e
-      c2=1.0-c1/csq
-      c3=(vmh-2.0*vh)/c2/c2*ldcsq
-      dp2=dx*(r*c2*qc+lp1*pc)
-      dq2=dx*(-lp1*qc+(r*c1-c3/r**3)*pc)
+      c2=1-c1/csq
+      c3=(vmh-2*vh)/c2/c2*ldcsq
+      dp2=dx*(r*c2*qc+il*pc)
+      dq2=dx*(-il*qc+(r*c1-c3/r**3)*pc)
       pc=pc+0.50*(dp2-dp1)
       qc=qc+0.50*(dq2-dq1)
-      dp3=dx*(r*c2*qc+lp1*pc)
-      dq3=dx*(-lp1*qc+(r*c1-c3/r**3)*pc)
+      dp3=dx*(r*c2*qc+il*pc)
+      dq3=dx*(-il*qc+(r*c1-c3/r**3)*pc)
       pc=pc+dp3-0.50*dp2
       qc=qc+dq3-0.50*dq2
       n=n+1
@@ -116,12 +116,12 @@ c     runge kutta method  (see loucks)
       c1=vnp1/r/r-e
       c2=1.0-c1/csq
       c3=(vmnp1-2.0*vnp1)/c2/c2*ldcsq
-      dp4=dx*(r*c2*qc+lp1*pc)
-      dq4=dx*(-lp1*qc+(r*c1-c3/r**3)*pc)
+      dp4=dx*(r*c2*qc+il*pc)
+      dq4=dx*(-il*qc+(r*c1-c3/r**3)*pc)
       p(n)=p(n-1)+(dp1+2.0*(dp2+dp3)+dp4)/6.0
       q(n)=q(n-1)+(dq1+2.0*(dq2+dq3)+dq4)/6.0
-      ps(n)=r*c2*q(n)+lp1*p(n)
-      qs(n)=-lp1*q(n)+(r*c1-c3/r**3)*p(n)
+      ps(n)=r*c2*q(n)+il*p(n)
+      qs(n)=-il*q(n)+(r*c1-c3/r**3)*p(n)
       vn=vnp1
       vmn=vmnp1
       if (n-nrk) 20,30,30
@@ -144,8 +144,8 @@ c     milne method
       pp=p(n-5)+a1*(psn+psnm4)+a2*(psnm1+psnm3)+a3*psnm2
       qp=q(n-5)+a1*(qsn+qsnm4)+a2*(qsnm1+qsnm3)+a3*qsnm2
       nit=0
-   50 psnp1=r*c2*qp+lp1*pp
-      qsnp1=-lp1*qp+(r*c1-c3/r**3)*pp
+   50 psnp1=r*c2*qp+il*pp
+      qsnp1=-il*qp+(r*c1-c3/r**3)*pp
       pc=p(n-3)+a4*(psnp1+psnm3)+a5*(psn+psnm2)+a6*psnm1
       qc=q(n-3)+a4*(qsnp1+qsnm3)+a5*(qsn+qsnm2)+a6*qsnm1
       if (abs(test*(pc-pp))-abs(pc)) 60,60,70

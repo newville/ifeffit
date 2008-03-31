@@ -1,6 +1,7 @@
 c{consts.h -*-fortran-*-
        double precision pi, one, zero, third, raddeg
        double precision fa, bohr, ryd, alpinv, alphfs, clight
+       double precision rgrid_dx, rgrid_x0
        complex*16 coni
 
        parameter (pi = 3.14159 26535 89793 23846 26433d0)
@@ -17,4 +18,6 @@ c  fine structure alpha
        parameter (alphfs = one / alpinv)
 c  speed of light in louck's units (rydbergs?)
        parameter (clight = 2 * alpinv)
+c rgrid parameters
+       parameter(rgrid_dx=0.05d0, rgrid_x0 = 8.8d0)
 c}

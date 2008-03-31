@@ -12,9 +12,9 @@ c
       integer iexch, ihole, istat, j
 
       character*1024  line, tmpstr
-      integer istrln, ilen, jlen, iflen, iret, i, ierr, ios, jmt
+      integer istrln, ilen, jlen, iflen, iret, i, ios, jmt
       integer mwords, nwords, ititle, jstat, ipot0, itmp,ifr, nph
-      integer mrpts
+      integer mrpts, iex, ier, npack
       logical debug
       parameter (mwords = 16)
       parameter (mrpts = 251)
@@ -22,8 +22,8 @@ c
       double precision  xnatph(0:nphx), vcoul(mrpts,0:nphx)
       double precision  dgc0(mrpts), dpc0(mrpts)
       double precision  rho(mrpts,0:nphx)
-      double precision  xf, xmu, x0, rs, rhoint, rnrmav, vint, edge
-      double precision dx,  em(nex)
+      double precision  xf, xmu, rs, rhoint, rnrmav, vint, edge
+      double precision  em(nex)
       integer  imt(0:nphx)	!r mesh index just inside rmt
       integer  inrm(0:nphx)	!r mesh index just inside rnorman
       integer  iatph(0:nphx)	!given unique pot, which atom is model?
@@ -209,14 +209,7 @@ c     remove xanes calculation in feff6l
      $        'phase shifts for unique potential', iph
          call echo(tmpstr)
 c        fix up variable for phase
-c$$$         call fixvar (rmt(iph), edens(1,iph), vtot(1,iph),
-c$$$     1                vint, rhoint, nr, dx, x0, ri,
-c$$$     2                vtotph, rhoph)
-
-         
          jmt = ii(rmt(iph))
-         print*, iph, rmt(iph), jmt
-
          do 152  j = 1, jmt
             vtotph(j) = vtot(j,iph)
             rhoph(j)  = edens(j,iph)/(4*pi)
@@ -227,12 +220,9 @@ c$$$     2                vtotph, rhoph)
  154     continue
 
          nr = mrpts
-
          print*, ' -> phase ', iph, nr,  ne,  edge, lmax(iph)
 
-         dx = .05d0
-         x0 = 8.8d0
-         call phase (iph, nr, dx, x0, ri, ne, em, edge,
+         call phase (iph, nr, ri, ne, em, edge,
      1               iexch, rmt(iph), xmu, viexch, rsexch, gamach,
      2               vtotph, rhoph, eref, ph(1,1,iph), lmax(iph))
  160  continue
@@ -259,13 +249,39 @@ c$$$   70    continue
 c$$$   80 continue
 c$$$      close (unit=1)
 
+      call openfl(1, potfile,  'unknown', iex, ier)
+      if ((ier.lt.0).or.(iex.lt.0)) then
+          call echo(' *** Error: cannot open Potentials.bin')
+          return
+       end if
+       npack = 8
+       write(1,'(a,i3)') '#:FEFF6X POT File: npad = ', npack
 
-c
+       write(1, '(a,i15)') '#% ne    ', ne
+       write(1, '(a,i15)') '#% nph   ', nph
+       write(1, '(a,i15)') '#% ihole ', ihole
+       write(1, '(a,i15)') '#% ik0   ', ik0
+       write(1, '(a,g20.14)') '#% rnrmav ', rnrmav
+       write(1, '(a,g20.14)') '#% xmu  ', xmu
+       write(1, '(a,g20.14)') '#% edge ', edge
+
+
+
+       close(1)
+c     
 c done!
       print*, 'Potentials done.  ', potfile(1:istrln(potfile))
       print*, '   Edge: ', ihole, ipot0, iatnum(ipot0), gamach
       print*, '   Exchange: ', iexch, vrexch, viexch, rsexch
-      
-      
+
+      print*, '# ne, nph, ihole, rnrmav, xmu, edge, ik0 '
+      print*,  ne, nph, ihole, rnrmav, xmu, edge, ik0 
+      do iph = 0, nph
+         print*, 'iph, lbl,iz,lmax=',
+     $        iph, potlbl(iph), izpot(iph), lmax(iph)
+      enddo
+
+       close(1)
+         
       return 
       end

@@ -1,4 +1,4 @@
-      subroutine phase (iph, nr, dx, x0, ri, ne, em, edge,
+      subroutine phase (iph, nr, ri, ne, em, edge,
      1                  index, rmt, xmu, vi0, rs0, gamach,
      2                  vtot, edens,
      3                  eref, ph, lmax)
@@ -7,8 +7,7 @@
 
 c     INPUT
 c     iph          unique pot index (used for messages only)
-c     nr, dx, x0, ri(nr)
-c                  Loucks r-grid, ri=exp((i-1)*dx-x0)
+c     nr, ri(nr)   Loucks r-grid, ri=exp((i-1)*rgrid_dx-rgrid_x0)
 c     ne, em(ne)   number of energy points, real energy grid
 c     edge         energy for k=0 (note, edge=xmu-vr0)
 c     index        0  Hedin-Lunqist + const real & imag part
@@ -30,7 +29,7 @@ c     ph(nex,ltot+1) complex scattering phase shifts
 c     lmax         max l (lmax = kmax*rmt)
 
       include 'dim.h'
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
+      include 'const.h'
 
       dimension   ri(nr), em(nex), vtot(nr), edens(nr)
       complex*16  eref(nex)
@@ -46,6 +45,7 @@ c     work space for fovrg
       complex*16 v(nrptx)
       external besjn
 
+      print*,  ' phase 1'
 c     zero phase shifts (some may not be set below)
       do 100  ie = 1, ne
          do 90  il = 1, ltot+1
@@ -61,15 +61,15 @@ c     Use kmax = 20 so we get enough l-points even if kmax is small
 
 c     set imt and jri (use general Loucks grid)
 c     rmt is between imt and jri (see function ii(r) in file xx.f)
-      imt = (log(rmt) + x0) / dx  +  1
+      imt = (log(rmt) + rgrid_x0) / rgrid_dx  +  1
       jri = imt+1
       if (jri .gt. nr)  then
          print*, 'error:  ', jri, nr
          call fstop(' at PHASE: jri > nr')
        endif
 c     xmt is floating point version of imt, so that
-c     rmt = (exp (x-1)*dx - x0).  xmt used in fovrg
-      xmt = (log(rmt) + x0) / dx  +  1
+c     rmt = (exp (x-1)*rgrid_dx - rgrid_x0).  xmt used in fovrg
+      xmt = (log(rmt) + rgrid_x0) / rgrid_dx  +  1
 
       ifirst = 0
 c     calculate phase shifts
@@ -77,9 +77,7 @@ c     calculate phase shifts
 
          call xcpot (iph, ie, nr, index, ifirst, jri,
      1               em(ie), xmu, vi0, rs0, gamach,
-     2               vtot, edens,
-     3               eref(ie), v,
-     4               vxcrmu, vxcimu)
+     2               vtot, edens, eref(ie), v,vxcrmu, vxcimu)
 
 c        fovrg needs v in form pot*r**2
          do 120  i = 1, jri
@@ -95,13 +93,13 @@ c        p2 is (complex momentum)**2 referenced to energy dep xc
             l = il - 1
 
             call fovrg (il, ihard, rmt, xmt, jri, p2, 
-     1                  nr, dx, ri, v, dny,
+     1                  nr, rgrid_dx, ri, v, dny,
      1                  pu, qu, p, q, ps, qs, vm)
 
 
             temp = (jl(il)*(dny-l) + xkmt*jl(il+1))  /
      1             (nl(il)*(dny-l) + xkmt*nl(il+1))
-            xx = dble (temp)
+            xx = dble(temp)
             yy = dimag(temp)
             if (xx .ne. 0)  then
                alph = (1 - xx**2 - yy**2)

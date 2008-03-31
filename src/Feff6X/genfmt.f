@@ -31,7 +31,7 @@ c     iorder, order of approx in f-matrix expansion (see setlam)
 c             (normal use, 2.  Do ss exactly regardless of iorder)
 
 c     used for divide-by-zero and trig tests
-      parameter (eps = 1.0e-16)
+      parameter (eps = 1.0d-16)
 
 c     Read phase calculation input, data returned via commons
       open (unit=1, file='phase.bin', status='old',

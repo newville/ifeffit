@@ -31,7 +31,7 @@ c***********************************************************************
 
 c     calculate quinn prefactor in atomin Hartree units
       pisqrt = sqrt(pi)
-      pfq = pisqrt / (32 * (alphaq*rs)**1.5)
+      pfq = pisqrt / (32 * (alphaq*rs)**1.5d0)
       temp1 = atan (sqrt (pi / (alphaq*rs)))
       temp2 = sqrt(alphaq*rs/pi) / (1 + alphaq*rs/pi)
       pfq = pfq * (temp1 + temp2)
@@ -41,7 +41,7 @@ c     wkc = quinn's plasmon threshold
 c     wkc is cut-off of quinn, pr126, 1453, 1962, eq. (11)
 c     in formulae below wp=omegap/ef
       wkc = (sqrt(1+wp) - 1)**2
-      wkc = (1 + (6./5.) * wkc / wp**2) * wp * ef
+      wkc = (1 + 1.2d0*wkc / wp**2) * wp * ef
 
 c     we add fermi energy to get correct energy for
 c     plasma excitations to turn on
@@ -53,7 +53,7 @@ c     gamryd = 2 * (pfqryd/x) * (x**2-1)**2
 
 c     put in fermi function cutoff
       eabs = ef * x**2
-      arg = (eabs-ekc) / (0.3*ekc)
+      arg = (eabs-ekc) / (0.3d0*ekc)
       f = 0
       if (arg .lt. 80)  f = 1 / (1 + exp(arg))
 

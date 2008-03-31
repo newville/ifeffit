@@ -4,6 +4,7 @@ c     input data is passed here to indata for processing
       subroutine indata (iz, ihole, wsin, ionin)
 
       implicit double precision (a-h, o-z)
+      include 'const.h'
       save
 
 c     logical unit from which to read input
@@ -49,35 +50,32 @@ c l=0 standard option for the bloc ofs points and their precision
 c finite nuclear size option if nuc is positive
 c if irnorm=1 renormalize potential to wigner-seitz radius
 
-      dvc=137.0373
-      dsal=dvc+dvc
       iz1=0
       ion1=0
       nuc1=-1
-      dpas=0.05
-      dr1=0.01
-      nes=15
-
-      niter=50
+      dpas = 0.05d0
+      dr1  = 0.01d0
+      nes  = 15
+      niter= 50
 
 c     orig values:  teste 5.e-6, testy 1.e-5, testv 1.e-5, test 1.e-7
 c     JM used teste 5.0e-5 to treat negative ion,
 c     SZ changed teste to 1.0e-4 for selenium only to avoid convergence
 c     problems with this particular atom.
 c     teste set to 1.0e-4 to reduce run time (sz and jjr)
-      teste = 1.0e-4
-      testy=1.e-04
-      testv=1.e-04
-      test=1.e-07
+      teste = 1.0d-4
+      testy=1.d-04
+      testv=1.d-04
+      test=1.d-07
 
       np=251
       nstop=30
 
 c     Set dexv to zero for use with exafs model
-      dexv = 0.0
+      dexv = 0
 
-      dexe=1.5
-      dcop=0.3
+      dexe=1.5d0
+      dcop=0.3d0
 
 c     i, j, k set to zero when old read statements removed
       i=0
@@ -126,12 +124,12 @@ c testv = self-consistency criteria for the potential
          read (linp,*,end=900) dval
 c        dval = atomic mass if nuc positive
 
-         dval=z*(dval**(1.0/3.0))*2.267700e-05/exp(4.0*dpas)
+         dval=z*(dval**third)*2.267700d-05/exp(4*dpas)
          if (dval .le. dr1)  then
             dr1=dval
             nuc=5
          else
-            dval=dval*exp(4.0*dpas)
+            dval=dval*exp(4*dpas)
             do 170 i=6,np
                d1=dr1*exp((i-1)*dpas)
                if (d1.ge.dval) goto 190
@@ -153,8 +151,7 @@ c        dval = atomic mass if nuc positive
      2        23x,'wave functions  ',1pe9.2,//,
      3        23x,'potential',1pe9.2,/)
 
-      xtmp = 8.8
-      dr1=z*exp(-xtmp)
+      dr1=z*exp(-8.8d0)
 
       if (iprint .ge. 5)  write(16,220) np,dr1,iz,dpas
   220 format (' the integration is made on ', i3,
@@ -169,7 +166,7 @@ c        dval = atomic mass if nuc positive
   240 format ('  dexv=', 1pe14.7, '     dexe=' ,1pe14.7,
      1        ' if dexv=0.0 hedin-barth corr. and exchan. is used'/)
       k=0
-      dval=z*z/(dvc*dvc)
+      dval=z*z/(alpinv*alpinv)
 
 
       if (nuc.gt.0) then
@@ -335,7 +332,7 @@ c     End of block above
          if ((j-2*(j/2)).eq.0) l=-l
          dq1(i)=l*nk(i)/iabs(nk(i))
          if (nuc .ne. 0  .and.  nk(i) .lt. 0)  then
-            dq1(i)=dq1(i)*(nk(i)-dfl(i))*dvc/z
+            dq1(i)=dq1(i)*(nk(i)-dfl(i))*alpinv/z
          endif
   660 continue
 

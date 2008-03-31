@@ -30,10 +30,13 @@ c T.L.Louck, "Augmented Plane Wave Method", W.A.Benjamin, Inc., 1967
 
       subroutine sumax (npts, rn, ann, aa2, aasum)
       implicit double precision (a-h, o-z)
+      double precision delta, c88, half
+      parameter (delta = 0.05d0, c88 = 8.8d0, half= 0.5d0)
+
       parameter (nptx=251)
       dimension aa2(nptx), aasum(nptx)
       dimension stor(nptx)
-       external xx
+      external xx
 c     jjchi     index beyond which aa2 is zero
 c     jtop      index just below distance to neighbor
 c               aasum is calculated only up to index jtop
@@ -47,52 +50,52 @@ c     Wigner-Seitz radius is set to 15 in ATOM.
 
       do 120  i = 1, jtop
          x = xx(i)
-         xint = 0.0
+         xint = 0
          et = exp(x)
          blx = log(rn-et)
          if (blx .ge. topx)  goto 119
-         jbl = 2.0+20.0*(blx+8.8)
+         jbl = 2+20*(blx+c88)
          if (jbl .lt. 1)  jbl=1
          if (jbl .ge. 2)  then
 c           use linear interp to make end cap near center of neighbor
             xjbl = jbl
-            xbl = 0.05 * (xjbl-1.0) - 8.8
+            xbl = delta * (xjbl-1.0) -c88
             g = xbl-blx
-            xint = xint+0.5*g*(aa2(jbl)*(2.0-20.0*g)*exp(2.0*xbl)
-     1             +20.0*g*aa2(jbl-1)*exp(2.0*(xbl-0.05)))
+            xint = xint+ half*g*(aa2(jbl)*(2-20*g)*exp(2*xbl)
+     1             +20*g*aa2(jbl-1)*exp(2*(xbl-delta)))
          endif
          tlx = log(rn+et)
          if (tlx .ge. topx)  then
             jtl = jjchi
             go to 90
          endif
-         jtl = 1.0 + 20.0*(tlx+8.8)
+         jtl = 1 + 20*(tlx+c88)
          if (jtl .lt. jbl)  then
 c           handle peculiar special case at center of atom 1
-            fzn = aa2(jtl)*exp(2.0*(xbl-0.05))
-            fz3 = aa2(jbl)*exp(2.0*xbl)
-            fz2 = fzn+20.0*(fz3-fzn)*(tlx-xbl+0.05)
-            fz1 = fzn+20.0*(fz3-fzn)*(blx-xbl+0.05)
-            xint = 0.5*(fz1+fz2)*(tlx-blx)
+            fzn = aa2(jtl)*exp(2*(xbl-delta))
+            fz3 = aa2(jbl)*exp(2*xbl)
+            fz2 = fzn+20*(fz3-fzn)*(tlx-xbl+delta)
+            fz1 = fzn+20*(fz3-fzn)*(blx-xbl+delta)
+            xint = half*(fz1+fz2)*(tlx-blx)
             go to 119
          endif
          xjtl = jtl
-         xtl = 0.05*(xjtl-1.0)-8.8
+         xtl = delta*(xjtl-1)-c88
          c = tlx-xtl
-         xint = xint+0.5*c*(aa2(jtl)*(2.0-20.0*c)
-     1         *exp(2.0*xtl)+aa2(jtl+1)*20.0*c
-     2         *exp(2.0*(xtl+0.05)))
+         xint = xint+ half*c*(aa2(jtl)*(2-20*c)
+     1         *exp(2*xtl)+aa2(jtl+1)*20*c
+     2         *exp(2*(xtl+delta)))
 
    90    if (jtl .gt. jbl)  then
-  100       xint = xint+0.5*(aa2(jbl)*exp(2.0*xbl)+aa2(jbl+1)
-     1             *exp(2.0*(xbl+0.05)))*0.05
+  100       xint = xint+half*(aa2(jbl)*exp(2*xbl)+aa2(jbl+1)
+     1             *exp(2*(xbl+delta)))*delta
             jbl = jbl+1
             if (jbl .lt. jtl) then
-               xbl = xbl+0.05
+               xbl = xbl+delta
                go to 100
             endif
          endif
-  119    stor(i) = 0.5*xint*ann/(rn*et)
+  119    stor(i) = half*xint*ann/(rn*et)
   120 continue
 
       do 190  i = 1, jtop

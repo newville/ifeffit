@@ -1,8 +1,6 @@
       subroutine xcpot (iph, ie, nr, index, ifirst, jri,
      1                  em, xmu, vi0, rs0, gamach,
-     2                  vr, densty,
-     3                  eref, v,
-     4                  vxcrmu, vxcimu)
+     2                  vr, densty, eref, v, vxcrmu, vxcimu)
 
       implicit double precision (a-h, o-z)
 
@@ -47,7 +45,7 @@ c     in rydbergs.  (Factor of 2 to convert from one to the other.)
       dimension   vr(nr), densty(nr)
       complex*16  eref, v(nr)
       dimension   vxcrmu(nr), vxcimu(nr)
-       character*128 messag
+      character*128 messag
       complex*16  delta
 
 c     First calculate vxc to correct the local momentum dispersion
