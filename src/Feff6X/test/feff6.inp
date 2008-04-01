@@ -9,11 +9,11 @@ Title  this is a a longer title line
 
 Hole  K
 
-Rmax  9.0
+Rmax  4.0
 
-Exchange HL  0.2  0.3
+Exchange HL  0.  0.
 
-Polarization  1.0  1.0  0.0
+Polarization  0.0  0.0  0.0
 
 Geometry  test.xyz
 
