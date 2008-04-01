@@ -1,5 +1,5 @@
-      subroutine Potentials(geomfile, potfile,
-     $     ihole, iexch, viexch, vrexch, rsexch,istat)
+      subroutine Potentials(geomfile, potfile, ihole, 
+     $     iexch, viexch, vrexch, rsexch, rmult, istat)
 
 c 
 c wrapper for Feff's Potentials Calculation
@@ -8,7 +8,7 @@ c
       include 'dim.h'
       include 'const.h'
       character*(*)     geomfile, potfile
-      double precision  viexch, vrexch, rsexch
+      double precision  viexch, vrexch, rsexch, rmult, rfac
       integer iexch, ihole, istat, j
 
       character*1024  line, tmpstr
@@ -82,6 +82,13 @@ c read XYZ geometry file
       print*, ' Potentials -> ReadXYZ ' 
       call ReadXYZ(geomfile, natx, nphx, iatnum, ipot, 
      $     xat, yat, zat, natoms, izpot, tmpstr, title, jstat)
+      
+      rfac = rmult / bohr
+      do 60 i = 1, natoms
+         xat(i) = xat(i) * rfac 
+         yat(i) = yat(i) * rfac 
+         zat(i) = zat(i) * rfac 
+ 60   continue
 
       if (jstat.ne.0) then 
          istat = 1
@@ -102,21 +109,15 @@ c
 c
 c check which atom is Central Atom, set iatph, xnatph
       ipot0 = -1
-      nat  = -1
       
       do 100 i = 1, natoms
          jat = ipot(i)
          if (jat .eq.0)  ipot0 = i
          if (iatph(jat) .eq. 0)  then
-            nat = nat + 1
             iatph(jat) = i
          endif
          xnatph(jat) = 1 + xnatph(jat)
  100  continue 
-
-c$$$      do i = 0, nat
-c$$$         print*, 'iat ', i,  iatph(i), xnatph(i)
-c$$$      enddo
 
       if (ipot0.eq.-1) then 
          istat = 1
@@ -159,16 +160,16 @@ c     Overlap potentials and densitites
      1    'overlapped potential and density for unique potential', iph
          call echo(tmpstr)
 
-cc         print*, '-> ovrlp ', iph, iatph(iph), izpot(iph), nat
+cc         print*, '-> ovrlp ', iph, iatph(iph), izpot(iph), natoms
          call ovrlp (iph, iphat, xat, yat, zat, iatph, 
-     1        izpot, nat, rho, vcoul, edens, vclap, rnrm)
+     1        izpot, natoms, rho, vcoul, edens, vclap, rnrm)
 cc         print*, '<- ovrlp ', rho(1,iph), edens(1,iph), rnrm(iph)
    40 continue
 
 c     Find muffin tin radii, add gsxc to potentials, and find
 c     interstitial parameters
        call echo('    muffin tin radii and interstitial parameters')
-       call istprm (nph, nat, iphat, xat, yat, zat, iatph, xnatph,
+       call istprm (nph, natoms, iphat, xat, yat, zat, iatph, xnatph,
      1             folp, edens,
      2             vclap, vtot, imt, inrm, rmt, rnrm, rhoint,
      3             vint, rs, xf, xmu, rnrmav)
