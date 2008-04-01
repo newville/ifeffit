@@ -14,7 +14,7 @@ c
       character*1024  line, tmpstr
       integer istrln, ilen, jlen, iflen, iret, i, ios, jmt
       integer mwords, nwords, ititle, jstat, ipot0, itmp,ifr, nph
-      integer mrpts, iex, ier, npack
+      integer mrpts, iex, ier, npack, lun, l
       logical debug
       parameter (mwords = 16)
       parameter (mrpts = 251)
@@ -46,7 +46,7 @@ c
       integer    lmax(0:nphx)    !number of ang mom levels
 
       integer ionin
-      integer nr, ne,  nat, jat, ik0, iph, iprint
+      integer nr, ne, jat, ik0, iph, iprint
       character*6 potlbl(0:nphx)
 
       character*32 words(mwords), key
@@ -82,13 +82,13 @@ c read XYZ geometry file
       print*, ' Potentials -> ReadXYZ ' 
       call ReadXYZ(geomfile, natx, nphx, iatnum, ipot, 
      $     xat, yat, zat, natoms, izpot, tmpstr, title, jstat)
-      
+
       rfac = rmult / bohr
       do 60 i = 1, natoms
-         xat(i) = xat(i) * rfac 
-         yat(i) = yat(i) * rfac 
-         zat(i) = zat(i) * rfac 
- 60   continue
+         xat(i) = xat(i) * rfac
+         yat(i) = yat(i) * rfac
+         zat(i) = zat(i) * rfac
+ 60   continue 
 
       if (jstat.ne.0) then 
          istat = 1
@@ -148,27 +148,40 @@ c     NB iwigner is needed in SUMAX, if changed here, change it there
      $        ionin, vcoul(1,iph), rho(1,iph), dgc0, dpc0, et)
          
          if (iph .eq. 0)  etfin = et
-ccc         print*,  iph, izpot(iph), itmp, et, rho(1,iph), rho(2,iph)
+         print*, iph,izpot(iph), itmp, ionin, et
+c$$$         do i = 1, 200, 5
+c$$$            print*, i, rho(i,iph),rho(i+1,iph),rho(i+4,iph),
+c$$$     $           rho(i+4,iph),rho(i+5,iph)
+c$$$         enddo
+c$$$
+c$$$         do i = 1, 200, 5
+c$$$            print*, i, vcoul(i,iph),vcoul(i+1,iph),vcoul(i+4,iph),
+c$$$     $           vcoul(i+4,iph),vcoul(i+5,iph)
+c$$$         enddo
+
  20   continue
 cc
 cc  works to here
 c
 c     Overlap potentials and densitites
+      print*, etfin
       print*, ' Overlap Potentials:: ', nph
       do 40  iph = 0, nph
          write(tmpstr,'(a,i3)') 
      1    'overlapped potential and density for unique potential', iph
          call echo(tmpstr)
 
-cc         print*, '-> ovrlp ', iph, iatph(iph), izpot(iph), natoms
+         print*, '-> ovrlp ', iph, iatph(iph), izpot(iph), natoms
          call ovrlp (iph, iphat, xat, yat, zat, iatph, 
      1        izpot, natoms, rho, vcoul, edens, vclap, rnrm)
-cc         print*, '<- ovrlp ', rho(1,iph), edens(1,iph), rnrm(iph)
+         print*, '<- ovrlp ', rho(1,iph), edens(1,iph), rnrm(iph)
    40 continue
+      stop
 
 c     Find muffin tin radii, add gsxc to potentials, and find
 c     interstitial parameters
        call echo('    muffin tin radii and interstitial parameters')
+       print*, ' -> istprm ', rmt(0), rmt(1), rmt(2), rmt(3), rmt(4)
        call istprm (nph, natoms, iphat, xat, yat, zat, iatph, xnatph,
      1             folp, edens,
      2             vclap, vtot, imt, inrm, rmt, rnrm, rhoint,
@@ -221,68 +234,48 @@ c        fix up variable for phase
  154     continue
 
          nr = mrpts
-         print*, ' -> phase ', iph, nr,  ne,  edge, lmax(iph)
+cc         print*, ' -> phase ', iph, nr,  ne,  edge, lmax(iph)
 
          call phase (iph, nr, ri, ne, em, edge,
      1               iexch, rmt(iph), xmu, viexch, rsexch, gamach,
      2               vtotph, rhoph, eref, ph(1,1,iph), lmax(iph))
  160  continue
 
-c     Write out phases for genfmt
-c     May need stuff for use with headers only
-c$$$      open (unit=1, file='phase.bin', access='sequential',
-c$$$     1      form='unformatted', status='unknown', iostat=ios)
-c$$$      call chopen (ios, 'phase.bin', 'potph')
-c$$$      write(1) nhead
-c$$$      do 62  i = 1, nhead
-c$$$         write(1) head(i)
-c$$$         write(1) lhead(i)
-c$$$   62 continue
-c$$$      write(1) ne, nph, ihole, rnrmav, xmu, edge, ik0
-c$$$      write(1) (em(ie),ie=1,ne)
-c$$$      write(1) (eref(ie),ie=1,ne)
-c$$$      do 80  iph = 0, nph
-c$$$         write(1) lmax(iph), iz(ifrph(iph))
-c$$$         write(1) potlbl(iph)
-c$$$         do 70  ie = 1, ne
-c$$$            write(1)  (ph(ie,ll,iph), ll=1,lmax(iph)+1)
-c$$$   70    continue
-c$$$   80 continue
-c$$$      close (unit=1)
-
-      call openfl(1, potfile,  'unknown', iex, ier)
+      lun  = 9
+      call openfl(lun, potfile,  'unknown', iex, ier)
       if ((ier.lt.0).or.(iex.lt.0)) then
           call echo(' *** Error: cannot open Potentials.bin')
           return
        end if
-       npack = 8
-       write(1,'(a,i3)') '#:FEFF6X POT File: npad = ', npack
-
-       write(1, '(a,i15)') '#% ne    ', ne
-       write(1, '(a,i15)') '#% nph   ', nph
-       write(1, '(a,i15)') '#% ihole ', ihole
-       write(1, '(a,i15)') '#% ik0   ', ik0
-       write(1, '(a,g20.14)') '#% rnrmav ', rnrmav
-       write(1, '(a,g20.14)') '#% xmu  ', xmu
-       write(1, '(a,g20.14)') '#% edge ', edge
-
-
-
-       close(1)
+       npack = 10
+       write(lun,'(a,i3)') '#:FEFF6X POT File: npad = ', npack
+       write(lun,'(a,i9,i9,i9,i9)') '#:ne,nph,ihole,ik0 =  ',
+     $         ne, nph, ihole, ik0
+       write(lun, '(a,g22.15)') '#% rnrmav = ', rnrmav
+       write(lun, '(a,g22.15)') '#% xmu    = ', xmu
+       write(lun, '(a,g22.15)') '#% edge   = ', edge
+       call wrpadd(lun,npack,em,ne)
+       call wrpadx(lun,npack,eref,ne)
+       do 420  iph = 0, nph
+          write(lun, '(2a,3i9)') '#:label,iph,lmax,iz  ', potlbl(iph),
+     $         iph, lmax(iph), izpot(iph)
+          do 410  l = 1, lmax(iph)+1
+             call wrpadx(lun,npack,ph(1,l,iph),ne)
+ 410      continue
+ 420   continue 
+       close(lun)
 c     
 c done!
-      print*, 'Potentials done.  ', potfile(1:istrln(potfile))
-      print*, '   Edge: ', ihole, ipot0, iatnum(ipot0), gamach
-      print*, '   Exchange: ', iexch, vrexch, viexch, rsexch
-
-      print*, '# ne, nph, ihole, rnrmav, xmu, edge, ik0 '
-      print*,  ne, nph, ihole, rnrmav, xmu, edge, ik0 
-      do iph = 0, nph
-         print*, 'iph, lbl,iz,lmax=',
-     $        iph, potlbl(iph), izpot(iph), lmax(iph)
-      enddo
-
-       close(1)
+c$$$      print*, 'Potentials done.  ', potfile(1:istrln(potfile))
+c$$$      print*, '   Edge: ', ihole, ipot0, iatnum(ipot0), gamach
+c$$$      print*, '   Exchange: ', iexch, vrexch, viexch, rsexch
+c$$$
+c$$$      print*, '# ne, nph, ihole, rnrmav, xmu, edge, ik0 '
+c$$$      print*,  ne, nph, ihole, rnrmav, xmu, edge, ik0 
+c$$$      do iph = 0, nph
+c$$$         print*, 'iph, lbl,iz,lmax=',
+c$$$     $        iph, potlbl(iph), izpot(iph), lmax(iph)
+c$$$      enddo
          
       return 
       end
