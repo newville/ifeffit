@@ -1,7 +1,6 @@
       subroutine phase (iph, nr, ri, ne, em, edge,
      1                  index, rmt, xmu, vi0, rs0, gamach,
-     2                  vtot, edens,
-     3                  eref, ph, lmax)
+     2                  vtot, edens,  eref, ph, lmax)
 
       implicit double precision (a-h, o-z)
 
@@ -91,7 +90,7 @@ c        p2 is (complex momentum)**2 referenced to energy dep xc
 
          do 210  il = 1, lmax+1
             l = il - 1
-
+            ihard = 0
             call fovrg (il, ihard, rmt, xmt, jri, p2, 
      1                  nr, rgrid_dx, ri, v, dny,
      1                  pu, qu, p, q, ps, qs, vm)
