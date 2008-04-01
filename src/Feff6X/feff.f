@@ -34,7 +34,7 @@ c
        character*6  potlbl(0:npotx)
 
        character*512 inputfile, geomfile, potfile
-       double precision  rmax, viexch, vrexch, rsexch
+       double precision  rmax, rmult, viexch, vrexch, rsexch
        double precision  vpolar(3), vellip(3)
        integer iexch, iedge
 
@@ -56,7 +56,7 @@ c
 
        call ReadFeffInp(inputfile, geomfile, potfile, titles, mtitle,
      $      iedge, iexch, viexch, vrexch, rsexch,
-     $      rmax, vpolar, vellip, istat)
+     $      rmult, rmax, vpolar, vellip, istat)
 
 c istat .ne. 0 means an error reading the input file (no file??)
        if (istat.ne.0) return
@@ -72,8 +72,8 @@ c istat .ne. 0 means an error reading the input file (no file??)
        call echo( 'Calculating potentials and phases...')
        istat = 0
 
-       call Potentials(geomfile, potfile,
-     $      iedge, iexch, viexch, vrexch, rsexch, istat)
+       call Potentials(geomfile, potfile, iedge,
+     $      iexch, viexch, vrexch, rsexch, rmult, istat)
 
 
        print*, 'Feff6X Devel: Stopping after Potentials.....'

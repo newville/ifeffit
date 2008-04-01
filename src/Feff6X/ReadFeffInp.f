@@ -1,7 +1,6 @@
       subroutine ReadFeffInp(inputfile, geomfile, potfile,
-     $     titles, mtitle,
-     $     iedge, iexch, viexch, vrexch, rsexch,
-     $     rmax, vpolar, vellip, istat)
+     $     titles, mtitle, iedge, iexch, viexch, vrexch, rsexch,
+     $     rmult, rmax, vpolar, vellip, istat)
 
 c 
 c read new-style feff.inp
@@ -17,6 +16,7 @@ c    iexch       index of exchange mode         (0)         [out]
 c    viexch      imag potential correction (eV) (0.0)       [out]
 c    vrexch      real potential correction (eV) (0.0)       [out]
 c    rsexch      DH/HL transition threshold (eV)(0.0)       [out]
+c    rmult       multiplier for all distances   (1.0)       [out]
 c    rmax        max dist (AA) for cluster      (10.0)      [out]
 c    vpolar      polarization vector            (0,0,0)     [out]
 c    vellip      ellipticity vector             (0,0,0)     [out]
@@ -24,7 +24,7 @@ c    istat       output status (0 for success, >1 failure)  [out]
 c
       implicit none
       integer  iedge, iexch, mtitle, istat
-      double precision rmax, viexch, vrexch, rsexch
+      double precision rmax, rmult, viexch, vrexch, rsexch
       double precision vpolar(3), vellip(3)
 
       character*128  titles(mtitle)
@@ -62,6 +62,7 @@ c  set default params
       iedge  = 0
       iexch  = 0
       rmax   = 10.d0
+      rmult  = 1.d0
       viexch = 0.d0
       vrexch = 0.d0
       rsexch = 0.d0
@@ -131,6 +132,9 @@ cc      # if (debug) print*, ' Input Line: ', key, ' :', line(1:jlen)
       elseif (key.eq.'rmax') then 
          call str2dp(words(2),rmax, ierr)
          if (debug)   print*, '# Rmax  : ', rmax
+      elseif (key.eq.'rmult') then 
+         call str2dp(words(2),rmult, ierr)
+         if (debug)   print*, '# Rmult  : ', rmult
       elseif (key.eq.'geometry') then 
          geomfile = line
          if (debug) print*, '# Geomfile: ',geomfile(1:istrln(geomfile))
