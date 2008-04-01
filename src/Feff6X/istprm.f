@@ -138,12 +138,16 @@ c     If no contribution to interstitial from any atom, die.
       vint   = vint   / volint
       rhoint = rhoint / volint
       call fermi (rhoint, vint, xmu, rs, xf)
+
+      print*, 'istprm rnrmav : ', nph
       do 180  iph = 0, nph
          rnrmav = rnrmav + xnatph(iph) * rnrm(iph)**3
          xn = xn + xnatph(iph)
+         print*, iph, xnatph(iph), rnrm(iph), rnrmav, xn
+
   180 continue
       rnrmav = (rnrmav/xn) ** third
-
+      print*, 'istprm rnrmav : ', rnrmav
 
       return
       end

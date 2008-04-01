@@ -176,7 +176,6 @@ c     Overlap potentials and densitites
      1        izpot, natoms, rho, vcoul, edens, vclap, rnrm)
          print*, '<- ovrlp ', rho(1,iph), edens(1,iph), rnrm(iph)
    40 continue
-      stop
 
 c     Find muffin tin radii, add gsxc to potentials, and find
 c     interstitial parameters
