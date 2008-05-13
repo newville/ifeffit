@@ -163,7 +163,7 @@ c
  400   continue 
 
        call fitfft(arr_c, maxpts, maxfft, wfftc, qgrid,
-     $      arr_w, xkw, dmarr, zero, 1, rwgt1, rwgt2,
+     $      arr_w, xkw, dmarr, zero, 1, 0, rwgt1, rwgt2,
      $      nsig1,tmparr)
 
 c  find sigma_k, the measurement uncertainty for the k-space data,

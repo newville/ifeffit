@@ -23,7 +23,7 @@ c{feffit.h -*-fortran-*-
        logical   bkgfit(mdata), bkgdat(mdata), usewgt, final
        integer   nqfit(mdata), nqpts(mdata), nrpts(mdata), nqvals(mdata)
        integer   iqwin(mdata), irwin(mdata), ifft(mdata), jffphs(mdata)
-       integer   nchi(mdata), nbkg(mdata), nfit(mdata)
+       integer   nchi(mdata), nbkg(mdata), nfit(mdata), modeft(mdata)
        integer   nfdats, inform, nvarys, mfit , nmacxx_save
        integer   ifxvar, numvar, nvuser, ncarr, nconst
        integer   nxscal, nxarr, iulist(mpaths, mdata)
@@ -44,8 +44,8 @@ c  for multiple-k-weights in fit
        common /fxtlg/  final, bkgfit, bkgdat, usewgt
 
        common /fxtin/  nqfit, nqpts, itera, ifit_mac,
-     $      nrpts, iqwin, irwin, ifft, jffphs, nchi, nbkg, nfdats, 
-     $      inform, nvarys, mfit, ifvar, iferr, ifxvar, numvar, 
+     $      nrpts, iqwin, irwin, ifft, modeft, jffphs, nchi, nbkg, 
+     $      nfdats,inform, nvarys, mfit, ifvar, iferr, ifxvar,numvar, 
      $      nvuser, nxscal, nxarr, ncarr,  nconst, iulist, 
      $      ierbar, ifitx1, ifitx2, nqvals, nfit, nmacxx_save,
      $      nqwfs, nrestraint

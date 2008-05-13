@@ -43,7 +43,7 @@ c
        logical  do_pha, do_mag, do_re, isnum, dofit, do_bkg
        character*256 str*(*), pref
        character*256 name1(mdata), nam_chi(mdata), nam_x(mdata)
-       character*256 re_arr, xk_arr, winarr, winnam, fit_sp
+       character*256 re_arr, xk_arr, winarr, winnam, fit_sp, fit_mode
        character*1024 list, cmdstr
 
        integer  idata, jchi, ier, illen, jk,  ilen, jwin, n1, n2
@@ -98,6 +98,7 @@ c
        pref  = undef
        call gettxt('kwindow', winnam)
        call gettxt('fit_space',fit_sp)
+       call gettxt('fit_mode',fit_mode)
 
 c  interpret any and all keyword/value pairs for setting options
        call bkeys(str, mkeys, keys, values, nkeys)
@@ -191,6 +192,8 @@ cc                print*,  nrest_tmp, values(i)(:60)
              ier = iff_eval_dp(values(i), eps_r)
           elseif ((keys(i).eq.'fit_space')) then
              fit_sp = values(i)
+          elseif ((keys(i).eq.'fit_mode')) then
+             fit_mode = values(i)
           elseif ((keys(i).eq.'do_real')) then
              call str2lg(values(i), do_re, ier)
           elseif ((keys(i).eq.'no_real')) then
@@ -384,6 +387,12 @@ c  which space is this fit in?
        ifft(idata)   = 1
        if (fit_sp(1:1) .eq.'k') ifft(idata) = 0
        if (fit_sp(1:1) .eq.'q') ifft(idata) = 2
+
+       modeft(idata)   = 1
+       if (fit_mode(1:2) .eq.'ri') modeft(idata) = 0
+       if (fit_mode(1:2) .eq.'rm') modeft(idata) = 1
+
+
 cc       print*, ' Feffit ', fit_sp, ifft(idata), idata
 c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c
 c

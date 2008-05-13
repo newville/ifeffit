@@ -70,6 +70,7 @@ c   real number converted to packed-ascii-data string using pad
  100   format(a1,a)
        end
 c --padlib--
+
        subroutine wrpadx(iout,npack,array,npts)
 c write complex*16 array as pad string
        include 'padlib.h'

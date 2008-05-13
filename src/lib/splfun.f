@@ -107,7 +107,7 @@ c  interpolate chiq to q grid, evaluate data chi(k) [chiq]
 c
 c get real and imaginary parts of the fft of chiq, put them in tmpfit
        call fitfft(chiq, maxpts, maxfft, wfftc, qgrid,
-     $      splwin, splqw, spldat, one, 1, zero, r1st,
+     $      splwin, splqw, spldat, one, 1, 0, zero, r1st,
      $      nrpts, tmpfit)
 c
        if (theory.and.(.not.thefix))

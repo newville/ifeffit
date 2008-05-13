@@ -1,5 +1,5 @@
        subroutine fitfft(chiq, mpts, mfft, wfftc, qgrid,
-     $      qwin, qweigh, rwin, rweigh, ifft, xlow, xhigh,
+     $      qwin, qweigh, rwin, rweigh, ifft, mode, xlow, xhigh,
      $      nout, chifit)
 c
 c//////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@ c   ifft    integer flag for number of fft's to do:
 c             0    chifit is in original k-space 
 c             1    chifit is in r-space 
 c             2    chifit is in back-transformed k-space 
+c   mode    integer flag for output mode for complex data:
+c             0    real/imag pair  (default)
+c             1    real/mag  pair
 c   xlow    low-x range for output chifit (either r or k)
 c   xhigh   high-x range for output chifit (either r or k)
 c   nout    number of points in output : useful length of chifit
@@ -58,7 +61,7 @@ c
 c mxmpts is the largest expected value for mpts
 c
         implicit none
-        integer   mpts, mfft, ifft, nout, mxmpts, nfft, i, ipos, jft
+        integer   mpts, mfft, ifft, nout, mxmpts, nfft, i, ipos,jft,mode
         double precision  pi, zero, xlow, xhigh, xgrid
         parameter (mxmpts = 4096, zero=0.d0, pi = 3.141592653589793d0)
         double precision chiq(mpts), chifit(mpts),qwin(mpts),rwin(mpts)
@@ -104,21 +107,27 @@ c     2   k->r then r->q
 
        if (ifft.eq.2) then
           call xafsft(nfft,tmpft,rwin,rgrid,rweigh,wfftc,-1, cchiq)
-          call fftout(mxmpts,cchiq,qgrid,xlow,xhigh,nout,mpts,chifit)
+          call fftout(mxmpts,mode,cchiq,qgrid,xlow,xhigh,
+     $         nout,mpts,chifit)
        else
-          call fftout(mxmpts,tmpft,xgrid,xlow,xhigh,nout,mpts,chifit)
+          call fftout(mxmpts,mode,tmpft,xgrid,xlow,xhigh,
+     $         nout,mpts,chifit)
        endif
 cc       if (ifft.eq.0) nout = nout/2
        return
 c  end subroutine fitfft
        end
 
-       subroutine fftout(mpts, xdat, dx, xlo, xhi, nout, npts, xout)
+       subroutine fftout(mpts, mode, xdat, dx, xlo, xhi,nout,npts,xout)
 c convert complex data xdat to a real array, using only
 c that part of the complex array between [xlow, xhi].
-       integer  mpts, npts, nout, nmin, npairs, i
+c mode=0 : return real/imag pair
+c mode=1 : return real/mag pair
+
+       integer  mpts, npts, nout, nmin, npairs, i, mode
        complex*16  xdat(mpts)
        double precision xout(npts), dx, dxi, xlo, xhi, small, tiny
+       double precision dxxr, dxxi
        parameter (tiny = 1.d-9, small = 1.d-2)
 c
        dxi    = 1 / max(tiny, dx)
@@ -126,8 +135,13 @@ c
        npairs = max(1, int(xhi * dxi + small )) - nmin + 1
        nout   = min(npts, 2 * npairs)
        do 50 i= 1, npairs
-          xout(2*i-1) = dble (xdat( nmin + i ))
-          xout(2*i  ) = dimag(xdat( nmin + i ))
+          dxxr = dble (xdat( nmin + i ))
+          dxxi = dimag(xdat( nmin + i ))
+          xout(2*i-1) = dxxr
+          if (mode.eq.1) then
+             dxxi = dxxr*dxxr + dxxi*dxxi
+          endif
+          xout(2*i  ) = dxxi
  50    continue
        return
 c end subroutine fftout

@@ -130,7 +130,7 @@ c   note: imag part of theory chi(k) compares to real part of data!!!
 c   see ff2chi as well
              call fitfft(thiq(1,id), maxpts, maxfft, wfftc, qgrid,
      $            qwindo(1,id), qwfs(jqw,id), rwindo(1,id), one,
-     $            ifft(id),xolow,xohigh, nfit1, thifit)
+     $            ifft(id),modeft(id),xolow,xohigh, nfit1, thifit)
 
              if (nfit1.ne.nfit(id)) then
                 call warn(3,' fitfun fitfft failed internal test.')
@@ -154,7 +154,7 @@ c construct r-factor
              if (final) then 
                 call fitfft(chiq(1,id), maxpts, maxfft, wfftc, qgrid,
      $               qwindo(1,id), qwfs(jqw,id), rwindo(1,id), one, 
-     $               ifft(id),xolow,xohigh, nfit1, chifit)
+     $               ifft(id),modeft(id),xolow,xohigh, nfit1, chifit)
                 if (nfit1.ne.nfit(id)) then
                    call warn(3,' fitfun fitfft failed internal test.')
                    iend = -10

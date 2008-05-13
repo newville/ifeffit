@@ -287,7 +287,7 @@ c  and add another variable if e0 is to be shifted
           end if
           nr  = nrbkg
           call fitfft(thiq, maxpts, maxfft, wfftc, qgrid,
-     $         splwin, splqw, bkg, zero, 1, zero, r1st,
+     $         splwin, splqw, bkg, zero, 1, 0, zero, r1st,
      $         nr, splfit)
           thessq = max(small, sumsqr(splfit(nrbkg),nr1st))
           thebkg = thessq
