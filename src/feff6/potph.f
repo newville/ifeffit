@@ -33,6 +33,9 @@ c     nrx = max number of r points for phase r grid
       parameter (nrx = 250)
       dimension ri(nrptx), vtotph(nrx), rhoph(nrx)
 
+      logical DO_pad_io
+      DO_pad_io = .true.
+
    10 format (4x, a, i5)
 
 c     Read input from file potph.inp
@@ -196,6 +199,38 @@ c     May need stuff for use with headers only
    70    continue
    80 continue
       close (unit=1)
+
+cc
+cc optionally, write phase.pad 
+cc
+
+      if (do_pad_io) then
+         lun  = 9
+         npack = 10
+         call openfl(lun, 'phase.pad',  'unknown', iex, ier)
+         if ((ier.lt.0).or.(iex.lt.0)) then
+            call echo(' *** Error: cannot open Potentials.bin')
+            return
+         end if
+         write(lun,'(a,i3)') '#:FEFF6X POT File: npad = ', npack
+         write(lun,'(a,i9,i9,i9,i9)') '#:ne,nph,ihole,ik0 =  ',
+     $        ne, nph, ihole, ik0
+         write(lun, '(a,g22.15)') '#% rnrmav = ', rnrmav
+         write(lun, '(a,g22.15)') '#% xmu    = ', xmu
+         write(lun, '(a,g22.15)') '#% edge   = ', edge
+         call wrpadd(lun,npack,em,ne)
+         call wrpadx(lun,npack,eref,ne)
+         do 420  iph = 0, nph
+            write(lun, '(2a,3i9)') '#:label,iph,lmax,iz  ', potlbl(iph),
+     $           iph, lmax(iph), iz(ifrph(iph))
+            do 410  l = 1, lmax(iph)+1
+               call wrpadx(lun,npack,ph(1,l,iph),ne)
+ 410        continue
+ 420     continue 
+         close(lun)
+      endif
+
+
 
       return
       end
