@@ -39,7 +39,7 @@ c given a chi(k) spectrum, estimate it's uncertainty
        logical  lpre
        double precision xkmin, xkmax, xkw, rwgt1, rwgt2, xsigr, xsigk
        double precision arr_w(maxpts), arr_c(maxpts), arr_k(maxpts)
-       double precision dmarr(maxpts), xk,t,xkmax_noise
+       double precision dmarr(maxpts), xk, t
        double precision dk1, dk2, getsca, sumsqr, wtmp
        integer npts_w, npts_c, npts_k, jxar, iff_eval, iff_eval_dp
        external istrln, sumsqr, getsca, iff_eval, iff_eval_dp

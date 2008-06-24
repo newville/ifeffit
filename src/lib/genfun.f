@@ -37,7 +37,7 @@ c
        include 'feffit.h'
        include 'keywrd.h'
 c local variables
-       integer   nx, mf, iend, i, j, iter, nf1, ne1, get_array, nmx
+       integer   nx, mf, iend, i, j, iter, nf1, ne1, get_array
        integer   ier, iff_eval_dp, mfx
        double precision  xv(nx), fv(mf), epsmin, getsca, tmpval
        double precision  fitarr(maxpts)
