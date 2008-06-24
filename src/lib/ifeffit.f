@@ -56,7 +56,6 @@ c
        save
        double precision getsca
        character*2048 line, argu, string*(*), val, key*128
-       character*128  build
        integer        ilen, ik1, ik2, init, istrln, jmac, iff_load
        integer        iffcmd_exec
        logical        wrthis, isamac
@@ -175,7 +174,7 @@ c end function ifeffit
        character*2048 argu, key*128
        logical  wrthis
 
-       integer  ilen, ik1, ik2, init, istrln, iff_load
+       integer  ilen, istrln, iff_load
        external istrln, iff_load
 
 ccc       print*, ' iffcmd ', key(1:20)

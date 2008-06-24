@@ -437,7 +437,7 @@ c  matt newville
 c note:  layout and case of *number* is important: do not change!
        parameter (number = 'deDE.,+- 1234567890')
        integer   iexp, idec, i, j, istrln, isign
-       integer   jexp, jsign
+       integer   jexp
        logical   ldig, l_op
        external  istrln
 c       str   = string

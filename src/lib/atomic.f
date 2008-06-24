@@ -54,6 +54,7 @@ c//////////////////////////////////////////////////////////////////////
 c
        character*2 function at_symbol(iz)
 c atomic symbol from z
+       integer iz
        character*2 dat(98)
        data dat /
      $ 'H ', 'He', 'Li', 'Be', 'B ', 'C ',
@@ -84,7 +85,7 @@ c atomic symbol from z
 c
        integer function atomic_z(sym)
 c atomic z from symbol
-       character*2 sym, tmp, t2, at_symbol
+       character*2 sym, tmp, at_symbol
        external at_symbol
        integer  i
        tmp = sym
@@ -647,13 +648,13 @@ c  L3 edge core width, eV
        double precision function at_fluor_line(iz,line)
 c
 c return energy of fluorescence line
-       integer iz,i
+       integer iz
        character*(*) line, lt*8
        double precision x, y, at_kedge, at_l1edge, at_l2edge
-       double precision at_l3edge, at_m1edge, at_m2edge
+       double precision at_l3edge, at_m2edge
        double precision at_m3edge, at_m4edge, at_m5edge
        double precision at_n1edge, at_n2edge, at_n3edge
-       double precision at_n4edge, at_n5edge, at_n6edge
+       double precision at_n4edge
        lt = line
        call lower(lt)
        at_fluor_line = 0

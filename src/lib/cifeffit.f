@@ -125,7 +125,7 @@ c
 c  purpose: wrapper to put array in ifeffit data
        implicit none
        character*(*) inp, str*256
-       integer   k,  j, inpts
+       integer   inpts
        double precision dx(*), getsca
        external getsca
        iffputarr = 0
@@ -144,7 +144,7 @@ c  purpose: wrapper to echo_pop in ifeffit
        include 'echo.h'
        save
        character*(*) str, s*512
-       integer   i,  istrln
+       integer   istrln
        external  istrln
        iffgetecho = 0
        s   = ' '
