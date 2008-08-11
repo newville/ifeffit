@@ -368,7 +368,7 @@ c    that contains an ',)+-*/^'
        iclo(4) =  3
        iclo(5) =  4
        iclo(6) =  5
-       call class(icode, iclass, ichi, iclo)
+       call pclass(icode, iclass, ichi, iclo)
 c---------------------------------------------------------------------
 c-- convert class 4 operators (* and / only):
 c   x1 * x2  -> x1 x2 *
@@ -378,7 +378,7 @@ c    that contains an ',)+-*/'
 c  undo iclo(6) = '^' to a repeat of iclo(3) = 0
        ichi    =  4
        iclo(6) =  0
-       call class(icode, iclass, ichi, iclo)
+       call pclass(icode, iclass, ichi, iclo)
 c---------------------------------------------------------------------
 c-- convert class 3 operators (+ and - only):
 c   x1 + x2  -> x1 x2 +
@@ -388,7 +388,7 @@ c    that contains an ',)+-'
 c  undo iclo(5) = '*/' to a repeat of iclo(3) = 0
        ichi    =  3
        iclo(5) =  0
-       call class(icode, iclass, ichi, iclo)
+       call pclass(icode, iclass, ichi, iclo)
 c
        do 900 i = 1, maxlen
           itemp(i) = icode(i)
@@ -468,7 +468,7 @@ cc       print*, 'engrpn: step N-1'
        return
 c end subroutine engrpn
        end
-       subroutine class(icode, iclass, ichi, iclo)
+       subroutine pclass(icode, iclass, ichi, iclo)
 c
 c    this is called by engrpn. operators are moved around
 c    to convert english math to reverse polish.
@@ -768,144 +768,146 @@ cc       print*, 'welcome to rpndmp   '
        i    = i + 1
        ic   = icode(i)
        word = ' '
-       if (ic.gt.jconst) then
-          write(word,20) consts(ic - jconst)
-       elseif ((ic.gt.jscale).and.(ic.le.jconst)) then
-cc          print*, i, ic, jscale, ic-jscale
-cc          print*, scanam(ic -jscale)
-          word = scanam(ic - jscale)
-       elseif (ic.ge.1) then
-          word = arrnam(ic)
-       elseif (ic.eq.ileft) then
-          word = '('
-       elseif (ic.eq.iright) then
-          word = ')'
-       elseif (ic.eq.icomma) then
-          word = ','
-       elseif (ic.eq.iexp) then
-          word = 'exp'
-       elseif (ic.eq.ilog) then
-          word = 'ln'
-       elseif (ic.eq.ilog10) then
-          word = 'log10'
-       elseif (ic.eq.isqrt) then
-          word = 'sqrt'
-       elseif (ic.eq.isin) then
-          word = 'sin'
-       elseif (ic.eq.icos) then
-          word = 'cos'
-       elseif (ic.eq.itan) then
-          word = 'tan'
-       elseif (ic.eq.iasin) then
-          word = 'asin'
-       elseif (ic.eq.iacos) then
-          word = 'acos'
-       elseif (ic.eq.iatan) then
-          word = 'atan'
-       elseif (ic.eq.iabs) then
-          word = 'abs'
-       elseif (ic.eq.ineg) then
-          word = '-'
-       elseif (ic.eq.isinh) then
-          word = 'sinh'
-       elseif (ic.eq.icosh) then
-          word = 'cosh'
-       elseif (ic.eq.itanh) then
-          word = 'tanh'
-       elseif (ic.eq.icoth) then
-          word = 'coth'
-       elseif (ic.eq.iadd) then
-          word = '+'
-       elseif (ic.eq.isub) then
-          word = '-'
-       elseif (ic.eq.imul) then
-          word = '*'
-       elseif (ic.eq.idiv) then
-          word = '/'
-       elseif (ic.eq.iy2x) then
-          word = '^'
-       elseif (ic.eq.jadd) then
-          word = 'add'
-       elseif (ic.eq.jsub) then
-          word = 'sub'
-       elseif (ic.eq.jmin) then
-          word = 'min'
-       elseif (ic.eq.jmax) then
-          word = 'max'
-       elseif (ic.eq.jkktf) then
-          word = 'kkf'
-       elseif (ic.eq.jkktr) then
-          word = 'kkr'
-       elseif (ic.eq.jfftf) then
-          word = 'ftf'
-       elseif (ic.eq.jfftr) then
-          word = 'ftr'
-       elseif (ic.eq.jpenl1) then
-          word = 'penalty'
-       elseif (ic.eq.jpenl2) then
-          word = 'penalty_lo'
-       elseif (ic.eq.jpenl3) then
-          word = 'penalty_hi'
-       elseif (ic.eq.jdebye) then
-          word = 'debye'
-       elseif (ic.eq.jeins) then
-          word = 'eins'
-       elseif (ic.eq.jgamma) then
-          word = 'gamma' 
-       elseif (ic.eq.jlgamm) then
-          word = 'loggamma' 
-       elseif (ic.eq.jerf) then
-          word = 'erf'
-       elseif (ic.eq.jerfc) then
-          word = 'erfc'
-       elseif (ic.eq.jerfcx) then
-          word = 'erfcx'
-       elseif (ic.eq.jlconv) then
-          word = 'lconvolve'
-       elseif (ic.eq.jgconv) then
-          word = 'gconvolve'
-       elseif (ic.eq.jterpl) then
-          word = 'linterp'
-       elseif (ic.eq.jterpq) then
-          word = 'qinterp'
-       elseif (ic.eq.jterps) then
-          word = 'splint'
-       elseif (ic.eq.jterpa) then
-          word = 'ainterp'
-       elseif (ic.eq.jrebin) then
-          word = 'rebin'
-       elseif (ic.eq.jrngar) then
-          word = 'range'
-       elseif (ic.eq.jndarr) then
-          word = 'indarr'
-       elseif (ic.eq.j1sarr) then
-          word = 'ones'
-       elseif (ic.eq.j0sarr) then
-          word = 'zeros'
-       elseif (ic.eq.jasign) then
-          word = 'sign'
-       elseif (ic.eq.jceil) then
-          word = 'ceil'
-       elseif (ic.eq.jfloor) then
-          word = 'floor'
-       elseif (ic.eq.jnpts) then
-          word = 'npts'
-       elseif (ic.eq.jvsum) then
-          word = 'vsum'
-       elseif (ic.eq.jvprod) then
-          word = 'vprod'
-       elseif (ic.eq.jjoina) then
-          word = 'join'
-       elseif (ic.eq.jslica) then
-          word = 'slice'
-       elseif (ic.eq.jnofxa) then
-          word = 'nofx'
-       elseif (ic.eq.-1) then
-          word = '*variable*'
-       else 
-          word = ' '
-       end if
-c
+       ic   = icode(i)
+       write(word,'(i6)') icode(i)
+cc         if (ic.gt.jconst) then
+cc            write(word,20) consts(ic - jconst)
+cc         elseif ((ic.gt.jscale).and.(ic.le.jconst)) then
+cc  cc          print*, i, ic, jscale, ic-jscale
+cc  cc          print*, scanam(ic -jscale)
+cc            word = scanam(ic - jscale)
+cc         elseif (ic.ge.1) then
+cc            word = arrnam(ic)
+cc         elseif (ic.eq.ileft) then
+cc            word = '('
+cc         elseif (ic.eq.iright) then
+cc            word = ')'
+cc         elseif (ic.eq.icomma) then
+cc            word = ','
+cc         elseif (ic.eq.iexp) then
+cc            word = 'exp'
+cc         elseif (ic.eq.ilog) then
+cc            word = 'ln'
+cc         elseif (ic.eq.ilog10) then
+cc            word = 'log10'
+cc         elseif (ic.eq.isqrt) then
+cc            word = 'sqrt'
+cc         elseif (ic.eq.isin) then
+cc            word = 'sin'
+cc         elseif (ic.eq.icos) then
+cc            word = 'cos'
+cc         elseif (ic.eq.itan) then
+cc            word = 'tan'
+cc         elseif (ic.eq.iasin) then
+cc            word = 'asin'
+cc         elseif (ic.eq.iacos) then
+cc            word = 'acos'
+cc         elseif (ic.eq.iatan) then
+cc            word = 'atan'
+cc         elseif (ic.eq.iabs) then
+cc            word = 'abs'
+cc         elseif (ic.eq.ineg) then
+cc            word = '-'
+cc         elseif (ic.eq.isinh) then
+cc            word = 'sinh'
+cc         elseif (ic.eq.icosh) then
+cc            word = 'cosh'
+cc         elseif (ic.eq.itanh) then
+cc            word = 'tanh'
+cc         elseif (ic.eq.icoth) then
+cc            word = 'coth'
+cc         elseif (ic.eq.iadd) then
+cc            word = '+'
+cc         elseif (ic.eq.isub) then
+cc            word = '-'
+cc         elseif (ic.eq.imul) then
+cc            word = '*'
+cc         elseif (ic.eq.idiv) then
+cc            word = '/'
+cc         elseif (ic.eq.iy2x) then
+cc            word = '^'
+cc         elseif (ic.eq.jadd) then
+cc            word = 'add'
+cc         elseif (ic.eq.jsub) then
+cc            word = 'sub'
+cc         elseif (ic.eq.jmin) then
+cc            word = 'min'
+cc         elseif (ic.eq.jmax) then
+cc            word = 'max'
+cc         elseif (ic.eq.jkktf) then
+cc            word = 'kkf'
+cc         elseif (ic.eq.jkktr) then
+cc            word = 'kkr'
+cc         elseif (ic.eq.jfftf) then
+cc            word = 'ftf'
+cc         elseif (ic.eq.jfftr) then
+cc            word = 'ftr'
+cc         elseif (ic.eq.jpenl1) then
+cc            word = 'penalty'
+cc         elseif (ic.eq.jpenl2) then
+cc            word = 'penalty_lo'
+cc         elseif (ic.eq.jpenl3) then
+cc            word = 'penalty_hi'
+cc         elseif (ic.eq.jdebye) then
+cc            word = 'debye'
+cc         elseif (ic.eq.jeins) then
+cc            word = 'eins'
+cc         elseif (ic.eq.jgamma) then
+cc            word = 'gamma' 
+cc         elseif (ic.eq.jlgamm) then
+cc            word = 'loggamma' 
+cc         elseif (ic.eq.jerf) then
+cc            word = 'erf'
+cc         elseif (ic.eq.jerfc) then
+cc            word = 'erfc'
+cc         elseif (ic.eq.jerfcx) then
+cc            word = 'erfcx'
+cc         elseif (ic.eq.jlconv) then
+cc            word = 'lconvolve'
+cc         elseif (ic.eq.jgconv) then
+cc            word = 'gconvolve'
+cc         elseif (ic.eq.jterpl) then
+cc            word = 'linterp'
+cc         elseif (ic.eq.jterpq) then
+cc            word = 'qinterp'
+cc         elseif (ic.eq.jterps) then
+cc            word = 'splint'
+cc         elseif (ic.eq.jterpa) then
+cc            word = 'ainterp'
+cc         elseif (ic.eq.jrebin) then
+cc            word = 'rebin'
+cc         elseif (ic.eq.jrngar) then
+cc            word = 'range'
+cc         elseif (ic.eq.jndarr) then
+cc            word = 'indarr'
+cc         elseif (ic.eq.j1sarr) then
+cc            word = 'ones'
+cc         elseif (ic.eq.j0sarr) then
+cc            word = 'zeros'
+cc         elseif (ic.eq.jasign) then
+cc            word = 'sign'
+cc         elseif (ic.eq.jceil) then
+cc            word = 'ceil'
+cc         elseif (ic.eq.jfloor) then
+cc            word = 'floor'
+cc         elseif (ic.eq.jnpts) then
+cc            word = 'npts'
+cc         elseif (ic.eq.jvsum) then
+cc            word = 'vsum'
+cc         elseif (ic.eq.jvprod) then
+cc            word = 'vprod'
+cc         elseif (ic.eq.jjoina) then
+cc            word = 'join'
+cc         elseif (ic.eq.jslica) then
+cc            word = 'slice'
+cc         elseif (ic.eq.jnofxa) then
+cc            word = 'nofx'
+cc         elseif (ic.eq.-1) then
+cc            word = '*variable*'
+cc         else 
+cc            word = ' '
+cc         end if
+cc 
 cc       fword  = word
        if (ic.ne.0) then
           iw =  istrln(word)

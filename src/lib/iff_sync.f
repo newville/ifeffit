@@ -332,7 +332,7 @@ c   revaluate all variables, assumed to be in order from sync
        save
        integer i, ntmp, iu
 
-       do 500 iu =  1,2
+cc       do 500 iu =  1,2
           do 10 i = 1, maxpts
              tmparr(i) = 0
  10       continue 
