@@ -21,10 +21,10 @@ c
        parameter ( max_restraint =   32)
        parameter ( mkeys  =   64 )
        parameter ( maxheap_array = maxpts*512)
-       parameter ( maxarr = 8192 ) ! # of array variables
-       parameter ( maxsca = 65536) ! # of scalar variables
+       parameter ( maxarr =  8192) ! # of array variables
+       parameter ( maxsca = 16384) ! # of scalar variables
        parameter ( maxtxt =  8192) ! # of text variables 
-       parameter ( mconst = 65536) ! # of numerical constants
+       parameter ( mconst = 16384) ! # of numerical constants
        parameter ( maxplt =   64 ) ! # of plots 
        parameter ( maxdoc =   20 ) ! # of docs from data file
        parameter ( micode =  256 ) ! # of elements in math icode array
@@ -42,8 +42,8 @@ c
        parameter ( max_pathindex = 9999) ! # path index numbder
        parameter ( max_outarr    = 99)   ! # of output columns in write_data
 
-       parameter ( mpaths =  1024) ! # of paths, total
-       parameter ( mfffil =  1024) ! # of feff files
+       parameter ( mpaths =  256) ! # of paths, total
+       parameter ( mfffil =  256) ! # of feff files
 c
 c common constants
        double precision  zero, one, etok, pi, qgrid, rgrid, tiny
