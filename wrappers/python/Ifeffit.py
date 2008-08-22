@@ -147,6 +147,8 @@ class Ifeffit:
             if (c != ''):  ret  = _ifeffit.iff_exec(c)
         return ret
 
+    def __call__(self,cmd):  self.ifeffit(cmd)
+        
     def put_scalar(self,name,val):
         "set a python double as an Ifeffit scalar"
         ret = self.ifeffit("%s = %s" % (name, val))
