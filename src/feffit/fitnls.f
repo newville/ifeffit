@@ -25,7 +25,7 @@ c--------------------------------------------------------------------
 
        integer lenwrk,  lenfvc, istrln, im, ier, ierr, ilen, ione
        integer lminfo, iflag, nfirst, nr1, nr2, mfit, nsigd, ix
-       integer nrwght, irun, iex, id, i, istop, nrmin,nrmax, ind
+       integer nrwght, irun, iex, id, i, istop, nrmin,nrmax, ind, ixmode
        parameter(lenwrk = 2*maxpts*(mvarys + 1)  + 20*mvarys )
        parameter(lenfvc = mdata*maxpts , ione = 1)
        integer   iwork(mvarys),nptfit(mdata),ibadx(mvarys),nfit1,nsig1
@@ -58,7 +58,7 @@ c the phase shift from
        end if
        if (iprint.ge.2) then
           irun = 0
-          call openfl(irun, 'feffit.run','unknown', iex, ierr)
+          call openfl(irun, 'feffit.debug','unknown', iex, ierr)
           if (ierr.lt.0) then
              call finmsg(1002,' ','feffit.run',0)
              iprint = 1
@@ -137,9 +137,10 @@ c
                 end do
                 write(irun,*) '  calling fitfft... '
              endif
+             ixmode = 0
              call fitfft(chiq(1,id), maxpts, mftfit, wfftc, qgrid,
      $            qwindo(1,id),qweigh(id),rwindo(1,id),rweigh(id),
-     $            ifft(id), xolow,xohigh,nfit1, chifit(1,id))
+     $            ifft(id), ixmode,xolow,xohigh,nfit1, chifit(1,id))
 cc   thepha(1,jffphs(id)),mffpts, 
 c
              if (iprint.ge.2) then
@@ -161,7 +162,7 @@ c
              if ((sigdtr(id).le.zero).and.(sigdtk(id).le.zero)) then
                 call fitfft(chiq(1,id), maxpts, mftfit, wfftc, qgrid,
      $               qwindo(1,id),qweigh(id), qwindo(1,id), rweigh(id),
-     $               ione, rwght1, rwght2, nsig1, chirhi)
+     $               ione, ixmode, rwght1, rwght2, nsig1, chirhi)
 
 ccc  pcfit, qfeff(1,jffphs(id)), thepha(1,jffphs(id)),mffpts, 
                 sigdtr(id) = sqrt( sumsqr(chirhi, nsig1) / nsig1)

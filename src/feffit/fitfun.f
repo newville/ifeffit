@@ -27,7 +27,7 @@ c  warning: do not dimension the array xvar as "xvar(nvar)" !
 c           this routine may be called with nvar = 0,
 c           and an array dimension 0 is not allowed.
        integer   lenfvc, mvec, nvar, iend, id, i
-       integer   nstart, jfit, nfit, nfit1
+       integer   nstart, jfit, nfit, nfit1, ixmode
        integer   j0, nqdata, ibscf, jdd, inpath, idpath, jfeff
        parameter(lenfvc = mdata * maxpts)
        double precision reff, degen, xolow, xohigh
@@ -171,9 +171,10 @@ c   take fft of theory chi (exactly as for data chi)
              write(ifxvar,*) ' maxpts, mftfit ', maxpts, mftfit
              write(ifxvar,*) ' qgrid =  ', qgrid
           endif
+          ixmode = 0
           call fitfft(thiq(1,id), maxpts, mftfit, wfftc, qgrid,
      $         qwindo(1,id), qweigh(id), rwindo(1,id), rweigh(id),
-     $         ifft(id), xolow,xohigh, nfit1, thifit)
+     $         ifft(id), ixmode, xolow,xohigh, nfit1, thifit)
 c
           if (nfit1.ne.nfit) then
              if (iprint.ge.1) then

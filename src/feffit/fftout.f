@@ -1,8 +1,8 @@
-       subroutine fftout(mpts, xdat, step, xlo, xhi, nout, npts, xout)
+       subroutine fftout(mpts, mode, xdat, step, xlo, xhi, nout, npts, xout)
 c convert complex data xdat to a real array, using only
 c      that part of the complex array between [xlow, xhi].
        implicit none
-       integer  mpts, npts, nout, nmin, npairs, i
+       integer  mpts, npts, nout, nmin, npairs, i, mode
        complex*16  xdat(mpts)
        double precision xout(npts), step, dxi, xlo, xhi, small, tiny
        parameter (tiny = 1.d-4, small = 1.d-2)
