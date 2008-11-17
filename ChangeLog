@@ -1,3 +1,23 @@
+2008-11-17  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.2.11c:  
+	Bug fixes:
+	- stop extraneous print statements 
+	- return normal fit mode in ifeffit to 'real-imaginary' pairs 
+		
+
+2007-08-11  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.2.11:  
+	minor fixes, especially for improved windows performance
+		
+	- fits can now use 'real/magnitude' pairs as well as 'real/imag'
+	pairs,  
+	    feffit(...., fit_mode='rm')  for real/magnitude
+	    feffit(...., fit_mode='ri')  for real/imaginary (the default)
+	
+	- fix bug due to incompatibilities in length of encoded math expressions.
+	
 2007-08-24  Matt Newville  <newville@cars.uchicago.edu>
 
 	* Version 1.2.10:  

@@ -114,7 +114,7 @@ feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
 	 dist.o sdist.o xx.o getxk.o dalp.o fpot.o exchan.o exchee.o pertab.o
 
 feff6_INC = vers.h dim.h const.h pola.h arrays.h pdata.h clmz.h fmatrx.h\
-	 lambda.h nlm.h rotmat.h echo.h
+	 lambda.h nlm.h rotmat.h echo.h mepts.h
 
 
 feff6_LDADD = ../lib/libxafs.a $(MN_FLIBS)

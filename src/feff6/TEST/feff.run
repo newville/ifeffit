@@ -1,1 +1,24 @@
  Feff 6L.02
+ copper
+ Calculating potentials and phases...
+     free atom potential and density for atom type    0
+     free atom potential and density for atom type    1
+     overlapped potential and density for unique potential    0
+     overlapped potential and density for unique potential    1
+     overlapped potential and density for unique potential    2
+     muffin tin radii and interstitial parameters
+     phase shifts for unique potential    0
+     phase shifts for unique potential    1
+     phase shifts for unique potential    2
+ Preparing plane wave scattering amplitudes...
+   nncrit in prcrit       9
+ Searching for paths...
+     Rmax  5.5000  keep and heap limits   0.0000000   0.0000000
+    Preparing neighbor table
+     nfound  nheap  nheapx  nsc    r
+       1000     17     178   4    5.2920
+     Paths found     1038   (nheapx, nbx     178   4)
+ Eliminating path degeneracies...
+     Plane wave chi amplitude filter   2.50%
+     Unique paths     34,  total paths     562
+ Feff done.  Have a nice day.

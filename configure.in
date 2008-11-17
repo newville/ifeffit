@@ -109,7 +109,6 @@ AC_OUTPUT([src/Makefile
           src/diffkk/Makefile
 	  src/test/Makefile 
 	  src/feff6/Makefile
-	  src/Feff6X/Makefile
           Makefile ])
 
 # $SHELL ./config.status

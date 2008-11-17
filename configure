@@ -4085,7 +4085,7 @@ echo "${ECHO_T}will link to PGPLOT using $PGPLOT_LIBS" >&6
 #          fortran/Makefile f2c_comp
 #          readline/Makefile
 
-                                                                                                                                  ac_config_files="$ac_config_files src/Makefile src/pgstub/Makefile src/cldata/Makefile src/fefftab/Makefile src/lib/Makefile src/cmdline/Makefile src/autobk/Makefile src/feffit/Makefile src/diffkk/Makefile src/test/Makefile src/feff6/Makefile src/Feff6X/Makefile Makefile"
+                                                                                                                        ac_config_files="$ac_config_files src/Makefile src/pgstub/Makefile src/cldata/Makefile src/fefftab/Makefile src/lib/Makefile src/cmdline/Makefile src/autobk/Makefile src/feffit/Makefile src/diffkk/Makefile src/test/Makefile src/feff6/Makefile Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -4646,7 +4646,6 @@ do
   "src/diffkk/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/diffkk/Makefile" ;;
   "src/test/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/test/Makefile" ;;
   "src/feff6/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/feff6/Makefile" ;;
-  "src/Feff6X/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Feff6X/Makefile" ;;
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
