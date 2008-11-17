@@ -98,7 +98,8 @@ c
        pref  = undef
        call gettxt('kwindow', winnam)
        call gettxt('fit_space',fit_sp)
-       call gettxt('fit_mode',fit_mode)
+       fit_mode = 'ri'
+ccc       call gettxt('fit_mode',fit_mode)
 
 c  interpret any and all keyword/value pairs for setting options
        call bkeys(str, mkeys, keys, values, nkeys)
@@ -388,7 +389,7 @@ c  which space is this fit in?
        if (fit_sp(1:1) .eq.'k') ifft(idata) = 0
        if (fit_sp(1:1) .eq.'q') ifft(idata) = 2
 
-       modeft(idata)   = 1
+       modeft(idata)   = 0
        if (fit_mode(1:2) .eq.'ri') modeft(idata) = 0
        if (fit_mode(1:2) .eq.'rm') modeft(idata) = 1
 
