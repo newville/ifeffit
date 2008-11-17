@@ -21,6 +21,11 @@ find_lib() {
        DIR=$1 
        LIB=$2
    fi	
+  if [ -f $1/lib$2.so ] ; then 
+       DIR=$1 
+       LIB=$2
+   fi	
+
 }
 
 for base in $dirnames; do
