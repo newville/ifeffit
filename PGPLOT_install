@@ -34,6 +34,7 @@ do_clean=1
 do_log=1
 use_64=0
 fcompl=
+fflagc='-O -fPIC'
 # get command line options
 for opt
 do
@@ -55,6 +56,7 @@ do
     no-clean)  do_clean=0 ;;
     no-log)    do_log=0 ;;
     with-fortran)    fcompl=$optarg ;;
+    with-fflagc)     fflagc=$optarg ;;
     with-png)  with_png=1 ;;
     with-gif)  with_gif=1 ;;
     no-png)    with_png=0 ;;
@@ -70,6 +72,10 @@ Options:
   --with-gif  / --no-gif   add/remove GIF driver
 
   --with-64bit      use for 64bit linux machines (links to X libs in /usr/X11R6/lib64)
+
+  --with-fortran    explicitly set fortran compiler executable
+  --with-fflagc     explicitly set fortran compilation flags
+
   --no-log          do NOT generate PGPLOT_install.log
   --no-clean        do not remove any files created during build
 
@@ -245,6 +251,7 @@ fi
 if [ x$fcompl != 'xg77' ] ; then 
    echo 'copying fortran90 gif driver to PGPLOT'
    cp -fp pgplot_extras/gidriv.f pgplot/drivers/gidriv.f
+   fflagc='-ffixed-form -ffixed-line-length-none -u -fPIC -O -fcray-pointer'
 fi
 
 echo " = Creating $pgp_dir and drivers.list "
@@ -349,11 +356,12 @@ if test $with_png = 1 ; then
 fi
 
 echo  " = Running make for PGPLOT "
-make FCOMPL=$fcompl FFLAGC='-O2 -fPIC' libpgplot_iff.a 
+make FCOMPL="$fcompl" FFLAGC="$fflagc" libpgplot_iff.a 
+
 make FCOMPL=$fcompl grfont.dat prog pgplot.doc pgxwin_server cpg
 
  if test $do_log = 1 ;  then 
-    echo "make FCOMPL=" $fcompl "FFLAGC=-O1 libpgplot_iff.a  " >> $logfile
+    echo "make FCOMPL=" $fcompl "FFLAGC="$fflagc " libpgplot_iff.a  " >> $logfile
     echo "make FCOMPL=" $fcompl "grfont.dat prog pgplot.doc pgxwin_server cpg" >> $logfile
  fi
 
