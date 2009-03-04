@@ -431,8 +431,8 @@ c
        character*(*) s, t , messg*256
        integer k, j, istrln
        external istrln
-       k = max(13, istrln(s))
-       j = max(2, istrln(t))
+       k = min(max(13, istrln(s)),256)
+       j = min(max(2, istrln(t)), 252-k)
        write(messg,11)  s(1:k), ' = ', t(1:j)
        call echo(messg)
  11    format('$',3a)
@@ -443,8 +443,8 @@ c
        character*(*) s, t , messg*256
        integer    k, j, istrln
        external istrln
-       k = max(14, istrln(s))
-       j = max(2, istrln(t))
+       k = min(max(14, istrln(s)), 256)
+       j = min(max(2, istrln(t)), 253-k)
        write(messg,11)  s(1:k), ': ', t(1:j)
        call echo(messg)
  11    format (3a)
