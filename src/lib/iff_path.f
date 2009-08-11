@@ -42,7 +42,7 @@ c
        save
        
        character*(*)  str
-       character*256  tmpfff, tmplab
+       character*512  tmpfff, tmplab
        character*2048 parstr(mpthpr)
        character*64   defkey(3)
        double precision  getsca, xiup, xip

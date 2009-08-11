@@ -60,7 +60,7 @@ c
        implicit none
        include 'maxpts.h'
        character*(*)   sym, edge
-       character*256   file, path, messg, str, s1, s2,pre*2
+       character*512   file, path, messg, str, s1, s2,pre*2
        character*(32)  words(2), vers*10, pref*8
        integer         iz, iz_atom, istrln, mffpts, npack
        integer         ier, iex, ierr, nwords, in1, in2

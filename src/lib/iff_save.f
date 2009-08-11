@@ -34,9 +34,9 @@ c  save session to a  PAD save file
        integer        i, k, istrln,  ndfkey, ilen, inn, get_array
        integer        npack, iex, ier, lun, isn, isf, iff_eval_in
        integer        j,jl
-       character*256  defkey(2)*64, file, s2, string*(*), build
+       character*512  string*(*), file, s2, build
        character*256  groups(max_groups)
-       character*10   stat, spad*20, vers
+       character*10   stat, spad*20, vers, defkey(2)*64
        logical s_str, s_sca, s_arr, s_sys, s_psc, dsave
        double precision getsca
        parameter (stat = 'unknown' , vers = '1.02')
@@ -233,8 +233,9 @@ c  restore session from a  PAD save file
        integer   i, j, k, istrln,  ndfkey, ierr, in1, in2
        integer   npack, iex, ier, lun, nwords, ntmp, iread_ky
        integer   iofstr, iofsca, ilen, i_sync
-       character*256    defkey(2)*64, file, s1, s2, string*(*)
-       character*10     stat, pre*2, vers, words(2)*(20), str*256
+       character*512  str, file, s1, s2, string*(*)
+       character*256  defkey(2)*64 
+       character*10   stat, pre*2, vers, words(2)*(20)
        double precision unpad, xvers, getsca
        logical      sc_pad
        parameter (stat = 'old')

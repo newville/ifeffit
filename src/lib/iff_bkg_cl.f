@@ -36,8 +36,8 @@ c
        include 'spline.h'
        save
        character*(*)   str, defkey(3)*64
-       character*256   path, name1
-       character*256   xmuarr, en_arr, prearr, norarr
+       character*512   path, name1
+       character*512   xmuarr, en_arr, prearr, norarr
        integer         lenwrk, lminfo, mxvars
        parameter  (mxvars=5)
        parameter  (lenwrk = (mxvars+1)*maxpts + 5*mxvars)

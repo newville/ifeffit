@@ -33,7 +33,7 @@ c purpose: convert feff path to accessible program data
 
        save
        character*(*)  str
-       character*256   name1, defkey(2)*64, s
+       character*512 name1, defkey(2)*64, s
        character*8   suffix(mpthpr)
        double precision  tmpr(maxpts), tmpi(maxpts), r1, getsca, rx
        integer   ipath, idata, ier, i ,k, istrln, ndfkey, il

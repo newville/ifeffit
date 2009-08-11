@@ -45,7 +45,7 @@ c calculate fp and fpp for each energy point
 cc
        integer function rcldat(path,iz,norb,corr,nparms,bena,xnrg,xsc)
        implicit none
-       character*(*) path, pth*256, file*256, line*256
+       character*(*) path, pth*512, file*512, line*512
        character*32 words(8)
        integer istrln, nxtmp, npack
        integer  iz, norb, nparms(24), lun, ilen, iread, nwords

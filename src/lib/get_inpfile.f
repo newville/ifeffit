@@ -11,7 +11,7 @@ c        = 0 for success,  = 1 for failure
 
        character*(*) defval, fname
        integer  n_args, istat, jstat
-       character*256 cl_args(3), f
+       character*512 cl_args(3), f
 c
 c g77 version
        istat = 1 

@@ -36,8 +36,7 @@ c initialize ifeffit
        save
        integer i, j, ilen, istrln, nwords
        character*128 build, envvar*32, pgdev*16, words(2)
-       character*256 envval, sysdir
-       character*512 inifile, sfile
+       character*512 envval, sysdir, inifile, sfile
        double precision x
        logical exist
        external istrln

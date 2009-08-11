@@ -41,9 +41,9 @@ c
        parameter(lenfvc = 2*maxpts)
 
        logical  do_pha, do_mag, do_re, isnum, dofit, do_bkg
-       character*256 str*(*), pref
-       character*256 name1(mdata), nam_chi(mdata), nam_x(mdata)
-       character*256 re_arr, xk_arr, winarr, winnam, fit_sp, fit_mode
+       character*512 str*(*), pref
+       character*512 name1(mdata), nam_chi(mdata), nam_x(mdata)
+       character*512 re_arr, xk_arr, winarr, winnam, fit_sp, fit_mode
        character*1024 list, cmdstr
 
        integer  idata, jchi, ier, illen, jk,  ilen, jwin, n1, n2

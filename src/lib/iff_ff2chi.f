@@ -32,7 +32,7 @@ c given a list of paths, create a chi(k)
        save
        
        character*(*) str
-       character*256  name1, namex, list*1024
+       character*512  name1, namex, list*1024
        integer  idata, irec, istrln, k, j, i, ier, illen
        integer  nxpath,  jk, iupath(mpaths), u2ipth
        integer  nkpts, nkmin, nkmax, nlqpts, iup

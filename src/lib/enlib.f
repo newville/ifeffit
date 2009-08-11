@@ -24,7 +24,7 @@ c//////////////////////////////////////////////////////////////////////
 c
 c   some syntax checking for encod routine
        include 'encod.h'
-       character*2048 strout, emsg*256
+       character*2048 strout, emsg*512
        character synerr*22
        integer   itemp(*), ieqn, ilen, istrln, iparen
        integer   ierr, i, ibfr, iaft, it, j, jt, jstack, jcomma

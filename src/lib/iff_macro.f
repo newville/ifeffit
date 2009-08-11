@@ -33,7 +33,7 @@ c
 
        integer   nwords, i, j, jmac, jtmp, istrln, mwordx, immac
        parameter (mwordx = 12)
-       character*(*) str , line*256
+       character*(*) str , line*512
        character*64  words(mwordx), op*3
        double precision getsca, x
        external istrln, getsca

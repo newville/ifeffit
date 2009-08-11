@@ -44,8 +44,8 @@ c
        save
 
        character*(*) str
-       character*256 xmuarr, en_arr, name1, kstarr, cstarr, winnam*32
-       character*256 bkgarr, ksparr, chiarr, outstr, tmps2
+       character*512 xmuarr, en_arr, name1, kstarr, cstarr, winnam*32
+       character*512 bkgarr, ksparr, chiarr, outstr, tmps2
        double precision toler, xkmin, xkmax, xkw, dk1, dk2
        double precision pre1, pre2, enor1, enor2, getsca
        double precision xknots, splstf, de_min, cnorm(3), po, ps

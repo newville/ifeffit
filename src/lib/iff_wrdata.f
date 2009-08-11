@@ -42,9 +42,9 @@ c            "pref"."suff" form.
        integer       iofarr, ier, iex, nmatch, iff_eval_in, ndfkey
        character*(*) str, stat*10, delim*2, comchr*2
        character*2048 sout
-       character*256 file, pref,  type, defkey(2)
+       character*512 file, pref,  type, defkey(2)
        character*256 arrout(max_outarr), scaout(max_outsca)
-       character*256 titout(maxtit), strarr(maxtxt), labstr*512
+       character*512 titout(maxtit), strarr(maxtxt), labstr
        character*32  uform, fform
        double precision   getsca, xval
        logical       l_titles, isvnam

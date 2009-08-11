@@ -28,7 +28,7 @@ c  update the color table
        include 'ifplot.h'
        save
 
-       character*(*) str, s*256
+       character*(*) str, s*512
        integer nwrds,  i, j, ier, jcol, istrln, iff_eval_in
        external istrln, iff_eval_in
 
@@ -81,7 +81,7 @@ c  update the linestyle table
        include 'keywrd.h'
        include 'ifplot.h'
        save
-       character*(*) str, s*256
+       character*(*) str, s*512
        integer nwrds,  i, j, ier, jcol, istrln, iff_eval_in
        external istrln, iff_eval_in
        s     = str

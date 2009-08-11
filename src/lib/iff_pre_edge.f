@@ -42,7 +42,7 @@ c
        include 'spline.h'
        save
        character*(*)  str, defkey(3)*64
-       character*256     xmuarr, en_arr, prearr, norarr, name1
+       character*512     xmuarr, en_arr, prearr, norarr, name1
        double precision  pre1, pre2, enor1, enor2
        double precision slope, offset, cnorm(3), xn
        double precision  arr_e(maxpts), arr_x(maxpts), getsca
@@ -68,6 +68,8 @@ c get default values for pre-edge parameters from current scalar values
        offset = 0 ! getsca('pre_offset',1)
        nnorm  = 3 
        name1  = undef
+       print*, 'IFF_PRE :'
+       print*, str
        call bkeys(str, mkeys, keys, values, nkeys)
 
 c set default keywords for "undefined" sets

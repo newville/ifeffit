@@ -30,8 +30,8 @@ c given a chi(k) spectrum, estimate it's uncertainty
        save
      
        character*(*) str
-       character*256  name1, chiarr, xk_arr, winarr, winnam, defkey(2)
-       character      tmppre*24, cmdstr*256
+       character*512  name1, chiarr, xk_arr, winarr, winnam, defkey(2)
+       character      tmppre*24, cmdstr*512
        parameter (tmppre='for0internal0use0only000')
        integer  nsig1, jchi, jwin, ndfkey, jdot
        integer  istrln, k, i, ier

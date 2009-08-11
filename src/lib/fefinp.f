@@ -42,8 +42,9 @@ cc       implicit double precision (a-h,o-z)
        logical        exist
        parameter (xlmin = 1.d-8)
        parameter(mlegx = 10, mptsx= 128, mwords = 32, mdocx=16)
-       character*64  filnam*256, stat*10, str*128, words(mwords)
-       character*128 doc(mdocx), messg, tmpstr*256
+       character*64  words(mwords), stat*10
+       character*512 filnam, messg, tmpstr, str
+       character*128 doc(mdocx)
        character*2 at_symbol
        integer          izpot(0:mlegx)
        complex*16       phc(mptsx), ck(mptsx)

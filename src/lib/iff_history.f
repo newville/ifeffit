@@ -26,7 +26,7 @@ c manage history of commands for ifeffit
        include 'consts.h'
        include 'keywrd.h'
        save
-       character*(*) str, argu*256, defkey(2)*64
+       character*(*) str, argu*512, defkey(2)*64
        integer  i, ndfkey, k, istrln
        external istrln
        argu = str

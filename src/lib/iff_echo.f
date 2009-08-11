@@ -34,7 +34,7 @@ c   2. uses  non-standard format(1x,a,$) statement
 c
 c requires: istrln, undels, echo, chrdmp
        implicit none
-       character*(*)  string, str*256, c*1, msgdef*64
+       character*(*)  string, str*512, c*1, msgdef*64
        parameter (msgdef = ' --  hit return to continue -- ')
        double precision getsca
        integer ilen, istrln, ipause, i_ec, i_pa

@@ -78,7 +78,7 @@ c passed variables
        character*(*) string
 c internal variables
        character*2048 str,  strtmp, strout
-       character*256 prefix, errmsg, strnum
+       character*512  prefix, errmsg, strnum
        character*1  str1, straft, strbfr, opera*9
        character    str3*3,str4*4, str5*5, str6*6, str7*7, str8*8
        character*32 mtherr, synerr, encerr, number*11, strfcn

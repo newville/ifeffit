@@ -30,7 +30,7 @@ c  erase an array or scalar values for ifeffit
        include 'feffit.h'
        save
 
-       character*(*) str, s*256
+       character*(*) str, s*512
        integer nwrds, iw, i, j, k, istrln, ilen, id,np, ip
        integer ipths(max_pathindex), ier
        double precision getsca

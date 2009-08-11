@@ -28,7 +28,7 @@ c  rename an array or scalar values for ifeffit
        include 'arrays.h'
        save
 
-       character*(*) str, s1*256,  s2*256
+       character*(*) str, s1*512,  s2*512
        integer nwrds, iw, i, k1, k2, istrln
        external istrln
 

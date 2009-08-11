@@ -50,9 +50,9 @@ c
        save
        integer  nxpar, ifft
        parameter (nxpar = 11)
-       character*(*) key, str, defkey(3)*64, tnam*256
-       character*256 re_arr, im_arr, x_arr, pc_arr, winnam*32
-       character*256 winarr, name1, wintyp, outtyp, myname*5
+       character*(*) key, str, defkey(3)*64, winnam*32
+       character*512 re_arr, im_arr, x_arr, pc_arr, tnam
+       character*512 winarr, name1, wintyp, outtyp, myname*5
        character*10  forpar(nxpar), revpar(nxpar), params(nxpar)
        complex*16    cinp(maxfft), cout(maxfft), cmi
        parameter (cmi=(0d0,-1d0))
@@ -70,7 +70,7 @@ c
        integer  pc_path, jfeff, ilen
        integer  iff_eval, iff_eval_dp, iff_eval_in, u2ipth
        logical  xm_set , pc_caps
-       character*16 pc_edge, path*256
+       character*16 pc_edge, path*512
        external iff_eval, iff_eval_dp, iff_eval_in
        external getsca, istrln, u2ipth
 

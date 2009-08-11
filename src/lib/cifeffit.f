@@ -36,7 +36,7 @@ c this provides a cleaner interface for calling from C
        integer function iffgetstr(inp, out)
 c
 c  purpose: wrapper to gettxt
-       character*(*) inp, out, str*256
+       character*(*) inp, out, str*512
        integer  ilen, istrln
        external istrln
        iffgetstr = 1
@@ -59,7 +59,7 @@ c  purpose: put a string
 c
 c  copyright (c) 1998  matt newville
        character*(*) inam, istr
-       character*256  nam, str
+       character*512  nam, str
        iffputstr = 0
        str   = istr
        nam   = inam
@@ -75,7 +75,7 @@ c
 c  purpose: wrapper to getsca
 c
 c  copyright (c) 1998  matt newville
-       character*(*) inp, str*256
+       character*(*) inp, str*512
        double precision dx, getsca
        external getsca
        if (int(getsca('&sync_level',0)).ge.1)  call iff_sync
@@ -92,7 +92,7 @@ c
 c  purpose: wrapper to setsca
 c
 c  copyright (c) 1998  matt newville
-       character*(*) inp, str*256
+       character*(*) inp, str*512
        double precision dx, xx, getsca
        external getsca
        iffputsca = 0
@@ -109,7 +109,7 @@ c  end function iffputsca
 c
 c  purpose:  look up and return array by name
        implicit none
-       character*(*) inp, str*256
+       character*(*) inp, str*512
        integer       get_array
        double precision dx(*), getsca
        external  get_array, getsca
@@ -124,7 +124,7 @@ c  end function iffgetarr
 c
 c  purpose: wrapper to put array in ifeffit data
        implicit none
-       character*(*) inp, str*256
+       character*(*) inp, str*512
        integer   inpts
        double precision dx(*), getsca
        external getsca

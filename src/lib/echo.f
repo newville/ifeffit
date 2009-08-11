@@ -43,7 +43,7 @@ c  3   echo to screen and open echo_file (if open)
 c
        implicit none
        include 'echo.h'
-       character*(*) str, out*256,frm*8,ffrm*8
+       character*(*) str, out*512,frm*8,ffrm*8
        parameter (frm= '(1x,a,$)', ffrm= '(1x,a)' )
        integer  istrln, n
        external istrln
@@ -116,7 +116,7 @@ c
 c add echo string to internal list
 c copyright (c) 1999 matt newville
        implicit none
-       character*(*) string, str*256
+       character*(*) string, str*512
        include 'echo.h'
        integer  istrln, ilen, i
        external istrln

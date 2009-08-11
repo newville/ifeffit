@@ -31,7 +31,7 @@ c interface for general  function fitting
        save
        character*(*) str
        character*32  defkey(1)
-       character*256     fitarr, x_arr, errarr, name1
+       character*512    fitarr, x_arr, errarr, name1
        double precision  xfmin, xfmax, toler, toldef
        parameter (toldef = 1.d-7)
        integer     lenwrk, lenfvc, nerstp, get_array

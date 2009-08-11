@@ -39,7 +39,7 @@ c
        include 'arrays.h'
        include 'encod.h'
        save
-       character*(*) string, prefix, str*2048, pre*256
+       character*(*) string, prefix, str*2048, pre*512
        logical  isarr, ic_is_arr, isnum
        double precision arr(*)
        integer  icode(micode), jcode(micode), get_array

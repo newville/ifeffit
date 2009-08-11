@@ -29,7 +29,7 @@ c generalized print
        include 'arrays.h'
        include 'encod.h'
        save
-       character*(*)  string, str*256, s*256, sout*2048
+       character*(*)  string, str*512, s*512, sout*2048
        double precision getsca
        integer iw, i, j, k, istrln, ntmp
        integer  ilsout, isarr, iff_eval

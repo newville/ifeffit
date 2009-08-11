@@ -38,9 +38,8 @@ c
        save
        integer  nxpar, ifft
        parameter (nxpar = 11)
-       character*(*) str, defkey(3)*64, tnam*256
-       character*256 x_arr, winnam*32
-       character*256 name1, wintyp, outtyp, myname*5
+       character*(*) str, defkey(3)*64, winnam*32, myname*5
+       character*512 x_arr, tnam, name1, wintyp, outtyp
        character*10  params(nxpar)
 
        double precision getsca, xmin, xmax, xw, dx1, dx2, xmout

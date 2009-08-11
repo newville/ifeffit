@@ -46,7 +46,7 @@ c
        integer    narrs, ier, iex, i, j, k, idot, ilen, ilpre, in
        character*(*)  str, stat*10, predef*10, comchr*1, cchars*5
        character*128  pre, file, type, form, tmpnam
-       character*2048 line, labstr, label*256
+       character*2048 line, labstr, label*512
        character*32   words(mwords), suffix, defkey(3)*64
        double precision buffer(maxbuf), sindex(maxpts)
        integer    ndfkey, llen, lslen, nlabs, iofarr, istrln, ntitle

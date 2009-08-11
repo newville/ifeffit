@@ -33,7 +33,7 @@ c  show values for ifeffit
        include 'fefdat.h'
        include 'pthpar.h'
        save
-       character*(*)  string, str*256, s*85, class*16
+       character*(*)  string, str*512, s*85, class*16
        integer  iw, i, j, k, istrln, ier, ifeffit, inpath, ip, id
        integer  islog, iex, iup
        integer ipths(mpaths), ilen, np, u2ipth, ndx, jshow
@@ -321,7 +321,7 @@ c
        include 'consts.h'
        include 'keywrd.h'
        include 'arrays.h'
-       character*256 s, outm, tmp*384
+       character*512 s, outm, tmp
        integer npts, k, kf, istrln, i
        
        external istrln
@@ -355,7 +355,7 @@ c
        end
 c
        subroutine ishsca(s,f,x)
-       character*(*) s, f, f1*256, messg*256
+       character*(*) s, f, f1*512, messg*512
        double precision   x, small, xmin, zero
        logical  ax
        parameter (small = 1.d-8, xmin = 12.d0, zero=0.d0)
@@ -384,7 +384,7 @@ c
        end
 
        subroutine ishvar(s,x,dx)
-       character*(*) s, messg*256
+       character*(*) s, messg*512
        double precision x, dx,  small, xmin
        logical  ax, adx
        parameter (small = 1.d-8, xmin = 12.d0)
@@ -428,11 +428,11 @@ c
        end
 
        subroutine ishtxt(s,t)
-       character*(*) s, t , messg*256
+       character*(*) s, t , messg*512
        integer k, j, istrln
        external istrln
-       k = min(max(13, istrln(s)),256)
-       j = min(max(2, istrln(t)), 252-k)
+       k = min(max(13, istrln(s)),512)
+       j = min(max(2, istrln(t)), 508-k)
        write(messg,11)  s(1:k), ' = ', t(1:j)
        call echo(messg)
  11    format('$',3a)
@@ -440,11 +440,11 @@ c
        end
 c
        subroutine ishcom(s,t)
-       character*(*) s, t , messg*256
+       character*(*) s, t , messg*512
        integer    k, j, istrln
        external istrln
-       k = min(max(14, istrln(s)), 256)
-       j = min(max(2, istrln(t)), 253-k)
+       k = min(max(14, istrln(s)), 512)
+       j = min(max(2, istrln(t)),  508-k)
        write(messg,11)  s(1:k), ': ', t(1:j)
        call echo(messg)
  11    format (3a)
@@ -535,7 +535,7 @@ c
        include 'consts.h'
        include 'keywrd.h'
        include 'arrays.h'
-       character*256 s, sgrps(maxarr)
+       character*512 s, sgrps(maxarr)
        integer is, i, j, ii, k, istrln
        external istrln
        save

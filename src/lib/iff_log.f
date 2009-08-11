@@ -29,7 +29,7 @@ c
        include 'keywrd.h'
        include 'echo.h'
        save
-       character*(*)  string, str*256, defkey(2)*64
+       character*(*)  string, str*512, defkey(2)*64
        double precision getsca , dec
        integer   iex, ier, iec, k, i, il, istrln, ndfkey
        logical   dopen, dclos

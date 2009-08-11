@@ -34,7 +34,7 @@ c
        include 'atomic.h'
        save
        character*(*)  str
-       character*256  path, en_arr, name1, defkey(3)*64
+       character*512  path, en_arr, name1, defkey(3)*64
        double precision  a_e(maxpts), tmpx(maxpts)
        double precision  a_f1(maxpts), a_f2(maxpts)
        double precision  ewid, estep, aumax, aumin

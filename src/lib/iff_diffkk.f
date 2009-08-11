@@ -33,8 +33,7 @@ c
        include 'spline.h'
        save
        character*(*)     str
-       character*256     path, defkey(3)*64
-       character*256     en_arr, f2_arr, name1
+       character*512   path, defkey(3)*64,   en_arr, f2_arr, name1
        double precision  a_e(maxpts), tmpx(maxpts)
        double precision  a_f1(maxpts), a_f2(maxpts)
        double precision  ewid, estep
