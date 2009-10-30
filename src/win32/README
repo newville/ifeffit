@@ -1,5 +1,32 @@
-These files are needed to create a Win32 dll of the ifeffit library
+
+
+The files in this directory will build the ifeffit dll for Windows using MinGW
 that can be easily called from C.
 
-The files here should be used to replace the 'normal' unix versions.
+1. open a regular Windows command shell. Move to this directory.
+
+2. set up to use MinGW.  With MinGW installed in C:\MinGW, execute
+    use_mingw.bat
+
+   (you may want to look at / edit the very simple use_mingw.bat)
+
+3. build libifeffit.a for MinGW:
+      cp sys.h ..\lib\sys.h
+      cp lib_Makefile ..\lib\Makefile
+      cd ..\lib
+      make
+
+   note that a ./configure ; make will from the top level will fail (but
+   mostly work in compiling the code!)
+
+4. Move back to this directory and run make:
+     cd ..\win32
+     make
+
+Voila, an ifeffit_12.dll that works!! Try Iff_Python.py for a test of
+loading and using this dll!
+
+ 
+Note: This is currently using PGPLOT as supplied by GrWin.  There is no png
+or gif driver supported here.  I will work on this....
 

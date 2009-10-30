@@ -44,13 +44,13 @@ c//////////////////////////////////////////////////////////////////////
 IFF_EXPORT(int) iff_exec(char *cmd) {
   char iff_str[1027];
   sprintf(iff_str, "%s\n\n\0", cmd);
-  return (ifeffit_(iff_str, strlen(iff_str)));
+  return (IFFEXECF(iff_str, strlen(iff_str)));
 }
 
 IFF_EXPORT(int) ifeffit(char *cmd) {
   char iff_str[1027];
   sprintf(iff_str, "%s\n\n\0", cmd);
-  return (ifeffit_(iff_str, strlen(iff_str)));
+  return (IFFEXECF(iff_str, strlen(iff_str)));
 }
 
 /* put double into a named ifeffit scalar */
@@ -62,7 +62,7 @@ IFF_EXPORT(int) iff_put_scalar(char *name, double *val) {
 
 /* get double from a named ifeffit scalar */
 IFF_EXPORT(int) iff_get_scalar(char *name, double *val) {
-  return (iffgetsca_(name, val, strlen(name) )); 
+  return (IFFGETSCA(name, strlen(name), val));
 }
 
 /* put string into a named ifeffit string */
@@ -75,29 +75,26 @@ IFF_EXPORT(int) iff_put_string(char *name, char *val) {
 /* get string from a named ifeffit string */
 IFF_EXPORT(int) iff_get_string(char *name, char *val) {
   int  i;
-  char *tmp;
-  tmp  = calloc(512,sizeof(char));
-  i   = iffgetstr_(name, tmp, strlen(name), 512);
-  strncpy(val,tmp,i);
-  free(tmp);
+  char tmp[256];
+  i   = IFFGETSTR(name, strlen(name), tmp, 256);
+  strncpy(val,tmp,i+1);
   return i;
 }
 
-
 /* put array of length n into a named ifeffit array */
 IFF_EXPORT(int) iff_put_array(char *name, int *n, double *arr) {
-  return (iffputarr_(name,  n, arr, strlen(name)) );
+  return (IFFPUTARR(name,  strlen(name), n, arr) );
 }
 
 /* get array from named ifeffit array */
 IFF_EXPORT(int) iff_get_array(char *name, double *arr) {
-  return (iffgetarr_(name,  arr, strlen(name)) );
+  return (IFFGETARR(name,  strlen(name), arr) );
 }
 
 IFF_EXPORT(int) iff_get_echo(char *val) {
   int  i;
   char tmp[512];
-  i =  iffgetecho_(tmp, 512);
+  i =  IFFGETECHO(tmp, 512);
   strncpy(val, tmp, i+1);
   return i;
 }
@@ -105,10 +102,10 @@ IFF_EXPORT(int) iff_get_echo(char *val) {
 IFF_EXPORT(char*) iff_strval(char *name) {
   int  i;
   char *t, *c;
-  t = calloc(512,sizeof(char));
+  t = calloc(256,sizeof(char));
   i = iff_get_string(name, t);
   c = calloc(i+1,sizeof(char));
-  strncpy(c,t,i);
+  strncpy(c,t,i+1);
   free(t);
   return c;
 }
@@ -119,18 +116,3 @@ IFF_EXPORT (double) iff_scaval(char *name) {
   return x;
 }
 
-
-IFF_EXPORT(int) _iff_exec(char *cmd) { return iff_exec(cmd); }
-IFF_EXPORT(int) _ifeffit(char *cmd)  { return ifeffit(cmd);}
-
-IFF_EXPORT(int) _iff_put_scalar(char *name, double *val) { return iff_put_scalar(name, val);}
-IFF_EXPORT(int) _iff_get_scalar(char *name, double *val) { return iff_get_scalar(name, val);}
-IFF_EXPORT(int) _iff_put_string(char *name, char *val) {   return iff_put_string(name, val);}
-IFF_EXPORT(int) _iff_get_string(char *name, char *val) {   return iff_get_string(name, val);}
-
-IFF_EXPORT(int) _iff_put_array(char *name, int *n, double *arr) { return iff_put_array(name, n, arr);}
-IFF_EXPORT(int) _iff_get_array(char *name, double *arr) {         return iff_get_array(name, arr);}
-
-IFF_EXPORT(int) _iff_get_echo(char *val) { return iff_get_echo(val);}
-IFF_EXPORT(char*) _iff_strval(char *name) { return iff_strval(name);}
-IFF_EXPORT(double) _iff_scaval(char *name) { return iff_scaval(name);}

@@ -39,7 +39,8 @@ static  char line[1024];
 /* A structure which contains information on 
    the commands this program can understand. */
 
-int _stdcall promptline();
+typedef  int _stdcall Func();
+int _stdcall  promptline();
 int _stdcall sys_exec();
 int _stdcall sys_help();
 int _stdcall com_list();
@@ -56,7 +57,7 @@ int _stdcall iff_load_file()  ;
 
 /* main */
 int main (int argc, char **argv) {
-  char *s, *t, *prompt;
+  char *s, *prompt;
   int  exec, ret, i;
   progname = argv[0];
   /* Loop reading and executing lines until the user quits. */
@@ -70,9 +71,8 @@ int main (int argc, char **argv) {
     printf("  fatal error loading ifeffit library\n") ;
     exit(ret);
   }
-
-  t = iff_strval("&build");
-  printf("  Ifeffit %s\n", t);
+  s = iff_strval("&build");
+  printf("  Ifeffit %s\n", s);
   printf("          command-line shell version %s for Win32\n", Version);
 
   /* handle command line switches */

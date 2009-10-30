@@ -48,6 +48,7 @@ c  purpose: wrapper to gettxt
           ilen = ilen - 1
        end if
        call gettxt(str, out)
+       call sclean(out)
        iffgetstr = max(1, istrln(out))
 c  end function iffgetstr
        return
