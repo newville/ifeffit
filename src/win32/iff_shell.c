@@ -34,21 +34,22 @@ static  char line[1024];
 
 /* extern char *xmalloc(); */
 /* extern char *readline();*/
+
 #include "ifeffit.h"
 
 /* A structure which contains information on 
    the commands this program can understand. */
 
-int _stdcall promptline();
-int _stdcall sys_exec();
-int _stdcall sys_help();
-int _stdcall com_list();
-int _stdcall com_more();
-int _stdcall com_pwd();
-int _stdcall com_cd();
-int _stdcall execute_line();
-int _stdcall load_startup_file();
-int _stdcall iff_load_file()  ;
+IFF_INTERN(int) promptline();
+IFF_INTERN(int) sys_exec();
+IFF_INTERN(int) sys_help();
+IFF_INTERN(int) com_list();
+IFF_INTERN(int) com_more();
+IFF_INTERN(int) com_pwd();
+IFF_INTERN(int) com_cd();
+IFF_INTERN(int) execute_line();
+IFF_INTERN(int) load_startup_file();
+IFF_INTERN(int) iff_load_file()  ;
 
 #include "commands.h"
 
@@ -123,7 +124,7 @@ int main (int argc, char **argv) {
 
 
 /* Execute a command line. */
-int _stdcall execute_line (char *line) {
+IFF_INTERN(int) execute_line (char *line) {
   register int i;
   COMMAND *command;
   char *word ;
@@ -153,7 +154,7 @@ int _stdcall execute_line (char *line) {
   }
 }
 
-int _stdcall load_startup_file(char *file) {
+IFF_INTERN(int) load_startup_file(char *file) {
   FILE *fp;
   int i;
   fp = fopen(file,"r");
@@ -172,7 +173,7 @@ int _stdcall load_startup_file(char *file) {
   return 0;
 }
 
-int _stdcall iff_load_file(char *file) {
+IFF_INTERN(int) iff_load_file(char *file) {
   FILE *fp;
   int i=1;
   fp = fopen(file,"r");
@@ -190,7 +191,7 @@ int _stdcall iff_load_file(char *file) {
 }
 
 
-int _stdcall sys_exec(char *arg) {
+IFF_INTERN(int) sys_exec(char *arg) {
   sprintf (comstr, "%s", arg);
   printf (" will send: %s", comstr);
   system (arg);
@@ -199,7 +200,7 @@ int _stdcall sys_exec(char *arg) {
 
 /* Print out help for ARG, or for all of the commands if ARG is
    not present. */
-int _stdcall sys_help (char *arg) {
+IFF_INTERN(int) sys_help (char *arg) {
   register int i;
   int printed = 0;
   printf (" syshelp: %s\n", arg);
@@ -243,20 +244,22 @@ COMMAND *find_command (char *name) {
   return ((COMMAND *)NULL);
 }
 
-int  _stdcall com_list (char *arg) {
+IFF_INTERN(int)  com_list (char *arg) {
   if (!arg)  arg = "";
   sprintf (comstr, "DIR %s", arg);
   return (0);  /* system (comstr)); */
 }
 
-int _stdcall com_more (char *arg) {
+IFF_INTERN(int) com_more (char *arg) {
   sprintf (comstr, "more < %s", arg);
   system (comstr);
   return (0);
 }
-int _cdecl getcwd(), chdir();
 
-int _stdcall com_cd (char *arg) {
+int chdir();
+int getcwd();
+
+IFF_INTERN(int) com_cd (char *arg) {
   sprintf (comstr, "cd %s", arg);
   /* system(comstr);*/
   chdir(arg);
@@ -264,7 +267,7 @@ int _stdcall com_cd (char *arg) {
   return 0;
 }
 
-int _stdcall com_pwd (char *arg) {
+IFF_INTERN(int) com_pwd (char *arg) {
    if (getcwd(comstr,1024))  {
     printf (" %s\n", comstr);
   } else {
@@ -289,7 +292,7 @@ char *stripwhite (char *string) {
   return s;
 }
 
-int _stdcall promptline(char *prompt) {
+IFF_INTERN(int) promptline(char *prompt) {
   int i ,c;
   printf("%s", prompt);
   for (i = 0 ; i< 1023 && (c  = getchar()) != EOF && c !='\n'; ++i) {

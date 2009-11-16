@@ -5,9 +5,11 @@
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 #define IFF_EXPORT(a) __declspec(dllexport) a _stdcall
 #define IFF_INTERN(a) a _stdcall
+#define IFF_CDECL(a) a _cdecl
 #else
 #define IFF_EXPORT(a) a
 #define IFF_INTERN(a) a
+#define IFF_CDECL(a) a
 #endif
 
 /* main interface routines */

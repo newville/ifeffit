@@ -1,7 +1,7 @@
 /* A structure which contains information on 
    the commands this program can understand. */
 
-typedef  int _stdcall Func(); 
+typedef  IFF_INTERN(int) Func(); 
 
 typedef struct {
   char *name;	  /* function name */

@@ -3,7 +3,14 @@
  *************************/
 
 /* main interface routines */
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 #define IFF_EXPORT(a) __declspec(dllexport) a _stdcall
+#define IFF_INTERN(a) a _stdcall
+#else
+#define IFF_EXPORT(a) a
+#define IFF_INTERN(a) a
+#endif
 
 
 IFF_EXPORT(int)     iff_exec(char *);
