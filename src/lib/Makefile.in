@@ -98,19 +98,23 @@ F77MAKER   = ./F77Maker
 # Perl5 specific ??
 LDDLFLAGS_P5=-shared
 
-CONFIG_TEMPLATES = Config.mak Makefile.PL site_install.py TclSetup.in
+SHARED_LIBRARY = libifeffit.so
+LIBRARIES =  libifeffit.a libxafs.a
+
+
+CONFIG_TEMPLATES = Config.mak Makefile.PL ifeffit_config.py TclSetup.in
 MISC_CONFIG      = ifeffit.inc
 MISC_DATA        = startup.iff README
 include_HEADERS  = ifeffit.h
 pkgconfig_DATA   = $(CONFIG_TEMPLATES) $(MISC_CONFIG) $(include_HEADERS)
-pkgdata_DATA     = $(MISC_DATA)
+pkgdata_DATA     = $(MISC_DATA) $(SHARED_LIBRARY)
 
 CLEANFILES = $(CONFIG_TEMPLATES) 
 
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
-LIBRARIES =  libifeffit.a libxafs.a
+
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I../..
 CPPFLAGS = @CPPFLAGS@
@@ -134,7 +138,7 @@ DISTFILES   = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 SOURCES = $(IFF_SRC) $(IFF_INC) ifeffitc.c
 OBJECTS = $(IFF_OBJ) ifeffitc.o
 
-all: Makefile $(COM_H) $(LIBRARIES) $(DATA) $(HEADERS)  $(CONFIG_TEMPLATES)
+all: Makefile $(COM_H) $(LIBRARIES) $(SHARED_LIBRARY) $(DATA) $(HEADERS)  $(CONFIG_TEMPLATES)
 
 MAKEDEPEND = Makefile.dep
 
@@ -303,13 +307,6 @@ install-LIBRARIES: $(LIBRARIES)
 	    $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
 	  else :; fi; \
 	done
-	@$(POST_INSTALL)
-	@list='$(LIBRARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
-	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
-	  else :; fi; \
-	done
 
 uninstall-LIBRARIES:
 	@$(NORMAL_UNINSTALL)
@@ -318,10 +315,15 @@ uninstall-LIBRARIES:
 	done
 
 
+libifeffit.so: $(OBJECTS)
+	-rm -f libifeffit.so
+	$(CC) -shared -o libifeffit.so $(OBJECTS) $(MN_FLIBS) $(PGPLOT_LIBS)
+
 libifeffit.a: $(OBJECTS)
 	-rm -f libifeffit.a
 	$(AR) cru libifeffit.a $(OBJECTS)
 	$(RANLIB) libifeffit.a
+
 
 libxafs.a: $(XAFS_OBJ)
 	-rm -f libxafs.a
@@ -535,21 +537,28 @@ Makefile.PL: Config.mak
 
 #
 # python setup
-site_install.py: Config.mak
+ifeffit_config.py: Config.mak
 	@echo '#  -*-python-*-' > $@
 	@echo '#  Python site installation information'                   >> $@
 	@echo '#  This file was auto-generated during the Ifeffit build'  >> $@
 	@echo '#  and may need some modifications.'                       >> $@
 	@echo '#  '                      >> $@
-	@echo 'bin_dir="$(bindir)"' > $@
-	@echo 'lib_iff="-L$(prefix)/lib -lifeffit "' >> $@
-	@echo 'lib_plt="$(PGPLOT_LIBS)"'             >> $@ 
-	@echo 'lib_f77="$(MN_FLIBS) "'               >> $@
-	@echo 'inc_iff="-I../../src/lib -I$(pkgdatadir)/config"' >> $@
+	@echo 'bin_dir="$(bindir)"' >> $@
+	@echo 'IFEFFIT_DIR="$(pkgdatadir)"'  >> $@
+	@echo 'IFEFFIT_BIN="$(pkgdatadir)"'  >> $@ 
+	@echo 'PGPLOT_DIR="$(pkgdatadir)/pgplot"'     >> $@
+	@echo 'PGPLOT_DEV="/XS"'     >> $@
+	@echo '#  ' >> $@
+	@echo 'import os' >> $@
+	@echo 'if os.name == "nt":' >> $@
+	@echo '    PGPLOT_DEV="/GW"' >> $@
+	@echo '    IFEFFIT_DIR="C://Program Files//Ifeffit"' >> $@
+	@echo '    IFEFFIT_BIN="C://Program Files//Ifeffit//bin"' >> $@
+	@echo '    PGPLOT_BIN ="C://Program Files//Ifeffit//bin"' >> $@
+	@echo '    PGPLOT_DIR ="C://Program Files//Ifeffit//bin"' >> $@
+	@echo '    bin_dir = IFEFFIT_BIN' >> $@
 	@echo 'made $@'
-	@cp $@ $(top_srcdir)/wrappers/python/.
-
-
+	@cp $@ $(top_srcdir)/wrappers/python/lib/.
 TclSetup.in: Config.mak
 	@echo '#  ' > $@
 	@echo '#  Tcl Setup.in auto-generated during Ifeffit build' >> $@
