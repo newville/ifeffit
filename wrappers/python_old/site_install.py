@@ -1,5 +1,5 @@
 bin_dir="/usr/local/bin"
 lib_iff="-L/usr/local/lib -lifeffit "
 lib_plt="-L/usr/local/share/ifeffit/pgplot -lpgplot_iff -lpng -lz -lX11"
-lib_f77="-L/usr/lib/gcc/x86_64-redhat-linux/4.1.1 -L/usr/lib/gcc/x86_64-redhat-linux/4.1.1/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -lgfortranbegin -lgfortran -lm -lgcc_s "
+lib_f77="-L/usr/lib/gcc/i586-redhat-linux/4.4.1 -L/usr/lib/gcc/i586-redhat-linux/4.4.1/../../.. -lgfortranbegin -lgfortran -lm -lgcc_s "
 inc_iff="-I../../src/lib -I/usr/local/share/ifeffit/config"
