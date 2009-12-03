@@ -556,9 +556,10 @@ ifeffit_config.py: Config.mak
 	@echo '    IFEFFIT_BIN="C://Program Files//Ifeffit//bin"' >> $@
 	@echo '    PGPLOT_BIN ="C://Program Files//Ifeffit//bin"' >> $@
 	@echo '    PGPLOT_DIR ="C://Program Files//Ifeffit//bin"' >> $@
-	@echo '    bin_dir = IFEFFIT_BIN' >> $@
+	@echo '    bin_dir = "Scripts"' >> $@
 	@echo 'made $@'
 	@cp $@ $(top_srcdir)/wrappers/python/lib/.
+
 TclSetup.in: Config.mak
 	@echo '#  ' > $@
 	@echo '#  Tcl Setup.in auto-generated during Ifeffit build' >> $@

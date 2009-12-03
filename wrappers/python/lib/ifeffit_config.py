@@ -16,4 +16,4 @@ if os.name == "nt":
     IFEFFIT_BIN="C://Program Files//Ifeffit//bin"
     PGPLOT_BIN ="C://Program Files//Ifeffit//bin"
     PGPLOT_DIR ="C://Program Files//Ifeffit//bin"
-    bin_dir = IFEFFIT_BIN
+    bin_dir = 'Scripts'
