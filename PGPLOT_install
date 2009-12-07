@@ -28,7 +28,7 @@ pgp_file='pgplot5.2.tar.gz'
 #
 # default is to build with gif and without png support
 #
-with_gif=1
+with_gif=0
 with_png=1
 do_clean=1
 do_log=1
