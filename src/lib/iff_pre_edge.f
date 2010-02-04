@@ -68,8 +68,8 @@ c get default values for pre-edge parameters from current scalar values
        offset = 0 ! getsca('pre_offset',1)
        nnorm  = 3 
        name1  = undef
-       print*, 'IFF_PRE :'
-       print*, str
+c       print*, 'IFF_PRE :'
+c       print*, str
        call bkeys(str, mkeys, keys, values, nkeys)
 
 c set default keywords for "undefined" sets
