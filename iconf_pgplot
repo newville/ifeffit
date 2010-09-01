@@ -9,7 +9,7 @@
 #  look for library file
 
 # where to look for pgplot directory: last one found will be used!
-pgdirs="/usr/local/share/ifeffit/pgplot /usr/share/ifeffit/pgplot /Applications/Ifeffit/pgplot $1"
+pgdirs="/sw/lib/pgplot /usr/local/share/ifeffit/pgplot /usr/share/ifeffit/pgplot /Applications/Ifeffit/pgplot $1"
 xdirs="/usr/X11/lib /usr/lib/X11 /usr/lib/X11R5 /usr/X11R5/lib /usr/lib/X11R6 /usr/X11R6/lib"
 xd=""
 

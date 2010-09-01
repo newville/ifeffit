@@ -13,7 +13,6 @@ test "x$prefix"  = "xNONE" && prefix='/usr/local'
 test "x$prefix"  = "x"     && prefix='/usr/local'
 test "x$ARRSIZE" = "x"     && ARRSIZE='large'
 test "x$PACKAGE" = "x"     && PACKAGE='ifeffit'
-# echo $prefix / $PACKAGE / $ARRSIZE
 
 VERSION=`grep '* Version' ChangeLog | head -1| sed 's/[ ]*\* Version[ ]*//g' | sed 's/:.*//g'`
 
@@ -51,7 +50,20 @@ sys_h="$srcdir/sys.h"
 echo "c{sys.h  -*-fortran-*- "                      > $sys_h
 echo "c system and build specific stuff goes here" >> $sys_h
 echo "c to be included in iff_config.f"            >> $sys_h
-echo "       sysdir = '$prefix/share/$PACKAGE'"    >> $sys_h
+
+
+seglen=40
+prefixlen=${#prefix}
+let nseg=$prefixlen/$seglen
+
+if [ $prefixlen -gt $seglen ]  
+then 
+   echo "       sysdir='${prefix:0:$seglen}'//"    >> $sys_h
+   echo "     $  '${prefix:$seglen:$prefixlen}'//" >> $sys_h
+else
+   echo "       sysdir='$prefix'//"                >> $sys_h
+fi 
+echo "     $   'share/$PACKAGE'"                   >> $sys_h
 echo "       pgdev  = '/xserve'"                   >> $sys_h
 echo "       inifile= 'startup.iff  .ifeffit'"     >> $sys_h
 echo "       build = '$VERSION'//"                 >> $sys_h
