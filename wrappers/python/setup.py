@@ -23,7 +23,7 @@ version = '2.0.0'
 # include and parse the data from site_install
 from  lib.ifeffit_config import bin_dir
     
-setup (name             = "Ifeffit",
+setup (name             = "IfeffitPython",
        version = '2.0.0',
        maintainer       = "Matt Newville",
        maintainer_email = "newville@cars.uchicago.edu",
