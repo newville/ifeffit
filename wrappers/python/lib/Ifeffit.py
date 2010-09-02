@@ -9,7 +9,11 @@ conf ={'IFEFFIT_DIR':'/usr/local/share/ifeffit/',
        'PGPLOT_DIR':'/usr/local/share/ifeffit/pgplot',
        }
 
-
+try:
+    import numpy
+    has_numpy = True
+except:
+    has_numpy = False
 
 import ifeffit_config as iffconf
 for k in conf:
@@ -18,12 +22,6 @@ for k in conf:
     elif hasattr(iffconf, k):
         conf[k] = getattr(iffconf, k)
 
-
-try:
-    import numpy
-    has_numpy = True
-except:
-    has_numpy = False
 
 def find_windll(basename, dllname):
     """ search typical install directories for where Ifeffit might be installed"""
@@ -39,9 +37,14 @@ def find_windll(basename, dllname):
                     return basename
     raise ImportError("Cannot find Ifeffit dll")
 
+
 def set_environ():
     load_dll = ctypes.cdll.LoadLibrary
+    
     dllname  = 'libifeffit.so'
+    if os.uname()[0].lower().startswith('darwin'):
+        dllname  = 'libifeffit.dylib'
+
     path_sep = ':'
     os_path  = os.environ['PATH']
 
@@ -55,8 +58,12 @@ def set_environ():
             
         dllname = os.path.join(conf['IFEFFIT_BIN'], dllname)
 
-    os.environ['PGPLOT_FONT'] = os.path.join(conf['PGPLOT_DIR'],'grfont.dat')
-    os.environ['PATH'] = "%s%s%s" % (conf['IFEFFIT_BIN'],path_sep,os_path)
+    if 'PGPLOT_DIR' not in os.environ:
+        os.environ['PGPLOT_DIR'] = os.path.join(conf['IFEFFIT_DIR'], 'pgplot')
+    if 'PGPLOT_FONT' not in os.environ:
+        os.environ['PGPLOT_FONT'] = os.path.join(conf['PGPLOT_DIR'], 'grfont.dat')
+
+    os.environ['PATH'] = "%s%s%s" % (conf['IFEFFIT_BIN'], path_sep, os_path)
 
     return load_dll, dllname
 
