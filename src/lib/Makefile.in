@@ -128,7 +128,7 @@ F77LINK = $(F77LD) $(FFLAGS) $(LDFLAGS) -o $@
 CFLAGS  = @CFLAGS@ -fPIC
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 CCLD    = $(CC)
-LINK    = $(CCLD) $(CFLAGS) $(LDFLAGS) -o $@
+LINK    = $(CCLD) $(CFLAGS) $(LDFLAGS)
 DATA    = $(pkgdata_DATA)
 HEADERS = $(include_HEADERS)
 DIST_COMMON =  ChangeLog Makefile.in
@@ -317,7 +317,7 @@ uninstall-LIBRARIES:
 
 libifeffit.so: $(OBJECTS)
 	-rm -f libifeffit.so
-	$(CC) -shared -o libifeffit.so $(OBJECTS) $(MN_FLIBS) $(PGPLOT_LIBS)
+	$(LINK) -shared -o libifeffit.so $(OBJECTS) $(MN_FLIBS) $(PGPLOT_LIBS)
 
 libifeffit.a: $(OBJECTS)
 	-rm -f libifeffit.a

@@ -63,8 +63,14 @@ then
 else
    echo "       sysdir='$prefix'//"                >> $sys_h
 fi 
-echo "     $   'share/$PACKAGE'"                   >> $sys_h
-echo "       pgdev  = '/xserve'"                   >> $sys_h
+echo "     $   '/share/$PACKAGE'"                  >> $sys_h
+sysname=`uname`
+if test $sysname = Darwin
+then
+   echo "       pgdev  = '/AQT'"                   >> $sys_h
+else
+   echo "       pgdev  = '/xserve'"                >> $sys_h
+fi
 echo "       inifile= 'startup.iff  .ifeffit'"     >> $sys_h
 echo "       build = '$VERSION'//"                 >> $sys_h
 echo "     $   ' $cright'"                         >> $sys_h
