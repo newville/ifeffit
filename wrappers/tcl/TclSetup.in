@@ -9,13 +9,13 @@
 #    LIB_F77 = Fortran libraries
 #    LIB_X11 = X Libaries
 #    INC_IFF = location of ifeffit.h
-LIB_IFF  = -L/usr/local/lib -lifeffit
-LIB_PLT  = -L/usr/local/share/ifeffit/pgplot -lpgplot_iff -lpng -lz -lX11
-LIB_F77  = -L/usr/lib/gcc/i586-redhat-linux/4.4.1 -L/usr/lib/gcc/i586-redhat-linux/4.4.1/../../.. -lgfortranbegin -lgfortran -lm -lgcc_s 
-INC_IFF  = -I/usr/local/share/ifeffit/config
+LIB_IFF  = -L/Users/Newville/Codes/ifeffit/local/lib -lifeffit
+LIB_PLT  = -L/Users/Newville/Codes/ifeffit/local/share/ifeffit/pgplot  -lpgplot_iff -lpng -lz -F/Users/Newville/Codes/ifeffit/local/lib -framework aquaterm -L/usr/X11R6/lib -lX11 -Wl,-framework -Wl,Foundation
+LIB_F77  = -L/Users/Newville/Codes/ifeffit/local/lib -lgfortran -lgfortranbegin 
+INC_IFF  = -I/Users/Newville/Codes/ifeffit/local/share/ifeffit/config
 #==  
 LIB_IFF  = -L../../src/lib -lifeffit 
-INC_IFF  = -I../../src/lib -I/usr/local/share/ifeffit/config
+INC_IFF  = -I../../src/lib -I/Users/Newville/Codes/ifeffit/local/share/ifeffit/config
 CC       = gcc
-CFLAGS   = -g -O2 -fPIC
-LDFLAGS  = 
+CFLAGS   = -O2 -arch x86_64 -arch i386 -arch ppc -fPIC
+LDFLAGS  = -L/Users/Newville/Codes/ifeffit/local/lib

@@ -1,0 +1,5 @@
+setup.py
+lib/Ifeffit.py
+lib/__init__.py
+lib/ifeffit_config.py
+lib/shell.py

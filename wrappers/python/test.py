@@ -1,5 +1,8 @@
 #!/usr/bin/python -O 
-import Ifeffit
+try:
+    import lib as Ifeffit
+except:
+    import Ifeffit
 
 iff = Ifeffit.Ifeffit()
 iff.ifeffit("show $&build")

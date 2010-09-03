@@ -1,10 +1,20 @@
+2010-09-02  Matt Newville  <newville@cars.uchicago.edu>
+
+	* Version 1.2.12:  
+	
+	Bug fixes (mainly for Mac OS X):
+	-  now building dynamic library of libifeffit.so/dylib
+	-  python wrapper now uses ctypes, and dynamic library
+	-  perl wrapper now uses simpler Makefile.PL
+	-  iconf_iff changed to deal with long PREFIX names
+
 2008-11-17  Matt Newville  <newville@cars.uchicago.edu>
 
 	* Version 1.2.11c:  
 	Bug fixes:
 	- stop extraneous print statements 
 	- return normal fit mode in ifeffit to 'real-imaginary' pairs 
-		
+	
 
 2007-08-11  Matt Newville  <newville@cars.uchicago.edu>
 

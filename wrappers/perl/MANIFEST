@@ -1,12 +1,7 @@
-Changes
-Ifeffit.pm
-MANIFEST
-Makefile.PL
-README
-a.xmu
-dot.ifeffit_macros
-dot.ifeffitrc
-ifeffit_shell.pl
+ifeffit.h
 ifeffit_wrap.c
-test.pl
-test_a.pl
+lib/Ifeffit.pm
+Makefile.PL
+MANIFEST			This list of files
+t/a.xmu
+t/ifeffit.t

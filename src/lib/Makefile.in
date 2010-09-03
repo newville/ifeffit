@@ -518,6 +518,8 @@ Makefile.PL: Config.mak
 	@echo '#  This file may need some modifications, but should give' >> $@
 	@echo '#  a good guess for how to build the Ifeffit extension.' >> $@
 	@echo '#  ' >> $@
+	@echo '#  DO NOT USE THIS VERSION -- this is for historical purposes'>> $@
+	@echo '#  ' >> $@
 	@echo "use lib '.';" >> $@
 	@echo "use ExtUtils::MakeMaker;" >> $@
 	@echo "use Config;" >> $@
@@ -533,7 +535,7 @@ Makefile.PL: Config.mak
 	@echo "                    join(\" \", (sort(split(\" \", \"$(MN_FLIBS)\" ))))] " >> $@
 	@echo "         );" >> $@
 	@echo 'made $@'
-	@cp $@ $(top_srcdir)/wrappers/perl/.
+	@cp $@ $(top_srcdir)/wrappers/perl/Makefile_OLD.PL
 
 #
 # python setup

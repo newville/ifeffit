@@ -1,19 +1,44 @@
-#  -*-perl-*-
-#  Perl Makefile.PL auto-generated during Ifeffit build
-#  This file may need some modifications, but should give
-#  a good guess for how to build the Ifeffit extension.
-#  
-use lib '.';
 use ExtUtils::MakeMaker;
-use Config;
-WriteMakefile('NAME'   => 'Ifeffit',
-              'SKIP'   => ['test_dynamic'],
-              'OBJECT' => 'ifeffit_wrap.o',
-              'INSTALLBIN'    => '/usr/local/bin',
-              'INSTALLSCRIPT' => '/usr/local/bin',
-              'LDDLFLAGS'     => '-shared',
-              'INC'    => '-I../../src/lib -I/usr/local/share/ifeffit/config',
-              'LIBS'   =>[' -L../../src/lib '.$Config{ldflags}.
-                    ' -lifeffit -L/usr/local/share/ifeffit/pgplot -lpgplot_iff -lpng -lz -lX11 '.
-                    join(" ", (sort(split(" ", "-L/usr/lib/gcc/i586-redhat-linux/4.4.1 -L/usr/lib/gcc/i586-redhat-linux/4.4.1/../../.. -lgfortranbegin -lgfortran -lm -lgcc_s" ))))] 
-         );
+
+
+my $platform = 'unix';
+SWITCH: {
+  ($platform = 'windows'), last SWITCH if (($^O eq 'MSWin32') or ($^O eq 'cygwin'));
+  ($platform = 'darwin'),  last SWITCH if (lc($^O) eq 'darwin');
+  $platform = 'unix';
+};
+my ($compile_flags, $pgplot_location, $iffdir);
+unless ($platform eq 'windows') {
+ {
+    ($compile_flags, $pgplot_location, $iffdir) = ("", "", `ifeffit -i`);
+    $iffdir =~ s/\s*$//;
+    print STDOUT
+      "Ifeffit's installations directory is $iffdir\n\t(found by capturing \`ifeffit -i\`)\n";
+    open C, "$iffdir/config/Config.mak" or
+      die "Could not open $iffdir/config/Config.mak file for reading\n";
+    while (<C>) {
+      next if (/^\s*\#/);
+      chomp;
+      ($compile_flags   .= (split(/=/, $_))[1]) if (/^LIB/);
+      $compile_flags    .= " ";
+      ($pgplot_location .= (split(" ", $_))[2]) if (/^LIB_PLT/);
+    };
+    print STDOUT "Compilation flags (from $iffdir/config/Config.mak):\n\t$compile_flags\n";
+  };
+  $pgplot_location =~ s/-L//;
+};
+
+
+WriteMakefile
+(
+ 'NAME'         => 'Ifeffit',
+ 'VERSION_FROM' => 'lib/Ifeffit.pm',
+ 'PREREQ_PM'    => {
+		    'version'             => '0',
+		   },
+ 'INSTALLDIRS'  => 'site',
+ 'OBJECT'       => 'ifeffit_wrap.o',
+ 'LIBS'         => [$compile_flags],
+ 'EXE_FILES'    => [],
+ 'PL_FILES'     => {},
+);

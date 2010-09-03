@@ -1,0 +1,10 @@
+Metadata-Version: 2.0
+Name: ifeffit
+Version: 2.0.0
+Summary: Python interface to Ifeffit
+Home-page: http://cars.uchicago.edu/ifeffit
+Author: Matthew Newville
+Author-email: newville@cars.uchicago.edu
+License: BSD
+Description: Python interface to the Ifeffit library for XAFS data analysis
+Platform: All

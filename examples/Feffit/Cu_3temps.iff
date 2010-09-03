@@ -59,6 +59,9 @@ feffit(chi = dat_150.chi, k=dat_150.k,group = fit_150, 301,
  
 show @variables, r_factor, chi_square
 
+write_data(file=fit_10.dat, dat_10.r, dat_10.chir_mag, fit_10.chir_mag, dat_10.chir_re, fit_10.chir_re)
+write_data(file=fit_50.dat, dat_50.r, dat_50.chir_mag, fit_50.chir_mag,  dat_50.chir_re, fit_50.chir_re)
+write_data(file=fit_150.dat, dat_150.r, dat_150.chir_mag, fit_150.chir_mag,  dat_150.chir_re, fit_150.chir_re)
 
 xdr_010 =  (alpha + 10. * a_t )
 xdr_050 =  (alpha + 50. * a_t )
