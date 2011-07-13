@@ -15,13 +15,13 @@ try:
 except:
     has_numpy = False
 
-import ifeffit_config as iffconf
+from . import ifeffit_config as iffconf
+
 for k in conf:
     if k in os.environ:
         conf[k] = os.environ[k]
     elif hasattr(iffconf, k):
         conf[k] = getattr(iffconf, k)
-
 
 def find_windll(basename, dllname):
     """ search typical install directories for where Ifeffit might be installed"""
@@ -41,10 +41,6 @@ def find_windll(basename, dllname):
 def set_environ():
     load_dll = ctypes.cdll.LoadLibrary
     
-    dllname  = 'libifeffit.so'
-    if os.uname()[0].lower().startswith('darwin'):
-        dllname  = 'libifeffit.dylib'
-
     path_sep = ':'
     os_path  = os.environ['PATH']
 
@@ -53,18 +49,26 @@ def set_environ():
         dllname  = 'ifeffit_12.dll'
         path_sep = ';'
         conf['IFEFFIT_DIR'] = find_windll(conf['IFEFFIT_DIR'], dllname)
+        os.environ['PGPLOT_DEV'] = conf['PGPLOT_DEV']
+        os.environ['PGPLOT_DIR'] = conf['PGPLOT_DIR']
         for k in ('PGPLOT_DIR', 'IFEFFIT_BIN'):
             os.environ[k] = conf[k]  = os.path.join(conf['IFEFFIT_DIR'], 'bin')
             
         dllname = os.path.join(conf['IFEFFIT_BIN'], dllname)
-
+    else:
+        dllname  = 'libifeffit.so'
+        if os.uname()[0].lower().startswith('darwin'):
+            dllname  = 'libifeffit.dylib'
+        
     if 'PGPLOT_DIR' not in os.environ:
         os.environ['PGPLOT_DIR'] = os.path.join(conf['IFEFFIT_DIR'], 'pgplot')
     if 'PGPLOT_FONT' not in os.environ:
+
         os.environ['PGPLOT_FONT'] = os.path.join(conf['PGPLOT_DIR'], 'grfont.dat')
-
+        ffile = os.path.join(conf['PGPLOT_DIR'], 'grfont.dat')
+        
     os.environ['PATH'] = "%s%s%s" % (conf['IFEFFIT_BIN'], path_sep, os_path)
-
+    
     return load_dll, dllname
 
 
@@ -74,8 +78,8 @@ class Ifeffit():
         try:
             self.libiff   = load_dll(dllname)
         except:
-            print " failed to load ifeffit library ", dllname
-            print os.environ['PATH']
+            print(" failed to load ifeffit library ", dllname)
+            print(os.environ['PATH'])
             raise ImportError('Cannot load ifeffit library')
         
         startup_string = "&screen_echo=%i" % (screen_echo)
@@ -185,7 +189,7 @@ class Ifeffit():
     def read_file(self,file=None):
         "return data structure for arrays read from a file"
         if (file == None): return None
-        self.ifeffit("read_data(%s, group=t)" % (file))
+        self.ifeffit("read_data(file=%s, group=t)" % (file))
         colnames = self.get_string("column_label").split()
         out = {}
         for i in colnames:
@@ -207,7 +211,6 @@ class Ifeffit():
                 if (len(sx) < 0):  sx = ['','']
                 npts = sx[1].split('pts')[0].strip()
                 name = sx[0]
-                print name, npts
                 try:
                     pre,suff  = name.split('.')
                     if pre not in dict:
@@ -298,19 +301,14 @@ class Ifeffit():
 if __name__ == '__main__':
     
     iff = Ifeffit()
-    print "build:  '%s'" % iff.get_string('$&build')
+    print( "build:  '%s'" % iff.get_string('$&build'))
 
     ox = iff.ifeffit("read_data(cu10k.chi,group=c)")
 
     iff.ifeffit('plot c.k, c.chi_k_')
     
     q =iff.get_group_arrays()
-    print iff.get_array('c.k')
-#     print q.keys()
-#     print os.environ['PATH']
-#     print os.environ['PGPLOT_DIR']
-#     print os.environ['PGPLOT_FONT']
-    
+    print( iff.get_array('c.k'))
 # 
 # ix = Ifeffit()
 # ix.ifeffit('x = 221.3')
