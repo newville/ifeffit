@@ -1,5 +1,5 @@
 setup.py
-lib/Ifeffit.py
+lib/ifeffit.py
 lib/__init__.py
 lib/ifeffit_config.py
 lib/shell.py

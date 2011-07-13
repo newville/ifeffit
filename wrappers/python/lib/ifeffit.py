@@ -2,12 +2,56 @@
 
 import ctypes
 import os
+import sys
 
 conf ={'IFEFFIT_DIR':'/usr/local/share/ifeffit/',
        'IFEFFIT_BIN':'/usr/local/share/ifeffit/',               
        'PGPLOT_DEV':'/XS',
        'PGPLOT_DIR':'/usr/local/share/ifeffit/pgplot',
        }
+
+PY_VERSION = sys.version_info[0]
+def get_strconvertors():
+    """create string wrappers to pass to C functions for both
+    Python2 and Python3.  Note that the ifeffit library uses
+    char* to represent strings.  In Python3, char* maps to a
+    sequence of bytes which must be explicitly converted to a
+    Python string by specifying the encoding.  That is, ASCII
+    encoding is not implicitly assumed.
+
+    That is, for Python3 one sends and receives sequences of
+    bytes to libca. This function returns the translators
+    (STR2BYTES, BYTES2STR), assuming the encoding is 'ASCII'.
+    """
+    if PY_VERSION >= 3:
+        def s2b(st1):
+            'string to byte'
+            if isinstance(st1, bytes):
+                return st1
+            return bytes(st1, 'ASCII')
+        def b2s(st1):
+            'byte to string'
+            if isinstance(st1, str):
+                return st1
+            return str(st1, 'ASCII')
+        return s2b, b2s
+    return str, str
+
+STR2BYTES, BYTES2STR = get_strconvertors()
+
+def strjoin(sep, seq):
+    "join string sequence with a separator"
+    if PY_VERSION < 3:
+        return sep.join(seq)
+
+    if isinstance(sep, bytes):
+        sep = BYTES2STR(sep)
+    if len(seq) == 0:
+        seq = ''
+    elif isinstance(seq[0], bytes):
+        seq = [BYTES2STR(i) for i in seq]
+    return sep.join(seq)
+
 
 try:
     import numpy
@@ -78,12 +122,13 @@ class Ifeffit():
         try:
             self.libiff   = load_dll(dllname)
         except:
-            print(" failed to load ifeffit library ", dllname)
+            print("failed to load ifeffit library ", dllname)
             print(os.environ['PATH'])
             raise ImportError('Cannot load ifeffit library')
-        
-        startup_string = "&screen_echo=%i" % (screen_echo)
+
+        startup_string = "set &screen_echo=%i" % (screen_echo)
         self.ifeffit(startup_string)
+        
         self.MAX_ARRAY_PTS = int(self.get_scalar("&maxpts"))
         self.num_array = None
         self.use_numpy = (has_numpy and use_numpy)            
@@ -96,11 +141,12 @@ class Ifeffit():
         ret  = 0
         for c in coms:
             if (c != ''):
-                ret  = self.libiff.iff_exec(c)
+                ret  = self.libiff.iff_exec(STR2BYTES(c))
         return ret
 
     def iff_exec(self, cmd):
         self.ifeffit(cmd)
+
         
     def __call__(self,cmd):
         return self.ifeffit(cmd)
@@ -108,7 +154,7 @@ class Ifeffit():
     def get_scalar(self,name):
         # get_scalar.restype = ctypes.c_int
         pd = ctypes.pointer(ctypes.c_double())
-        i  = self.libiff.iff_get_scalar(name, pd)
+        i  = self.libiff.iff_get_scalar(STR2BYTES(name), pd)
         return pd.contents.value
 
     def put_scalar(self,name,val):
@@ -116,7 +162,7 @@ class Ifeffit():
         
     def get_array(self,name):
         pdat = (self.MAX_ARRAY_PTS*ctypes.c_double)()
-        nout = self.libiff.iff_get_array(name, pdat)
+        nout = self.libiff.iff_get_array(STR2BYTES(name), pdat)
         arr = [i for i in pdat[:nout]]
         if self.use_numpy:  arr = numpy.array(arr)
         return arr
@@ -128,12 +174,12 @@ class Ifeffit():
         pdat = (self.MAX_ARRAY_PTS*ctypes.c_double)()
         for i in range(n):
             pdat[i] = value[i]
-        n = self.libiff.iff_put_array(name,pn,pdat)
+        n = self.libiff.iff_put_array(STR2BYTES(name), pn, pdat)
 
     def get_string(self,name):
         "return an Ifeffit string as a python string"
         sout = " "*512
-        self.libiff.iff_get_string(name, sout)
+        self.libiff.iff_get_string(STR2BYTES(name), sout)
         return sout.strip().rstrip()
 
     def put_string(self,name):

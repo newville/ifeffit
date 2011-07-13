@@ -15,16 +15,16 @@ except:
 vx = sys.version_info
 
 if vx[0] < 2: 
-    print "Error: python is too old"
+    print( "Error: python is too old")
     sys.exit(1)
 
-version = '2.0.0'
+version = '2.0.1'
 #
 # include and parse the data from site_install
 from  lib.ifeffit_config import bin_dir
     
-setup (name             = "IfeffitPython",
-       version = '2.0.0',
+setup (name             = "PyIfeffit",
+       version          = version,
        maintainer       = "Matt Newville",
        maintainer_email = "newville@cars.uchicago.edu",
        description      = "Ifeffit Extension to Python",

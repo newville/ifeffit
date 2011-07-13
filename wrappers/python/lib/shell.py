@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 import cmd
-from Ifeffit import Ifeffit
+from . import ifeffit
+Ifeffit = ifeffit.Ifeffit
 
 class shell(cmd.Cmd,Ifeffit):
     __doc__= """
@@ -44,16 +45,16 @@ class shell(cmd.Cmd,Ifeffit):
         pass
 
     def help_help(self):
-        print self.__doc__
+        print( self.__doc__)
     def help_Ifeffit(self):
-        print Ifeffit.__doc__
+        print( Ifeffit.__doc__)
     def help_shell(self):
-        print """
+        print( """
         shell commands can be executed by preceding either by 'shell' or '!':
    Ifeffit>! ls
-   Ifeffit>shell lpr ifeffit.ps"""
+   Ifeffit>shell lpr ifeffit.ps""")
     def help_EOF(self):
-        print " EOF = quit = exit = Control^D ==exit the program"
+        print( " EOF = quit = exit = Control^D ==exit the program")
     def do_shell(self, arg):
         import os
         os.system(arg)
