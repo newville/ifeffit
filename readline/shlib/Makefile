@@ -31,7 +31,7 @@ RL_LIBRARY_NAME = readline
 srcdir = .
 VPATH = .:..
 topdir = ..
-BUILD_DIR = /Users/Newville/Codes/ifeffit/build/IFF/readline
+BUILD_DIR = /home/newville/Codes/ifeffit/work/readline
 
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}
@@ -48,9 +48,9 @@ LN = ln
 
 SHELL = /bin/sh
 
-host_os = darwin10.4.0
+host_os = linux-gnu
 
-prefix = /Users/Newville/Codes/ifeffit/local
+prefix = /usr/local
 exec_prefix = ${prefix}
 includedir = ${prefix}/include
 libdir = ${exec_prefix}/lib
@@ -60,10 +60,10 @@ localedir = $(datadir)/locale
 # Support an alternate destination root directory for package building
 DESTDIR =
 
-CFLAGS = -O2 -arch x86_64 -arch i386 -arch ppc
+CFLAGS = -g -O
 LOCAL_CFLAGS =  -DRL_LIBRARY_VERSION='"$(RL_LIBRARY_VERSION)"'
 CPPFLAGS = 
-LDFLAGS = -L/Users/Newville/Codes/ifeffit/local/lib  -O2 -arch x86_64 -arch i386 -arch ppc
+LDFLAGS =   -g -O
 
 DEFS = -DHAVE_CONFIG_H
 LOCAL_DEFS = 
@@ -75,18 +75,18 @@ LOCAL_DEFS =
 # changes to bash-maintainers@gnu.org.
 #
 SHOBJ_CC = gcc
-SHOBJ_CFLAGS = -fno-common
+SHOBJ_CFLAGS = -fPIC
 SHOBJ_LD = ${CC}
 
-SHOBJ_LDFLAGS = -dynamic
+SHOBJ_LDFLAGS = -shared -Wl,-soname,$@
 SHOBJ_XLDFLAGS = 
 SHOBJ_LIBS = 
 
-SHLIB_XLDFLAGS = -L/Users/Newville/Codes/ifeffit/local/lib -arch_only `/usr/bin/arch` -install_name $(libdir)/$@ -current_version $(SHLIB_MAJOR)$(SHLIB_MINOR) -compatibility_version $(SHLIB_MAJOR) -v
-SHLIB_LIBS = -lncurses
-SHLIB_LIBSUFF = dylib
+SHLIB_XLDFLAGS =  -Wl,-rpath,$(libdir) -Wl,-soname,`basename $@ $(SHLIB_MINOR)`
+SHLIB_LIBS = 
+SHLIB_LIBSUFF = so
 
-SHLIB_LIBVERSION = $(SHLIB_MAJOR)$(SHLIB_MINOR).$(SHLIB_LIBSUFF)
+SHLIB_LIBVERSION = $(SHLIB_LIBSUFF).$(SHLIB_MAJOR)$(SHLIB_MINOR)
 
 SHLIB_STATUS = supported
 

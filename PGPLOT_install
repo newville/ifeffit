@@ -26,7 +26,7 @@ pgp_ftpdir='pub/pgplot/'
 pgp_file='pgplot5.2.tar.gz'
 
 #
-# default is to build with gif and without png support
+# default is to build without gif and with png support
 #
 with_gif=0
 with_png=1
@@ -34,7 +34,8 @@ do_clean=1
 do_log=1
 use_64=0
 fcompl=
-fflagc='-O -fPIC'
+fflagc='-Wall -O -fPIC'
+cflagd='-Wall -O -fPIC'
 # get command line options
 for opt
 do
@@ -250,8 +251,8 @@ fi
 # copy Fortran90 gidriv.f for modern fortrans -- yick!
 if [ x$fcompl != 'xg77' ] ; then 
    echo 'copying fortran90 gif driver to PGPLOT'
-   cp -fp pgplot_extras/gidriv.f pgplot/drivers/gidriv.f
-   fflagc='-ffixed-form -ffixed-line-length-none -u -fPIC -O -fcray-pointer'
+   # cp -fp pgplot_extras/gidriv.f pgplot/drivers/gidriv.f
+   # fflagc='-ffixed-form -ffixed-line-length-none -u -fPIC -O -fcray-pointer'
 fi
 
 echo " = Creating $pgp_dir and drivers.list "
@@ -355,16 +356,17 @@ if test $with_png = 1 ; then
  fi
 fi
 
-echo  " = Running make for PGPLOT "
-make FCOMPL="$fcompl" FFLAGC="$fflagc" libpgplot_iff.a 
+sed "s|^FCOMPL=.*|FCOMPL=$fcompl|g" makefile | sed "s|^FFLAGC=.*|FFLAGC=$fflagc|g" | sed "s|^CFLAGD=.*|CFLAGD=$cflagd|g" > Tmp
+mv Tmp makefile
 
-make FCOMPL=$fcompl grfont.dat prog pgplot.doc pgxwin_server cpg
+
+echo  " = Running make for PGPLOT "
+
+make libpgplot_iff.a  grfont.dat prog pgxwin_server cpg
 
  if test $do_log = 1 ;  then 
-    echo "make FCOMPL=" $fcompl "FFLAGC="$fflagc " libpgplot_iff.a  " >> $logfile
-    echo "make FCOMPL=" $fcompl "grfont.dat prog pgplot.doc pgxwin_server cpg" >> $logfile
+    echo "make libpgplot_iff.a  grfont.dat prog pgxwin_server cpg " >> $logfile
  fi
-
 
 if test $do_clean = 1 ; then
   echo " = Cleaning up and preparing for test"

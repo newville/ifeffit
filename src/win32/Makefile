@@ -2,7 +2,9 @@ CC = gcc
 MAKE_DLL=gcc -shared
 
 DLLFLAGS=-Wl,--add-stdcall-alias 
-DLLLIBS= -lg2c -lgcc -lm -mwindows
+DLLLIBS= -lgfortran -lgcc -lm -mwindows
+
+DLLLIBS= -lgfortran -lgcc -lm -mwindows
 
 PGLIBS=-LGrWin/ -lpgplot -lGrWin
 IFFLIB=../lib/libifeffit.a

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import ctypes
+import ctypes.util
 import os
 import sys
 
@@ -84,36 +85,45 @@ def find_windll(basename, dllname):
 
 def set_environ():
     load_dll = ctypes.cdll.LoadLibrary
-    
     path_sep = ':'
     os_path  = os.environ['PATH']
-
+    dllname  = 'ifeffit'
     if os.name == 'nt':
         load_dll = ctypes.windll.LoadLibrary
         dllname  = 'ifeffit_12.dll'
         path_sep = ';'
-        conf['IFEFFIT_DIR'] = find_windll(conf['IFEFFIT_DIR'], dllname)
-        os.environ['PGPLOT_DEV'] = conf['PGPLOT_DEV']
-        os.environ['PGPLOT_DIR'] = conf['PGPLOT_DIR']
-        for k in ('PGPLOT_DIR', 'IFEFFIT_BIN'):
-            os.environ[k] = conf[k]  = os.path.join(conf['IFEFFIT_DIR'], 'bin')
-            
-        dllname = os.path.join(conf['IFEFFIT_BIN'], dllname)
-    else:
-        dllname  = 'libifeffit.so'
-        if os.uname()[0].lower().startswith('darwin'):
-            dllname  = 'libifeffit.dylib'
-        
-    if 'PGPLOT_DIR' not in os.environ:
-        os.environ['PGPLOT_DIR'] = os.path.join(conf['IFEFFIT_DIR'], 'pgplot')
-    if 'PGPLOT_FONT' not in os.environ:
+        os.environ['PGPLOT_DIR']  = '"%s"' % (conf['IFEFFIT_DIR'] + '//bin')
+        os.environ['PGPLOT_FONT'] = '"%s"' % (conf['IFEFFIT_DIR'] + '//bin//grfont.dat')
 
-        os.environ['PGPLOT_FONT'] = os.path.join(conf['PGPLOT_DIR'], 'grfont.dat')
-        ffile = os.path.join(conf['PGPLOT_DIR'], 'grfont.dat')
-        
     os.environ['PATH'] = "%s%s%s" % (conf['IFEFFIT_BIN'], path_sep, os_path)
-    
-    return load_dll, dllname
+
+    dllfile = ctypes.util.find_library(dllname)
+    print 'Find DLL ', dllname, dllfile
+
+# 
+#     conf['IFEFFIT_DIR'] = find_windll(conf['IFEFFIT_DIR'], dllname)
+#         print '-->  ',  conf['IFEFFIT_DIR']
+#         os.environ['PGPLOT_DEV'] = conf['PGPLOT_DEV']
+#         os.environ['PGPLOT_DIR'] = conf['PGPLOT_DIR']
+#         os.environ['PGPLOT_FONT'] = os.path.join(conf['PGPLOT_DIR'], 'grfont.dat')
+#         for k in ('PGPLOT_DIR', 'IFEFFIT_BIN'):
+#             os.environ[k] = conf[k]  = os.path.join(conf['IFEFFIT_DIR'], 'bin')
+#             
+#         dllname = os.path.join(conf['IFEFFIT_BIN'], dllname)
+#         
+#         
+#     os.environ['PATH'] = "%s%s%s" % (conf['IFEFFIT_BIN'], path_sep, os_path)
+# 
+#     dllname    = ctypes.util.find_library('ifeffit_12')
+#     print dllname
+# ;    
+    print os.environ['PATH']
+    print os.environ['PGPLOT_DIR']
+    print os.environ['PGPLOT_FONT']
+    print ' set_env done: ',  dllname
+    for k, v in conf.items():
+        print k, v
+    return load_dll, dllfile
 
 
 class Ifeffit():

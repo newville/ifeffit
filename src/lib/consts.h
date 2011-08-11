@@ -21,7 +21,7 @@ c
        parameter ( max_restraint =   32)
        parameter ( mkeys  =   64 )
        parameter ( maxheap_array = maxpts*512)
-       parameter ( maxarr =  8192) ! # of array variables
+       parameter ( maxarr = 16384) ! # of array variables
        parameter ( maxsca = 16384) ! # of scalar variables
        parameter ( maxtxt =  8192) ! # of text variables 
        parameter ( mconst = 16384) ! # of numerical constants
@@ -36,14 +36,14 @@ c
        parameter ( korder =    4 )
        parameter ( mtknot = maxnot+korder)
        parameter ( mdata  =   16 ) ! # of data sets
-       parameter ( mvarys =  128 ) ! # of fitting variables
+       parameter ( mvarys =  256 ) ! # of fitting variables
        parameter ( mppars =   16 ) ! # of path parameters
        parameter ( mmcarg =    9 ) ! # of macro arguments
        parameter ( max_pathindex = 9999) ! # path index numbder
        parameter ( max_outarr    = 99)   ! # of output columns in write_data
 
-       parameter ( mpaths =  256) ! # of paths, total
-       parameter ( mfffil =  256) ! # of feff files
+       parameter ( mpaths =  1024) ! # of paths, total
+       parameter ( mfffil =  1024) ! # of feff files
 c
 c common constants
        double precision  zero, one, etok, pi, qgrid, rgrid, tiny
