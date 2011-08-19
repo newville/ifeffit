@@ -3,24 +3,24 @@
 
       include 'const.h'
       include 'dim.h'
-      include 'clmz.h'
-      include 'fmatrx.h'
       include 'lambda.h'
       include 'pdata.h'
-      include 'nlm.h'
-      include 'rotmat.h'
-
       include 'vers.h'
       include 'pola.h'
 
-      complex*16  rho(legtot), pmati(lamtot,lamtot,2)
-      complex*16  pllp, ptrac, srho, prho, cdel1, cfac
-      complex*16  cchi(nex), cfms, mmati
-      dimension   mmati(-mtot:mtot,-mtot:mtot)
-      dimension   t3j(-mtot-1:mtot+1,-1:1)
-      dimension   xk(nex), ckmag(nex)
-      complex*16  ck(nex)
-      dimension   ffmag(nex)
+      double precision xnlm(ltot+1, mtot+1)
+      double precision dri(ltot+1, 2*mtot+1, 2*mtot+1, legtot+1)
+      complex*16 clmi(ltot+1, mtot+ntot+1, legtot)
+      complex*16 fmati(lamtot, lamtot, legtot)
+
+      complex*16 rho(legtot), pmati(lamtot,lamtot,2)
+      complex*16 pllp, ptrac, srho, prho, cdel1, cfac
+      complex*16 cchi(nex), cfms, mmati
+      complex*16 ck(nex)
+      dimension  mmati(-mtot:mtot,-mtot:mtot)
+      dimension  t3j(-mtot-1:mtot+1,-1:1)
+      dimension  xk(nex), ckmag(nex)
+      dimension  ffmag(nex)
 
       character*12 fname, messag*128
 
@@ -34,11 +34,11 @@ c     used for divide-by-zero and trig tests
       parameter (eps = 1.0e-16)
 
 c     Read phase calculation input, data returned via commons
-      open (unit=1, file='phase.bin', status='old',
-     1      access='sequential', form='unformatted', iostat=ios)
-      call chopen (ios, 'phase.bin', 'genfmt')
-      call rphbin (1)
-      close (unit=1)
+ccc      open (unit=1, file='phase.bin', status='old',
+ccc     1      access='sequential', form='unformatted', iostat=ios)
+ccc      call chopen (ios, 'phase.bin', 'genfmt')
+ccc      call rphbin (1)
+      call ReadPhaseBin('phase.bin')
 
 c     Open path input file (unit in) and read title.  Use unit 1.
       ntitle = 5
@@ -92,8 +92,7 @@ c     Make a header for the running messages.
   132 format ('    path  cw ratio     deg    nleg  reff')
 
 c     Set nlm factors in common /nlm/ for use later
-      call snlm (ltot+1, mtot+1)
-
+      call snlm(ltot, mtot, xnlm)
       if (pola) then
 c        Make 3j factors in t3j  (multiplied by sqrt(3*(2l0+1)) for
 c        further convinience - the same expression for chi)
@@ -144,15 +143,15 @@ c        Set lambda for low k
 c        Calculate and store rotation matrix elements
 c        Only need to go to (il0, il0, ...) for isc=nleg and
 c        nleg+1 (these are the paths that involve the 'z' atom
-         call rot3i (il0, il0, nleg)
+         call rot3i (il0, il0, nleg, dri)
          do 400  isc = 1, nsc
-            call rot3i (lmaxp1, mmaxp1, isc)
+            call rot3i (lmaxp1, mmaxp1, isc, dri)
   400    continue
          if (pola) then
 c           one more rotation in polarization case
-            call rot3i (il0, il0, nleg+1)
-            call mmtr(t3j,mmati)
-         endif 
+            call rot3i (il0, il0, nleg+1, dri)
+            call mmtr(t3j, mmati, dri)
+         endif
 
 
 c        Big energy loop
@@ -191,45 +190,47 @@ c           zero clmi arrays
 
             lxp1 = max (lmax(ie,ipot(1))+1, l0+1)
             mnp1 = min (lxp1, mnmxp1)
-            call sclmz (rho, lxp1, mnp1, 1)
+            call sclmz (rho, lxp1, mnp1, 1, clmi)
 
             lxp1 = max (lmax(ie,ipot(nsc))+1, l0+1)
             mnp1 = min (lxp1, mnmxp1)
-            call sclmz (rho, lxp1, mnp1, nleg)
+            call sclmz (rho, lxp1, mnp1, nleg, clmi)
 
             do 460  ileg = 2, nleg-1
                isc0 = ileg-1
                isc1 = ileg
                lxp1 = max (lmax(ie,ipot(isc0))+1, lmax(ie,ipot(isc1))+1)
                mnp1 = min (lxp1, mnmxp1)
-               call sclmz (rho, lxp1, mnp1, ileg)
+               call sclmz (rho, lxp1, mnp1, ileg, clmi)
   460       continue
 
 c           Calculate and store scattering matrices fmati.
-
             if (pola) then
 c              Polarization version, make new m matrix
 c              this will fill fmati(...,nleg) in common /fmtrxi/
-               call mmtrxi (laml0x, mmati, ie, 1, nleg)
-            else 
+               call mmtrxi (laml0x, mmati, ie, 1, nleg,
+     $              dri, xnlm, clmi, fmati)
+            else
 c              Termination matrix, fmati(...,nleg)
                iterm = 1
-               call fmtrxi (laml0x, laml0x, ie, iterm, 1, nleg)
+               call fmtrxi(laml0x, laml0x, ie, iterm, 1, nleg,
+     $              dri, xnlm, clmi, fmati)
             endif
-
             iterm = -1
 c           First matrix
-            call fmtrxi (lamx, laml0x, ie, iterm, 2, 1)
+            call fmtrxi (lamx, laml0x, ie, iterm, 2, 1,
+     $           dri, xnlm, clmi, fmati)
 c           Last matrix if needed
-            if (nleg .gt. 2)  then
-               call fmtrxi (laml0x, lamx, ie, iterm, nleg, nleg-1)
+           if (nleg .gt. 2)  then
+               call fmtrxi(laml0x, lamx, ie, iterm, nleg, nleg-1,
+     $             dri, xnlm, clmi, fmati)
             endif
 c           Intermediate scattering matrices
             do 480  ilegp = 2, nsc-1
                ileg = ilegp + 1
-               call fmtrxi (lamx, lamx, ie, iterm, ileg, ilegp)
+               call fmtrxi(lamx, lamx, ie, iterm, ileg, ilegp,
+     $              dri, xnlm, clmi, fmati)
   480       continue
-
 c           Big matrix multiplication loops.
 c           Calculates trace of matrix product
 c           M(1,N) * f(N,N-1) * ... * f(3,2) * f(2,1), as in reference.
@@ -325,7 +326,7 @@ c           put header on feff.dat
   250       format (' Path', i5, '      icalc ', i7, t57, 2a12)
             write(3,70)
             write(3,290)  nleg, deg, reff*bohr, rnrmav, edge*ryd
-  290       format (1x, i3, f8.3, f9.4, f10.4, f11.5, 
+  290       format (1x, i3, f8.3, f9.4, f10.4, f11.5,
      1              ' nleg, deg, reff, rnrmav(bohr), edge')
             write(3,300)
   300       format ('        x         y         z   pot at#')
@@ -394,7 +395,7 @@ c           Put feff.dat and stuff into files.dat
 
 c           Tell user about the path we just did
             write(messag, 210) ipath, crit, deg, nleg, reff*bohr
-            call echo(messag)            
+            call echo(messag)
   210       format (3x, i4, 2f10.3, i6, f9.4)
             nused = nused+1
 

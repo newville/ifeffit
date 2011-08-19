@@ -1,4 +1,5 @@
-      subroutine mmtrxi (lam1x, mmati, ie, ileg, ilegp)
+      subroutine mmtrxi (lam1x, mmati, ie, ileg, ilegp,
+     $     dri, xnlm, clmi, fmati)
 c     calculates matrix M in Rehr,Albers paper.
 c     in polarization case
       implicit double precision (a-h, o-z)
@@ -30,18 +31,20 @@ c     gamtl = gamt*tl
 
       include 'const.h'
       include 'dim.h'
-      include 'nlm.h'
       include 'lambda.h'
-      include 'clmz.h'
       include 'pola.h'
-      include 'fmatrx.h'
-      include 'rotmat.h'
       include 'pdata.h'
 
+      double precision xnlm(ltot+1, mtot+1)
+      double precision dri(ltot+1, 2*mtot+1, 2*mtot+1, legtot+1)
+
+      complex*16 clmi(ltot+1, mtot+ntot+1, legtot)
+      complex*16 fmati(lamtot,lamtot,legtot)
       complex*16 cam, camt, tltl,mmati
       dimension mmati(-mtot:mtot,-mtot:mtot)
       complex*16 gam(ltot+1,mtot+1,ntot+1),
      1           gamtl(ltot+1,mtot+1,ntot+1)
+
 
 c     calculate factors gam and gamtl
       iln = il0

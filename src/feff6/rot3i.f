@@ -1,4 +1,4 @@
-      subroutine rot3i (lxp1, mxp1, ileg)
+      subroutine rot3i (lxp1, mxp1, ileg, dri)
       implicit double precision (a-h,o-z)
 
 c     input:  lxp1, mxp1, ileg (lmax+1, mmax+1)
@@ -30,12 +30,13 @@ c     l' = 0, and n' and m' = 0; dri0(3,5,5) : l' = 2,n' = 2,m' = 2.
 c--------------------------------------------------------------------
 
       include 'dim.h'
-      include 'rotmat.h'
       include 'pdata.h'
+
 c     dri0 is larger than needed for genfmt, but necessary for
 c     this calculation algorithm.  Copy result into smaller
 c     dri arrays (in common) at end of this routine.
-      dimension  dri0 (ltot+1, 2*ltot+1, 2*ltot+1)
+      double precision dri0 (ltot+1, 2*ltot+1, 2*ltot+1)
+      double precision dri(ltot+1, 2*mtot+1, 2*mtot+1, legtot+1)
 
 c     initialize dri0
       do 200 il = 1, ltot+1

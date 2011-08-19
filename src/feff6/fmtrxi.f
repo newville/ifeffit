@@ -1,4 +1,5 @@
-      subroutine fmtrxi (lam1x, lam2x, ie, iterm, ileg, ilegp)
+      subroutine fmtrxi(lam1x, lam2x, ie, iterm, ileg, ilegp,
+     1     dri, xnlm, clmi, fmati)
       implicit double precision (a-h, o-z)
 
 c     all commons except for /fmat/ are inputs
@@ -30,13 +31,14 @@ c     gamtl = gamt*tl
 
       include 'const.h'
       include 'dim.h'
-      include 'nlm.h'
       include 'lambda.h'
-      include 'clmz.h'
-      include 'fmatrx.h'
-      include 'rotmat.h'
       include 'pdata.h'
 
+      double precision xnlm(ltot+1, mtot+1)
+      double precision dri(ltot+1, 2*mtot+1, 2*mtot+1, legtot+1)
+
+      complex*16 clmi(ltot+1, mtot+ntot+1, legtot)
+      complex*16 fmati(lamtot,lamtot,legtot)
       complex*16 cam, camt, cterm, tltl
       complex*16 gam(ltot+1,mtot+1,ntot+1),
      1           gamtl(ltot+1,mtot+1,ntot+1), tl
