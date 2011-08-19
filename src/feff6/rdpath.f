@@ -9,7 +9,10 @@
 
       complex*16  alph, gamm
       dimension  alpha(0:legtot), gamma(legtot)
-       character messag*128
+      double precision atx(0:legtot+1),aty(0:legtot+1),atz(0:legtot+1)
+
+      character messag*128
+
       read(in,*,end=200)  ipath, nleg, deg
       if (nleg .gt. legtot)  then
          write(messag,'(1x,a,2i5)')
@@ -20,7 +23,7 @@
 c     skip label (x y z ipot rleg beta eta)
       read(in,*)
       do 20  ileg = 1, nleg
-         read(in,*,end=999)  (rat(j,ileg),j=1,3), ipot(ileg), 
+         read(in,*,end=999)  (rat(j,ileg),j=1,3), ipot(ileg),
      1                       potlbl(ipot(ileg))
 c        convert to code units
          do 10  j = 1, 3
@@ -74,7 +77,7 @@ c     beginnnig of calculating nstar=deg*cos(eps r1)*cos(eps rN)
 c     end of calculating nstar
 
       nangle = nleg
-      if (pol) then 
+      if (pol) then
 c        in polarization case we need one more rotation
          nangle = nleg + 1
       endif
@@ -141,7 +144,7 @@ c        sppp = sin (phi prime - phi)
          phip = atan2(spp,cpp)
 
 c        alph = exp(i alpha)  in ref eqs 18
-c        beta = cos (beta)         
+c        beta = cos (beta)
 c        gamm = exp(i gamma)
          alph = -(st*ctp - ct*stp*cppp - coni*stp*sppp)
          beta(j) = ct*ctp + st*stp*cppp
@@ -152,7 +155,7 @@ c        watch out for roundoff errors
          call arg(alph,phip-phi,alpha(j))
          beta(j) = acos(beta(j))
          call arg(gamm,phi-phi,gamma(j))
-c       Convert from the rotation of FRAME used before to the rotation 
+c       Convert from the rotation of FRAME used before to the rotation
 c       of VECTORS used in ref.
          dumm = alpha(j)
          alpha(j) =  pi- gamma(j)
@@ -163,7 +166,7 @@ c       of VECTORS used in ref.
          endif
   100 continue
 
-c     Make eta(i) = alpha(i-1) + gamma(i). 
+c     Make eta(i) = alpha(i-1) + gamma(i).
 c     We'll need alph(nangle)=alph(0)
       alpha(0) = alpha(nangle)
       do 150  j = 1, nleg
@@ -187,6 +190,7 @@ c     If unexpected end of file, die
   999 continue
        call fstop(' at RDPATH: unexpected end of file')
       end
+
       subroutine trig (x, y, z, ct, st, cp, sp)
       implicit double precision (a-h, o-z)
 c     returns cos(theta), sin(theta), cos(phi), sin(ph) for (x,y,z)

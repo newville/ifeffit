@@ -1,4 +1,6 @@
-      subroutine rphbin (in)
+      subroutine rphbin(in)
+ccc         fname, ne, ik0, npot, ph, eref, em,
+ccc     $     lmax, lmaxp1, l0, il0)
       implicit double precision (a-h, o-z)
 
 c     Reads input from unit in.  Returns (via /pdata/)
@@ -12,6 +14,10 @@ c     phmin is min value to use for |phase shift|
       include 'pdata.h'
 
       parameter (phmin = 1.0e-8)
+
+cc      open (unit=in, file=fname, status='old',
+cc     &     access='sequential', form='unformatted', iostat=ios)
+cc      call chopen (ios, 'phase.bin', 'read phase.bin')
 
 c     These header lines do not include carriage control
       read(in) ntext
@@ -63,6 +69,7 @@ c        some m hole, n=3, could go to d state
       l0 = lfinal
       il0 = l0 + 1
 
+ccc      close(in)
       return
       end
 

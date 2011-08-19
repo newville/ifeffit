@@ -1,4 +1,4 @@
-      subroutine potph (isporb)
+      subroutine potph (isporb, shole, sout)
 
 c     Cluster code -- multiple shell single scattering version of FEFF
 c     This program (or subroutine) calculates potentials and phase
@@ -14,11 +14,66 @@ c                   xxx.dat      various diagnostics
       include 'const.h'
       include 'dim.h'
 
-      include 'arrays.h'
+c     Notes:
+c        nat	number of atoms in problem
+c        nph	number of unique potentials
+c        nfr	number of unique free atoms
+c        ihole	hole code of absorbing atom
+c        iph=0 for central atom
+c        ifr=0 for central atom
+
+c     Specific atom input data
+      dimension iphat(natx)	!given specific atom, which unique pot?
+      dimension rat(3,natx)	!cartesian coords of specific atom
+
+c     Unique potential input data
+      dimension iatph(0:nphx)	!given unique pot, which atom is model?
+				!(0 if none specified for this unique pot)
+      dimension ifrph(0:nphx)	!given unique pot, which free atom?
+      dimension xnatph(0:nphx)	!given unique pot, how many atoms are there
+				!of this type? (used for interstitial calc)
+      character*6 potlbl(0:nphx)	!label for user convienence
+
+      dimension folp(0:nphx)	!overlap factor for rmt calculation
+      dimension novr(0:nphx)	!number of overlap shells for unique pot
+      dimension iphovr(novrx,0:nphx)	!unique pot for this overlap shell
+      dimension nnovr(novrx,0:nphx)	!number of atoms in overlap shell
+      dimension rovr(novrx,0:nphx)	!r for overlap shell
+
+c     Free atom data
+      dimension ion(0:nfrx)	!ionicity, input
+      dimension iz(0:nfrx)	!atomic number, input
+
+c     ATOM output
+c     Note that ATOM output is dimensioned 251, all other r grid
+c     data is set to nrptx, currently 250
+      dimension rho(251,0:nfrx)		!density*4*pi
+      dimension vcoul(251,0:nfrx)	!coulomb potential
+
+c     Overlap calculation results
+      dimension edens(nrptx,0:nphx)	!overlapped density*4*pi
+      dimension vclap(nrptx,0:nphx) 	!overlapped coul pot
+      dimension vtot (nrptx,0:nphx)	!overlapped total potential
+
+c     Muffin tin calculation results
+      dimension imt(0:nphx)	!r mesh index just inside rmt
+      dimension inrm(0:nphx)	!r mesh index just inside rnorman
+      dimension rmt(0:nphx)	!muffin tin radius
+      dimension rnrm(0:nphx)	!norman radius
+
+c     PHASE output
+      complex*16 eref(nex)		!interstitial energy ref
+      complex*16 ph(nex,ltot+1,0:nphx)	!phase shifts
+      dimension lmax(0:nphx)		!number of ang mom levels
+
       common /print/ iprint
 
       parameter (nheadx = 30)
       character*80 head(nheadx), messag*128
+
+      character*10 shole(0:9)
+      character*8 sout(0:6)
+
       dimension lhead(nheadx)
 
 c     head0 is header from potph.dat, include carriage control
@@ -128,7 +183,7 @@ c     Initialize header routine and write misc.dat
       call sthead (nhead0, head0, lhead0, nph, iz, rmt, rnrm,
      1             ion, ifrph, ihole, ixc,
      2             vr0, vi0, rs0, gamach, xmu, xf, vint, rs,
-     3             nhead, lhead, head)
+     3             nhead, lhead, head, shole, sout)
       if (iprint .ge. 1)  then
          open (unit=1, file='misc.dat', status='unknown', iostat=ios)
          call chopen (ios, 'misc.dat', 'potph')

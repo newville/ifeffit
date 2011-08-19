@@ -1,7 +1,7 @@
       subroutine sthead (ntitle, title, ltitle, nph, iz, rmt, rnrm,
      1                  ion, ifrph, ihole, ixc,
      2                  vr0, vi0, rs0, gamach, xmu, xf, vint, rs,
-     3                  nhead, lhead, head)
+     3                  nhead, lhead, head, shole, sout)
 
 c     SeT HEAD
 c     This routine makes the file header, returned in head array.
@@ -34,10 +34,8 @@ c     heada, etc., are saved for use by entry wthead
 
       character*10 shole(0:9)
       character*8  sout(0:6)
-      common /labels/ shole, sout
       include 'vers.h'
-c     character*12 vfeff, vpotph, vpaths, vgenfm, vff2ch
-c     common /vers/ vfeff, vpotph, vpaths, vgenfm, vff2ch
+
 
 c     FiLl head array with HEADer
 c     Fills head arrray, n = number of lines used.
@@ -97,7 +95,7 @@ c     Does not include line of dashes at the end.
   200 format('Mu=',1pe10.3, ' kf=',1pe9.3, ' Vint=',1pe10.3,
      x        ' Rs_int=',0pf6.3)
       write(head(nhead),200)  xmu*ryd, xf/bohr, vint*ryd, rs
-      if (ixc .eq. 4)  then 
+      if (ixc .eq. 4)  then
           nhead = nhead+1
           write(head(nhead),210)  rs0
   210     format ('Experimental DH-HL exch, rs0 = ', 1pe14.6)

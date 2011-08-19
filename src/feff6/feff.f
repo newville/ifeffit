@@ -11,7 +11,6 @@ c
 
        character*10 shole(0:9)
        character*8 sout(0:6)
-       common /labels/ shole, sout
 
        integer ntitx
        parameter (ntitx = 16)
@@ -27,13 +26,13 @@ c
 c     Following passed to pathfinder, which is single precision.
 c     Be careful to always declare these!
        integer necrit, nbeta
-      parameter (necrit=9, nbeta=40)
-      real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
-      real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
-      real rmax, critpw, pcritk, pcrith
-      character*6  potlbl(0:npotx)
-      character*128 inpfil, lfile
-      integer istat, il, iox, istrln
+       parameter (necrit=9, nbeta=40)
+       real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
+       real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
+       real rmax, critpw, pcritk, pcrith
+       character*6  potlbl(0:npotx)
+       character*128 inpfil, lfile
+       integer istat, il, iox, istrln
        external istrln
 
    10 format (1x, a)
@@ -83,7 +82,8 @@ c                   123456789012
      1      s02, tk, thetad, sig2g,
      1      nlegxx,
      1      rmax, critpw, pcritk, pcrith, nncrit,
-     2      icsig, iorder, vrcorr, vicorr, isporb)
+     2      icsig, iorder, vrcorr, vicorr, isporb,
+     $      potlbl)
 
       do 20  i = 1, ntitle
          call echo(title(i)(1:ltit(i)))
@@ -91,18 +91,19 @@ c                   123456789012
 
       if (mphase .eq. 1)  then
          call echo( 'Calculating potentials and phases...')
-         call potph (isporb)
+         call potph (isporb, shole, sout)
          open (unit=1, file='potph.dat', status='old', iostat=ios)
          call chopen (ios, 'potph.dat', 'feff')
          close (unit=1, status='delete')
       endif
 
       if (ms.eq.1  .and.  mpath.eq.1)  then
-
-
          call echo('Preparing plane wave scattering amplitudes...')
+         ne = 0
+         ik0 = 0
+         print*, 'FEFF ne, ik0 = ', ne, ik0
          call prcrit (ne, nncrit, ik0, cksp, fbeta, ckspc,
-     1                fbetac, potlbl)
+     1                fbetac)
 
 c        Dump out fbetac for central atom and first pot
          if (ipr2 .ge. 3 .and. ipr2.ne.5)  then
@@ -147,7 +148,7 @@ c        Dump out fbetac for central atom and first pot
 
       if (mfeff .eq. 1)  then
          call echo('Calculating EXAFS parameters...')
-         call genfmt (ipr3, critcw, sig2g, iorder)
+         call genfmt (ipr3, critcw, sig2g)
       endif
 
 c      if (mchi .eq. 1)  then

@@ -1,5 +1,5 @@
-      subroutine prcrit (neout, nncrit, ik0out, cksp, fbeta, ckspc, 
-     1                   fbetac, potlb0)
+      subroutine prcrit (neout, nncrit, ik0out, cksp, fbeta, ckspc,
+     1                   fbetac)
       implicit double precision (a-h, o-z)
 
 c     Prepare fbeta arrays, etc., for pathfinder criteria
@@ -7,7 +7,7 @@ c
 c     Note that path finder is single precision, so be sure that
 c     things are correct precision in calls and declarations!
 c     See declarations below for details.
-c     
+c
 c     Inputs:  Reads phase.bin
 c     Output:  neout   'ne', number of energy grid points
 c              ik0out  index of energy grid with k=0
@@ -15,8 +15,6 @@ c              cksp    |p| at each energy grid point in single precision
 c              fbeta   |f(beta)| for each angle, npot, energy point, sp
 c              ckspc   |p| at each necrit point in single precision
 c              fbetac  |f(beta)| for each angle, npot, nncrit point, sp
-c              potlb0  unique potential labels
-
       include 'const.h'
       include 'dim.h'
       include 'pdata.h'
@@ -26,11 +24,14 @@ c     BE CAREFUL!!
       parameter (necrit=9, nbeta=40)
       real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
       real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
-      character*6  potlb0(0:npotx)
       character*128 messag
 
 c     Local variables
       complex*16 cfbeta, tl
+
+cc      complex*16 ph(nex, ltot+1, 0:npotx), eref(nex)
+cc      double precision em(nex)
+cc      integer lmax(nex, 0:npotx)
       dimension dcosb(-nbeta:nbeta)
       dimension pl(ltot+1)
       dimension iecrit(necrit)
@@ -40,14 +41,12 @@ c     Read phase calculation input, data returned via commons
       open (unit=1, file='phase.bin', status='old',
      1      access='sequential', form='unformatted', iostat=ios)
       call chopen (ios, 'phase.bin', 'prcrit')
-      call rphbin (1)
+      call rphbin(1)
+cc      'phase.bin', ne, ik0, npot, ph, eref, em, lmax, lmaxp1)
       close (unit=1)
-c     Pass out ne, ik0, potlbl (from rphbin via /pdata/)
+c     Pass out ne, ik0 (from rphbin via /pdata/)
       neout = ne
       ik0out = ik0
-      do 40  i = 0, npotx
-         potlb0(i) = potlbl(i)
-   40 continue
 
 c     |p| at each energy point (path finder uses invA, convert here)
       do 100  ie = 1, ne
@@ -81,7 +80,7 @@ c     make fbeta (f(beta) for all energy points
 c     Make similar arrays for only the icrit points
 
 c     Use 9 points at k=0,1,2,3,4,6,8,10,12 invA
-c     See phmesh for energy gid definition.  These seem to work fine, 
+c     See phmesh for energy gid definition.  These seem to work fine,
 c     and results aren't too sensitive to choices of k.  As few as 4
 c     points work well (used 0,3,6,9), but time penalty for 9 points
 c     is small and increased safety seems to be worth it.
