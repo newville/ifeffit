@@ -1,4 +1,5 @@
-      subroutine setlam(nsc, il0)
+      subroutine setlam(nsc, il0, mmaxp1, lamx, laml0x, nmax,
+     $     mlam, nlam)
       implicit double precision (a-h, o-z)
 
 c MN: major rewrite of i/o (eliminating lambda.h)
@@ -16,8 +17,8 @@ c     output: variables in /lambda/ set
 
       include 'const.h'
       include 'dim.h'
-      include 'lambda.h'
-      dimension mlam0(lamtot), nlam0(lamtot)
+      integer mlam0(lamtot), nlam0(lamtot)
+      integer mlam(lamtot), nlam(lamtot)
       character messag*128
 c     one degree in radians
       parameter (onedeg = 17.4532925199433d-3)

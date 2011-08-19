@@ -3,7 +3,6 @@
 
       include 'const.h'
       include 'dim.h'
-      include 'lambda.h'
       include 'pdata.h'
       include 'vers.h'
       include 'pola.h'
@@ -17,6 +16,8 @@
       complex*16 pllp, ptrac, srho, prho, cdel1, cfac
       complex*16 cchi(nex), cfms, mmati
       complex*16 ck(nex)
+      integer mlam(lamtot), nlam(lamtot)
+
       dimension  mmati(-mtot:mtot,-mtot:mtot)
       dimension  t3j(-mtot-1:mtot+1,-1:1)
       dimension  xk(nex), ckmag(nex)
@@ -138,7 +139,7 @@ c        Need reff
          reff = reff/2
 
 c        Set lambda for low k
-         call setlam(nsc, il0)
+         call setlam(nsc, il0, mmaxp1, lamx, laml0x, nmax, mlam, nlam)
 
 c        Calculate and store rotation matrix elements
 c        Only need to go to (il0, il0, ...) for isc=nleg and
@@ -209,27 +210,27 @@ c           Calculate and store scattering matrices fmati.
 c              Polarization version, make new m matrix
 c              this will fill fmati(...,nleg) in common /fmtrxi/
                call mmtrxi (laml0x, mmati, ie, 1, nleg,
-     $              dri, xnlm, clmi, fmati)
+     $              mlam, nlam, dri, xnlm, clmi, fmati)
             else
 c              Termination matrix, fmati(...,nleg)
                iterm = 1
                call fmtrxi(laml0x, laml0x, ie, iterm, 1, nleg,
-     $              dri, xnlm, clmi, fmati)
+     $              mlam, nlam, dri, xnlm, clmi, fmati)
             endif
             iterm = -1
 c           First matrix
             call fmtrxi (lamx, laml0x, ie, iterm, 2, 1,
-     $           dri, xnlm, clmi, fmati)
+     $           mlam, nlam, dri, xnlm, clmi, fmati)
 c           Last matrix if needed
            if (nleg .gt. 2)  then
                call fmtrxi(laml0x, lamx, ie, iterm, nleg, nleg-1,
-     $             dri, xnlm, clmi, fmati)
+     $             mlam, nlam, dri, xnlm, clmi, fmati)
             endif
 c           Intermediate scattering matrices
             do 480  ilegp = 2, nsc-1
                ileg = ilegp + 1
                call fmtrxi(lamx, lamx, ie, iterm, ileg, ilegp,
-     $              dri, xnlm, clmi, fmati)
+     $              mlam, nlam, dri, xnlm, clmi, fmati)
   480       continue
 c           Big matrix multiplication loops.
 c           Calculates trace of matrix product
