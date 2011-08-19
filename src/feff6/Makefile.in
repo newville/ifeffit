@@ -11,11 +11,11 @@
 # PARTICULAR PURPOSE.
 
 # Copyright (C) 2000 Matt Newville <newville@cars.uchicago.edu>
-#  
+#
 # This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without 
+# unlimited permission to copy and/or distribute it, with or without
 # modifications, as long as this notice is preserved.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -98,7 +98,8 @@ feff6_SOURCES = feff.f rdinp.f chopen.f mkptz.f setgam.f terp.f potph.f\
 	 phash.f outcrt.f strap.f mpprmd.f genfmt.f snlm.f rdpath.f\
 	 setlam.f rot3i.f mmtr.f sclmz.f mmtrxi.f fmtrxi.f trap.f pijump.f\
 	 ff2chi.f sigms.f \
-	 dist.f sdist.f xx.f getxk.f dalp.f fpot.f exchan.f exchee.f pertab.f
+	 dist.f sdist.f xx.f getxk.f dalp.f fpot.f exchan.f exchee.f pertab.f\
+	 genfmt_misc.f
 
 feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
 	 rpotph.o rdhead.o atom.o indata.o getorb.o dirac.o inouh.o\
@@ -111,7 +112,8 @@ feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
 	 phash.o outcrt.o strap.o mpprmd.o genfmt.o snlm.o rdpath.o\
 	 setlam.o rot3i.o mmtr.o sclmz.o mmtrxi.o fmtrxi.o trap.o pijump.o\
 	 ff2chi.o sigms.o \
-	 dist.o sdist.o xx.o getxk.o dalp.o fpot.o exchan.o exchee.o pertab.o
+	 dist.o sdist.o xx.o getxk.o dalp.o fpot.o exchan.o exchee.o pertab.o\
+	 genfmt_misc.o
 
 feff6_INC = vers.h dim.h const.h pola.h arrays.h pdata.h clmz.h fmatrx.h\
 	 lambda.h nlm.h rotmat.h echo.h mepts.h
@@ -120,11 +122,11 @@ feff6_INC = vers.h dim.h const.h pola.h arrays.h pdata.h clmz.h fmatrx.h\
 feff6_LDADD = ../lib/libxafs.a $(MN_FLIBS)
 
 feff6_DEPENDENCIES = ../lib/libxafs.a
-feff6_LDFLAGS = 
+feff6_LDFLAGS =
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
-CONFIG_CLEAN_FILES = 
+CONFIG_CLEAN_FILES =
 PROGRAMS =  $(bin_PROGRAMS)
 
 

@@ -1,4 +1,4 @@
-      subroutine genfmt (ipr3, critcw, sig2g, iorder)
+      subroutine genfmt (ipr3, critcw, sig2g)
       implicit double precision (a-h, o-z)
 
       include 'const.h'
@@ -35,10 +35,6 @@ c     used for divide-by-zero and trig tests
       parameter (eps = 1.0e-16)
 
 c     Read phase calculation input, data returned via commons
-ccc      open (unit=1, file='phase.bin', status='old',
-ccc     1      access='sequential', form='unformatted', iostat=ios)
-ccc      call chopen (ios, 'phase.bin', 'genfmt')
-ccc      call rphbin (1)
       call ReadPhaseBin('phase.bin')
 
 c     Open path input file (unit in) and read title.  Use unit 1.
@@ -108,7 +104,6 @@ c        l0 - final momentum, initial momentum = l0-1.
             t3j(m0,-1) = t3j(-m0,1)
   145    continue
       endif
-
 c     While not done, read path, find feff.
       open (unit=4,file='nstar.dat', status='unknown', iostat=ios)
       write(4,198, iostat=ios) evec
@@ -119,11 +114,13 @@ c     While not done, read path, find feff.
       ntotal = 0
       nused = 0
       xportx = -1
+c
+c start of "for each path" loop
   200 continue
 
 c        Read current path
-         call rdpath (1, pola, done,xstar)
-         icalc = iorder
+         call rdpath (1, pola, done, xstar)
+         icalc = 2
          if (done)  goto  1000
          npath = npath + 1
          ntotal = ntotal + 1
@@ -144,13 +141,13 @@ c        Set lambda for low k
 c        Calculate and store rotation matrix elements
 c        Only need to go to (il0, il0, ...) for isc=nleg and
 c        nleg+1 (these are the paths that involve the 'z' atom
-         call rot3i (il0, il0, nleg, dri)
+         call rot3i (il0, il0, nleg, beta(nleg), dri)
          do 400  isc = 1, nsc
-            call rot3i (lmaxp1, mmaxp1, isc, dri)
+            call rot3i (lmaxp1, mmaxp1, isc, beta(isc), dri)
   400    continue
          if (pola) then
 c           one more rotation in polarization case
-            call rot3i (il0, il0, nleg+1, dri)
+            call rot3i (il0, il0, nleg+1, beta(nleg+1), dri)
             call mmtr(t3j, mmati, dri)
          endif
 
@@ -310,84 +307,13 @@ c        integrate from edge (ik0) to ne
          if (xport .gt. xportx)  xportx = xport
          crit = 100 * xport / xportx
 
-c        Write output if path is important enough (ie, path is
-
-c        Write feff.dat if we need it.
+c        Write output if path is important enough (ie, path has
+c               crit>=crit0)
          if (ipr3 .ge. 1  .or.  crit .ge. crit0)  then
-c           Prepare output file feffnnnn.dat (unit 3)
-            write(fname,241)  ipath
-  241       format ('feff', i4.4, '.dat')
-            open (unit=3, file=fname, status='unknown', iostat=ios)
-            call chopen (ios, fname, 'genfmt')
-c           put header on feff.dat
-            do 245  itext = 1, ntext
-               write(3,60)  text(itext)(1:ltext(itext))
-  245       continue
-            write(3,250) ipath, icalc, vfeff, vgenfm
-  250       format (' Path', i5, '      icalc ', i7, t57, 2a12)
-            write(3,70)
-            write(3,290)  nleg, deg, reff*bohr, rnrmav, edge*ryd
-  290       format (1x, i3, f8.3, f9.4, f10.4, f11.5,
-     1              ' nleg, deg, reff, rnrmav(bohr), edge')
-            write(3,300)
-  300       format ('        x         y         z   pot at#')
-            write(3,310)  (rat(j,nleg)*bohr,j=1,3), ipot(nleg),
-     1                    iz(ipot(nleg)), potlbl(ipot(nleg))
-  310       format (1x, 3f10.4, i3, i4, 1x, a6, '   absorbing atom')
-            do 330  ileg = 1, nleg-1
-               write(3,320)  (rat(j,ileg)*bohr,j=1,3), ipot(ileg),
-     1                       iz(ipot(ileg)), potlbl(ipot(ileg))
-  320          format (1x, 3f10.4, i3, i4, 1x, a6)
-  330       continue
-
-            write(3,340)
-  340       format    ('    k   real[2*phc]   mag[feff]  phase[feff]',
-     1                 ' red factor   lambda      real[p]@#')
-
-c           Make the feff.dat stuff and write it to feff.dat
-            do 900  ie = 1, ne
-c              Consider chi in the standard XAFS form.  Use R = rtot/2.
-               xlam = 1.0e10
-               if (abs(dimag(ck(ie))) .gt. eps) xlam = 1/dimag(ck(ie))
-               redfac = exp (-2 * dimag (ph(ie,il0,ipot(nleg))))
-               cdelt = 2*dble(ph(ie,il0,ipot(nleg)))
-               cfms = cchi(ie) * xk(ie) * reff**2 *
-     1              exp(2*reff/xlam) / redfac
-               if (abs(cchi(ie)) .lt. eps)  then
-                  phff = 0
-               else
-                  phff = atan2 (dimag(cchi(ie)), dble(cchi(ie)))
-               endif
-c              remove 2 pi jumps in phases
-               if (ie .gt. 1)  then
-                  call pijump (phff, phffo)
-                  call pijump (cdelt, cdelto)
-               endif
-               phffo = phff
-               cdelto = cdelt
-
-c              write 1 k, momentum wrt fermi level k=sqrt(p**2-kf**2)
-c                    2 central atom phase shift (real part),
-c                    3 magnitude of feff,
-c                    4 phase of feff,
-c                    5 absorbing atom reduction factor,
-c                    6 mean free path = 1/(Im (p))
-c                    7 real part of local momentum p
-
-               write(3,640)
-     1            xk(ie)/bohr,
-     2            cdelt + l0*pi,
-     3            abs(cfms) * bohr,
-     4            phff - cdelt - l0*pi,
-     5            redfac,
-     6            xlam * bohr,
-     7            dble(ck(ie))/bohr
-  640          format (1x, f6.3, 1x, 3(1pe11.4,1x),0pe11.4,1x,
-     1                               2(1pe11.4,1x))
-  900       continue
-
-c           Done with feff.dat
-            close (unit=3)
+            call genfmt_writefeffdat(ipath, ntext, text,
+     $           nleg, deg, reff, rnrmav, edge,
+     $           rat, iz, ipot, potlbl,
+     $           l0, il0, ne, xk, ck, ph, cchi)
 
 c           Put feff.dat and stuff into files.dat
             write(2,820) fname, sig2g, crit, deg,
