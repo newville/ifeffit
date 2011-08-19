@@ -23,7 +23,7 @@
       dimension  xk(nex), ckmag(nex)
       dimension  ffmag(nex)
 
-      character*12 fname, messag*128
+      character*128 fname, messag
 
       logical done
 
@@ -35,8 +35,11 @@ c     used for divide-by-zero and trig tests
       parameter (eps = 1.0e-16)
 
 c     Read phase calculation input, data returned via commons
-      call ReadPhaseBin('phase.bin')
-
+      fname = 'phase.bin'
+      call rphbin(fname, ntext, ntitle, text, title, npot, potlbl,
+     $     nsc, ne, ik0, ihole, l0, il0, lmaxp1, ltext, ltitle, iz,
+     $     lmax, rnrmav, xmu, edge, em, eref, ph)
+cc      print*, ' Read Ph.Bin IPOT: ', ri
 c     Open path input file (unit in) and read title.  Use unit 1.
       ntitle = 5
       open (unit=1, file='paths.dat', status='old', iostat=ios)
@@ -117,14 +120,15 @@ c     While not done, read path, find feff.
 c
 c start of "for each path" loop
   200 continue
+c     Read current path
+          in = 1
+          call rdpath (in, npot, done, xstar, nsc, nleg, ipath,
+     $         deg, rat, ri, beta, eta, ipot, potlbl)
+          icalc = 2
 
-c        Read current path
-         call rdpath (1, pola, done, xstar)
-         icalc = 2
          if (done)  goto  1000
          npath = npath + 1
          ntotal = ntotal + 1
-
          write (4,201,iostat=ios) npath, xstar
   201    format (i5, f8.4)
 
@@ -148,15 +152,14 @@ c        nleg+1 (these are the paths that involve the 'z' atom
          if (pola) then
 c           one more rotation in polarization case
             call rot3i (il0, il0, nleg+1, beta(nleg+1), dri)
-            call mmtr(t3j, mmati, dri)
+            call mmtr(t3j, mmati, nsc, nleg, l0, il0, dri, eta)
          endif
-
 
 c        Big energy loop
          do 800  ie = 1, ne
 
 c           real momentum (k)
-            xk(ie) = getxk (em(ie) - edge)
+            xk(ie) = getxk(em(ie) - edge)
 
 c           complex momentum (p)
             ck(ie) = sqrt (em(ie) - eref(ie))
@@ -207,27 +210,31 @@ c           Calculate and store scattering matrices fmati.
 c              Polarization version, make new m matrix
 c              this will fill fmati(...,nleg) in common /fmtrxi/
                call mmtrxi (laml0x, mmati, ie, 1, nleg,
-     $              mlam, nlam, dri, xnlm, clmi, fmati)
+     $              mlam, nlam, il0, xnlm, clmi, fmati)
             else
 c              Termination matrix, fmati(...,nleg)
                iterm = 1
                call fmtrxi(laml0x, laml0x, ie, iterm, 1, nleg,
-     $              mlam, nlam, dri, xnlm, clmi, fmati)
+     $              mlam, nlam, dri, xnlm, clmi, fmati,
+     $              ph, eta, lmax, ipot, il0)
             endif
             iterm = -1
 c           First matrix
             call fmtrxi (lamx, laml0x, ie, iterm, 2, 1,
-     $           mlam, nlam, dri, xnlm, clmi, fmati)
+     $           mlam, nlam, dri, xnlm, clmi, fmati,
+     $           ph, eta, lmax, ipot, il0)
 c           Last matrix if needed
            if (nleg .gt. 2)  then
                call fmtrxi(laml0x, lamx, ie, iterm, nleg, nleg-1,
-     $             mlam, nlam, dri, xnlm, clmi, fmati)
+     $             mlam, nlam, dri, xnlm, clmi, fmati,
+     $             ph, eta, lmax, ipot, il0)
             endif
 c           Intermediate scattering matrices
             do 480  ilegp = 2, nsc-1
                ileg = ilegp + 1
                call fmtrxi(lamx, lamx, ie, iterm, ileg, ilegp,
-     $              mlam, nlam, dri, xnlm, clmi, fmati)
+     $              mlam, nlam, dri, xnlm, clmi, fmati,
+     $              ph, eta, lmax, ipot, il0)
   480       continue
 c           Big matrix multiplication loops.
 c           Calculates trace of matrix product
@@ -306,7 +313,6 @@ c        integrate from edge (ik0) to ne
          xport = abs(deg*xport)
          if (xport .gt. xportx)  xportx = xport
          crit = 100 * xport / xportx
-
 c        Write output if path is important enough (ie, path has
 c               crit>=crit0)
          if (ipr3 .ge. 1  .or.  crit .ge. crit0)  then
@@ -316,7 +322,10 @@ c               crit>=crit0)
      $           l0, il0, ne, xk, ck, ph, cchi)
 
 c           Put feff.dat and stuff into files.dat
-            write(2,820) fname, sig2g, crit, deg,
+            write(fname, 241)  ipath
+ 241        format ('feff', i4.4, '.dat')
+            il = istrln(fname)
+            write(2,820) fname(1:il), sig2g, crit, deg,
      1                   nleg, reff*bohr
   820       format(1x, a, f8.5, 2f10.3, i6, f9.4)
 

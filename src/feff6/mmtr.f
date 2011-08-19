@@ -1,4 +1,4 @@
-      subroutine mmtr(t3j, mmati, dri)
+      subroutine mmtr(t3j, mmati, nsc, nleg, l0, il0, dri, eta)
 c     calculates the part of matrix M which does not depend on energy
 c     point.( see Rehr and Albers paper)
 
@@ -16,11 +16,11 @@ c     Output:  mmati(...)
       include 'const.h'
       include 'dim.h'
       include 'pola.h'
-      include 'pdata.h'
 
       complex*16 mmati
       dimension mmati(-mtot:mtot,-mtot:mtot),t3j(-mtot-1:mtot+1,-1:1)
       double precision dri(ltot+1, 2*mtot+1, 2*mtot+1, legtot+1)
+      double precision eta(0:legtot+1)
 
       do 10 i = -mtot,mtot
       do 10 j = -mtot,mtot

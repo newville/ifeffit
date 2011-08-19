@@ -1,5 +1,6 @@
       subroutine fmtrxi(lam1x, lam2x, ie, iterm, ileg, ilegp,
-     1     mlam, nlam, dri, xnlm, clmi, fmati)
+     1     mlam, nlam, dri, xnlm, clmi, fmati, ph, eta, lmax,
+     $     ipot, il0)
       implicit double precision (a-h, o-z)
 
 c     all commons except for /fmat/ are inputs
@@ -31,7 +32,11 @@ c     gamtl = gamt*tl
 
       include 'const.h'
       include 'dim.h'
-      include 'pdata.h'
+
+      complex*16 ph(nex,ltot+1,0:npotx)   !complex phase shifts
+      double precision eta(0:legtot+1)
+      integer lmax(nex,0:npotx)  !max l with non-zero phase for each energy
+      integer ipot(0:legtot), il0   !potential for each atom in path
 
       double precision xnlm(ltot+1, mtot+1)
       double precision dri(ltot+1, 2*mtot+1, 2*mtot+1, legtot+1)

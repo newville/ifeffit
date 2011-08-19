@@ -28,23 +28,19 @@ c     BE CAREFUL!!
 
 c     Local variables
       complex*16 cfbeta, tl
-
-cc      complex*16 ph(nex, ltot+1, 0:npotx), eref(nex)
-cc      double precision em(nex)
-cc      integer lmax(nex, 0:npotx)
+      character*128 fname
       dimension dcosb(-nbeta:nbeta)
       dimension pl(ltot+1)
       dimension iecrit(necrit)
 
 c     Need stuff from phase.bin
-c     Read phase calculation input, data returned via commons
-      open (unit=1, file='phase.bin', status='old',
-     1      access='sequential', form='unformatted', iostat=ios)
-      call chopen (ios, 'phase.bin', 'prcrit')
-      call rphbin(1)
-cc      'phase.bin', ne, ik0, npot, ph, eref, em, lmax, lmaxp1)
-      close (unit=1)
-c     Pass out ne, ik0 (from rphbin via /pdata/)
+c     Read phase calculation input
+      fname = 'phase.bin'
+      call rphbin(fname, ntext, ntitle, text, title, npot, potlbl,
+     $     nsc, ne, ik0, ihole, l0, il0, lmaxp1, ltext, ltitle, iz,
+     $     lmax, rnrmav, xmu, edge, em, eref, ph)
+
+c     Pass ne, ik0  back out
       neout = ne
       ik0out = ik0
 

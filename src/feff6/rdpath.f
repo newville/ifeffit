@@ -1,30 +1,37 @@
-      subroutine rdpath (in, pol, done,xstar)
+      subroutine rdpath(in, npot, done, xstar, nsc, nleg, ipath,
+     $     deg, rat, ri, beta, eta, ipot, potlbl)
       implicit double precision (a-h, o-z)
-      logical done, pol
+      logical done
 
       include 'const.h'
       include 'dim.h'
-      include 'pdata.h'
       include 'pola.h'
 
+      double precision rat(3,0:legtot+1)
+      double precision ri(legtot), beta(legtot+1), eta(0:legtot+1)
+      character*6  potlbl(0:npotx), plab
+      integer ipot(0:legtot),  ipot0
       complex*16  alph, gamm
       dimension  alpha(0:legtot), gamma(legtot)
-      double precision atx(0:legtot+1),aty(0:legtot+1),atz(0:legtot+1)
 
       character messag*128
 
       read(in,*,end=200)  ipath, nleg, deg
+cc      print*, 'read paths.dat ', ipath, nleg, legtot, deg
       if (nleg .gt. legtot)  then
          write(messag,'(1x,a,2i5)')
      $        ' RDPATH: nleg > legtot: nleg, legtot ', nleg, legtot
          call echo(messag)
          goto 200
       endif
+cc      do 18 ileg = 0, legtot
+cc         ipot(ileg) = 0
+cc 18   continue
 c     skip label (x y z ipot rleg beta eta)
       read(in,*)
       do 20  ileg = 1, nleg
          read(in,*,end=999)  (rat(j,ileg),j=1,3), ipot(ileg),
-     1                       potlbl(ipot(ileg))
+     $        potlbl(ipot(ileg))
 c        convert to code units
          do 10  j = 1, 3
             rat(j,ileg) = rat(j,ileg)/bohr
@@ -38,11 +45,11 @@ c        convert to code units
          endif
    20 continue
       nsc = nleg-1
-
+cc      print*, 'R A nsc= ', nsc, pola
 c     We need the 'z' atom so we can use it below.  Put
 c     it in rat(nleg+1).  No physical significance, just a handy
 c     place to put it.
-      if (pol) then
+      if (pola) then
          rat(1,nleg+1) = rat(1,nleg)
          rat(2,nleg+1) = rat(2,nleg)
          rat(3,nleg+1) = rat(3,nleg) + 1.0
@@ -75,9 +82,8 @@ c     beginnnig of calculating nstar=deg*cos(eps r1)*cos(eps rN)
       x2 = x2/sqrt(xnorm)
       xstar = deg* abs(x1*x2)
 c     end of calculating nstar
-
       nangle = nleg
-      if (pol) then
+      if (pola) then
 c        in polarization case we need one more rotation
          nangle = nleg + 1
       endif
@@ -99,7 +105,7 @@ c        except for special cases...
 c           j+1 'z' atom, j central atom, j-1 last path atom
             i = 0
             ip1 = 1
-            if (pol) then
+            if (pola) then
                ip1 = nleg+1
             endif
             im1 = nsc
@@ -172,7 +178,7 @@ c     We'll need alph(nangle)=alph(0)
       do 150  j = 1, nleg
          eta(j) = alpha(j-1) + gamma(j)
   150 continue
-      if (pol) then
+      if (pola) then
          eta(0) = gamma(nleg+1)
          eta(nleg+1) = alpha(nleg)
       endif
