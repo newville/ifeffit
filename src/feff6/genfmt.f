@@ -138,7 +138,7 @@ c        Need reff
          reff = reff/2
 
 c        Set lambda for low k
-         call setlam (icalc, 1)
+         call setlam(nsc, il0)
 
 c        Calculate and store rotation matrix elements
 c        Only need to go to (il0, il0, ...) for isc=nleg and

@@ -1,70 +1,37 @@
-      subroutine setlam (icalc, ie)
+      subroutine setlam(nsc, il0)
       implicit double precision (a-h, o-z)
 
+c MN: major rewrite of i/o (eliminating lambda.h)
+c    compared to previous version, icalc==2, ie==1,
+
+c
+c
 c     Set lambda array based on icalc and ie
 c     icalc  what to do
 c      0     i0, ss exact
 c      1     i1, ss exact
 c      2     i2, ss exact
-c     10     cute algorithm
-c     <0     do exactly as told, decode as:
-c               icalc = -(nmax + 100*mmax + 10 000*(iord+1))
-c               Note that iord=0 <=> nmax=mmax=0, so use
-c                  icalc = -10 000 for this case.
-c               iord = 2*nmax + mmax, so if you want iord to control,
-c               set nmax and mmax large enough-- if you want nmax and
-c               mmax to control, set iord = 2*nmax + mmax...
-
-c     inputs: ie used for cute algorithm
 c             nsc used from /pdata/ to recognize ss paths
 c     output: variables in /lambda/ set
 
       include 'const.h'
       include 'dim.h'
       include 'lambda.h'
-      include 'pdata.h'
       dimension mlam0(lamtot), nlam0(lamtot)
       character messag*128
 c     one degree in radians
-      parameter (onedeg = .01745329252)
-
+      parameter (onedeg = 17.4532925199433d-3)
+      integer nsc, il0
+cc      nsc = nscx
 c     Set iord, nmax and mmax based on icalc
-      if (icalc .lt. 0)  then
-c        decode it and do what user wants
-         icode = -icalc
-         nmax = mod(icode,100)
-         mmax = mod(icode,10000)/100
-         iord = icode/10000 -1
-      elseif (nsc .eq. 1)  then
+      iord = 2
+      mmax = 2
+      nmax = 1
+      if (nsc .eq. 1)  then
          mmax = il0-1
          nmax = il0-1
          iord = 2*nmax + mmax
-      elseif (icalc .lt. 10)  then
-         iord = icalc
-         mmax = iord
-         nmax = iord/2
-      elseif (icalc .eq. 10)  then
-c        do cute algorithm
-c        set mmax = L0 if straight line path, otherwise set mmax = 3
-         mmax = il0-1
-         do 10  ileg = 1, nleg
-            mag1 = abs(beta(ileg))
-            mag2 = abs(mag1 - pi)
-c           if beta is not 0 or pi, path is non-linear
-            if (mag1.gt.onedeg .and. mag2.gt.onedeg) mmax = 3
-   10    continue
-c        Set nmax based on ie and l0.
-c        k <= 12 invA (ie=41)  nmax = L0
-c        k >= 13 invA (ie=42)  nmax =  9
-         nmax = il0-1
-         if (ie .ge. 42)  nmax = 9
-         iord = 2*nmax + mmax
-      else
-         write(messag,'(1x,a,i7)') '  icalc out of range ', icalc
-         call echo(messag)
-         call fstop('at SETLAM')
       endif
-
 c-----construct index lambda (lam), (mu, nu) = mlam(lam), nlam(lam)
 c     lamtot, ntot, mtot are maximum lambda, mu and nu to consider
 c     Use ...0 for making indices, then sort into arrays with no
@@ -127,12 +94,9 @@ c     Sort mlam0 and nlam0 to use min possible laml0x
    50 continue
 
       if (nmax.gt.ntot .or. mmaxp1.gt.mtot+1)  then
-         call echo(' mmaxp1, nmax, mtot, ntot icalc')
-
-         write(messag,'(3x,5i8)') 
-     1        mmaxp1, nmax, mtot, ntot, icalc
+         call echo(' mmaxp1, nmax, mtot, ntot, iord')
+         write(messag,'(3x,5i8)')  mmaxp1, nmax, mtot, ntot, iord
          call echo(messag)
-
          call fstop(' at SETLAM')
       endif
 
