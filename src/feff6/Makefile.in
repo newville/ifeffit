@@ -115,9 +115,7 @@ feff6_OBJECTS = feff.o rdinp.o chopen.o mkptz.o setgam.o terp.o potph.o\
 	 dist.o sdist.o xx.o getxk.o dalp.o fpot.o exchan.o exchee.o pertab.o\
 	 genfmt_misc.o
 
-feff6_INC = vers.h dim.h const.h pola.h arrays.h pdata.h clmz.h fmatrx.h\
-	 lambda.h nlm.h rotmat.h echo.h mepts.h
-
+feff6_INC = vers.h dim.h const.h pola.h arrays.h pdata.h
 
 feff6_LDADD = ../lib/libxafs.a $(MN_FLIBS)
 
@@ -381,18 +379,15 @@ mpprmp.o:  dim.h pola.h
 phash.o:  dim.h
 outcrt.o:  const.h dim.h
 mpprmd.o:  dim.h
-genfmt.o:  const.h dim.h clmz.h fmatrx.h lambda.h pdata.h nlm.h\
-	 rotmat.h vers.h pola.h
-snlm.o:  dim.h nlm.h
+genfmt.o:  const.h dim.h pdata.h vers.h pola.h
+snlm.o:  dim.h
 rdpath.o:  const.h dim.h pdata.h pola.h
-setlam.o:  const.h dim.h lambda.h pdata.h
-rot3i.o:  dim.h rotmat.h pdata.h
-mmtr.o:  const.h dim.h pola.h rotmat.h pdata.h
-sclmz.o:  const.h dim.h clmz.h
-mmtrxi.o:  const.h dim.h nlm.h lambda.h clmz.h pola.h fmatrx.h rotmat.h\
-	 pdata.h
-fmtrxi.o:  const.h dim.h nlm.h lambda.h clmz.h fmatrx.h rotmat.h\
-	 pdata.h
+setlam.o:  const.h dim.h pdata.h
+rot3i.o:  dim.h pdata.h
+mmtr.o:  const.h dim.h pola.h  pdata.h
+sclmz.o:  const.h dim.h
+mmtrxi.o:  const.h dim.h pola.h pdata.h
+fmtrxi.o:  const.h dim.h pdata.h
 pijump.o:  const.h
 ff2chi.o:  vers.h const.h
 sigms.o:  const.h
