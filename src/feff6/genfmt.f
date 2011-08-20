@@ -107,12 +107,8 @@ c        l0 - final momentum, initial momentum = l0-1.
             t3j(m0,-1) = t3j(-m0,1)
   145    continue
       endif
+
 c     While not done, read path, find feff.
-      open (unit=4,file='nstar.dat', status='unknown', iostat=ios)
-      write(4,198, iostat=ios) evec
-  198 format('polarization  ',3f8.4)
-      write(4,199, iostat=ios)
-  199 format('npath  nstar')
       npath = 0
       ntotal = 0
       nused = 0
@@ -122,15 +118,15 @@ c start of "for each path" loop
   200 continue
 c     Read current path
           in = 1
-          call rdpath (in, npot, done, xstar, nsc, nleg, ipath,
-     $         deg, rat, ri, beta, eta, ipot, potlbl)
-          icalc = 2
+          call read_pathgeom(in, ipath, nleg, npot, deg,
+     $         rat, ipot, potlbl, done)
 
-         if (done)  goto  1000
+          if (done) goto 1000
+          nsc = nleg - 1
+          call calc_pathgeom(nleg, rat, ipot, ri, beta, eta)
+
          npath = npath + 1
          ntotal = ntotal + 1
-         write (4,201,iostat=ios) npath, xstar
-  201    format (i5, f8.4)
 
 c        Need reff
          reff = 0
