@@ -9,9 +9,6 @@ c
        include 'dim.h'
        include 'const.h'
 
-       character*10 shole(0:9)
-       character*8 sout(0:6)
-
        integer ntitx
        parameter (ntitx = 16)
        character*128  title(ntitx), tmpstr*32, fname*64
@@ -32,15 +29,21 @@ c     Be careful to always declare these!
        real rmax, critpw, pcritk, pcrith
        character*6  potlbl(0:npotx)
        character*128 inpfil, lfile
+       character*10 shole(0:9)
+       character*8 sout(0:6)
        integer istat, il, iox, istrln
        external istrln
 
    10 format (1x, a)
-       vfeff  = 'Feff 6L.02'
-       vpotph = 'potph 4.12'
-       vpaths = 'paths 3.05'
-       vgenfm = 'genfmt 1.44'
-       vff2ch = 'ff2chi 2.01'
+
+c                   123456789012
+
+       call sca_init
+       call echo_init
+       call open_echofile('feff.run')
+       call fstop_init('feff.err')
+       call echo(vfeff)
+
 
        shole(0) = 'no hole'
        shole(1) = 'K shell'
@@ -52,6 +55,7 @@ c     Be careful to always declare these!
        shole(7) = 'MIII shell'
        shole(8) = 'MIV shell'
        shole(9) = 'MV shell'
+
        sout(0) = 'H-L exch'
        sout(1) = 'D-H exch'
        sout(2) = 'Gd state'
@@ -59,18 +63,6 @@ c     Be careful to always declare these!
        sout(4) = 'DH + HL '
        sout(5) = 'HLnoimag'
        sout(6) = 'Gs HL   '
-c                   123456789012
-      data vfeff  /'  Feff 6.02l'/
-      data vpotph /'  potph 4.12'/
-      data vpaths /'  paths 3.05'/
-      data vgenfm /' genfmt 1.44'/
-      data vff2ch /' ff2chi 2.01'/
-
-       call sca_init
-       call echo_init
-       call open_echofile('feff.run')
-       call fstop_init('feff.err')
-       call echo(vfeff)
 
        call get_inpfile('feff.inp',inpfil,istat)
 
