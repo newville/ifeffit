@@ -110,3 +110,38 @@ c           7 real part of local momentum p
       close(3)
       return
       end
+
+      subroutine calc_zabinsky(ne, ik0, deg, ck, cchi, xportx, crit)
+c
+c calculate Zabinsky Curved Wave Importance Factor for a Path
+c
+c  input:  ne    number of energy points
+c          ik0
+c          deg   degeneracy
+c          ck    complex k
+c          cchi  complex chi(k)
+c          xport max importance factor so far
+c  output: xport max importance factor so far
+c          crit  importance / max importance
+
+      implicit none
+      include 'dim.h'
+      complex*16 cchi(nex), ck(nex)
+      double precision ckmag(nex), ffmag(nex)
+      double precision xport, xportx, deg, crit
+      integer ie, ne, ik0, nemax
+
+      do 10  ie = 1, ne
+         ckmag(ie) = abs(ck(ie))
+         ffmag(ie) = abs(cchi(ie))
+ 10   continue
+
+c     integrate from edge (ik0) to ne
+      nemax = ne - ik0 + 1
+      call trap(ckmag(ik0), ffmag(ik0), nemax, xport)
+      xport = abs(deg*xport)
+      if (xport .gt. xportx)  xportx = xport
+      crit = 100 * xport / xportx
+
+      return
+      end

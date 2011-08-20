@@ -20,9 +20,7 @@
 
       dimension  mmati(-mtot:mtot,-mtot:mtot)
       dimension  t3j(-mtot-1:mtot+1,-1:1)
-      dimension  xk(nex), ckmag(nex)
-      dimension  ffmag(nex)
-
+      double precision  xk(nex)
       character*128 fname, messag
 
       logical done
@@ -34,12 +32,30 @@ c             (normal use, 2.  Do ss exactly regardless of iorder)
 c     used for divide-by-zero and trig tests
       parameter (eps = 1.0e-16)
 
-c     Read phase calculation input, data returned via commons
+c  Read phase calculation
       fname = 'phase.bin'
       call rphbin(fname, ntext, ntitle, text, title, npot, potlbl,
      $     nsc, ne, ik0, ihole, l0, il0, lmaxp1, ltext, ltitle, iz,
      $     lmax, rnrmav, xmu, edge, em, eref, ph)
-cc      print*, ' Read Ph.Bin IPOT: ', ri
+c
+c  Set nlm factors for use later
+      call snlm(ltot, mtot, xnlm)
+      if (pola) then
+c  Make 3j factors in t3j  (multiplied by sqrt(3*(2l0+1)) for
+c  further convinience - the same expression for chi)
+c  l0 - final momentum, initial momentum = l0-1.
+         do 140  m0 = -l0+1,l0-1
+            t3j(m0, 1) = (-1)**(l0+1+m0)*sqrt(3.0d0*(l0+m0)*(l0+m0+1)
+     1                /(2*l0)/(2*l0-1))
+            t3j(m0, 0) = (-1)**(l0+m0)*sqrt(3.0d0*(l0*l0-m0*m0)/
+     1                l0/(2*l0-1))
+  140    continue
+         do 145  m0 = -l0+1,l0-1
+            t3j(m0,-1) = t3j(-m0,1)
+  145    continue
+      endif
+
+
 c     Open path input file (unit in) and read title.  Use unit 1.
       ntitle = 5
       open (unit=1, file='paths.dat', status='old', iostat=ios)
@@ -91,22 +107,6 @@ c     Make a header for the running messages.
        call echo(messag)
   132 format ('    path  cw ratio     deg    nleg  reff')
 
-c     Set nlm factors in common /nlm/ for use later
-      call snlm(ltot, mtot, xnlm)
-      if (pola) then
-c        Make 3j factors in t3j  (multiplied by sqrt(3*(2l0+1)) for
-c        further convinience - the same expression for chi)
-c        l0 - final momentum, initial momentum = l0-1.
-         do 140  m0 = -l0+1,l0-1
-            t3j(m0, 1) = (-1)**(l0+1+m0)*sqrt(3.0d0*(l0+m0)*(l0+m0+1)
-     1                /(2*l0)/(2*l0-1))
-            t3j(m0, 0) = (-1)**(l0+m0)*sqrt(3.0d0*(l0*l0-m0*m0)/
-     1                l0/(2*l0-1))
-  140    continue
-         do 145  m0 = -l0+1,l0-1
-            t3j(m0,-1) = t3j(-m0,1)
-  145    continue
-      endif
 
 c     While not done, read path, find feff.
       npath = 0
@@ -159,7 +159,6 @@ c           real momentum (k)
 
 c           complex momentum (p)
             ck(ie) = sqrt (em(ie) - eref(ie))
-            ckmag(ie) = abs(ck(ie))
 c           complex rho
             do 420  ileg = 1, nleg
                rho(ileg) = ck(ie) * ri(ileg)
@@ -296,19 +295,8 @@ c           Jump to here from ck(ie)=0 test above.
 c        end of energy loop
   800    continue
 
-c        Make importance factor, deg*(integral (|chi|*d|p|))
-c        make ffmag (|chi|)
-c        xport   importance factor
-         do 810  ie = 1, ne
-               ffmag(ie) = abs(cchi(ie))
-  810    continue
+         call calc_zabinsky(ne, ik0, deg, ck, cchi, xportx, crit)
 
-c        integrate from edge (ik0) to ne
-         nemax = ne - ik0 + 1
-         call trap (ckmag(ik0), ffmag(ik0), nemax, xport)
-         xport = abs(deg*xport)
-         if (xport .gt. xportx)  xportx = xport
-         crit = 100 * xport / xportx
 c        Write output if path is important enough (ie, path has
 c               crit>=crit0)
          if (ipr3 .ge. 1  .or.  crit .ge. crit0)  then
