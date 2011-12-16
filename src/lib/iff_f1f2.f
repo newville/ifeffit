@@ -113,7 +113,7 @@ c get/resolve array names
        aumin = a_e(1)
        do 160 i = 2, npts
           if (a_e(i).gt.aumax) aumax = a_e(i)
-          if (a_e(i).lt.aumax) aumin = a_e(i)
+          if (a_e(i).lt.aumin) aumin = a_e(i)
  160   continue 
 c      
        if (ewid.lt.-0.1d0) then
