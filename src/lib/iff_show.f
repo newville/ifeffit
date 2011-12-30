@@ -52,7 +52,7 @@ c  show values for ifeffit
        nkeys = mkeys
        do 5 i = 1, nkeys
           keys(i) = blank
- 5     continue 
+ 5     continue
        call bwords(str, nkeys, keys)
        iw = 0
  200   continue
@@ -74,25 +74,25 @@ c          print*, 'show:: ', iw
           else if (isarr) then
              class = 'array'
           endif
-          if (s.eq.'@colors') then 
+          if (s.eq.'@colors') then
              call  iff_color('show')
              found = .true.
-          elseif (s.eq.'@linestyles') then 
+          elseif (s.eq.'@linestyles') then
              call  iff_pstyle('show')
              found = .true.
-          elseif (s.eq.'@groups') then 
+          elseif (s.eq.'@groups') then
              found = .true.
              call ishgrp
-          elseif (s.eq.'@arrays') then 
+          elseif (s.eq.'@arrays') then
              found = .true.
              do 400 i = 1, maxarr-1
                 if (arrnam(i).ne.blank) then
                    call isharr(i)
                    if (iprint.ge.16)
      $                  call rpndmp(icdarr(1,i))
-                end if 
- 400         continue 
-          elseif (s.eq.'@scalars') then 
+                end if
+ 400         continue
+          elseif (s.eq.'@scalars') then
              found = .false.
              do 410 i = 1, maxsca
                 if (scanam(i).ne.blank) then
@@ -101,8 +101,8 @@ c          print*, 'show:: ', iw
      $                  call rpndmp(icdsca(1,i))
                    found = .true.
                 end if
- 410         continue 
-          elseif (s.eq.'@system') then 
+ 410         continue
+          elseif (s.eq.'@system') then
              found = .false.
              do 415 i = 1, maxsca
                 if ((scanam(i).ne.blank) .and.
@@ -112,31 +112,31 @@ c          print*, 'show:: ', iw
      $                  call rpndmp(icdsca(1,i))
                    found = .true.
                 end if
- 415         continue 
-          elseif (s.eq.'@variables') then 
+ 415         continue
+          elseif (s.eq.'@variables') then
              found = .true.
              do 420 i = 1, nvarys
                 if ((icdsca(1,i).eq.-1).and.(scanam(i).ne.blank))
      $               call ishvar(scanam(i), scalar(i), delta(i) )
- 420         continue 
-          elseif (s.eq.'@correlations') then 
+ 420         continue
+          elseif (s.eq.'@correlations') then
              call iff_correl('x=@all,y=@all,print=yes,save=no,')
              found = .true.
              s     = blank
              nkeys = -1
-          elseif (s.eq.'@strings') then 
+          elseif (s.eq.'@strings') then
              found = .true.
              do 430 i = 1, maxtxt
                 if ((txtnam(i).ne.blank).and. (text(i).ne.blank))
      $               call ishtxt(txtnam(i),text(i))
- 430         continue 
-          elseif (s.eq.'@commands') then 
+ 430         continue
+          elseif (s.eq.'@commands') then
              found = .true.
              do 440 i = 1, mckeys
                 if ( (ckeys(i).ne.undef).and.(ckeys(i).ne.blank))
      $               call ishcom(ckeys(i), chint(i))
- 440         continue 
-          elseif (s.eq.'@command') then 
+ 440         continue
+          elseif (s.eq.'@command') then
              found = .false.
              class = 'command'
              iw  =  iw+1
@@ -146,9 +146,9 @@ c          print*, 'show:: ', iw
                 if ( (ckeys(i).ne.undef).and.(ckeys(i).ne.blank)
      $               .and.(ckeys(i).eq.s))
      $               call ishcom(ckeys(i), chint(i))
- 443         continue 
+ 443         continue
 
-          elseif (s.eq.'@macros') then 
+          elseif (s.eq.'@macros') then
              found = .true.
              iw  =  iw+1
              s = keys(iw)
@@ -158,8 +158,8 @@ c          print*, 'show:: ', iw
              do 450 i = 1, mckeys
                 if ( (macnam(i).ne.undef).and.
      $               (macnam(i).ne.blank)) call ishmac(macnam(i),jshow)
- 450         continue 
-          elseif (s.eq.'@macro') then 
+ 450         continue
+          elseif (s.eq.'@macro') then
              found = .false.
              class = 'macro'
              iw  =  iw+1
@@ -168,12 +168,12 @@ c          print*, 'show:: ', iw
              do 460 i = 1, macmax
                 if ( (macnam(i).ne.undef).and.
      $               (macnam(i).ne.blank  ).and.
-     $               (s.eq.macnam(i)    )) then 
+     $               (s.eq.macnam(i)    )) then
                    call ishmac(macnam(i),0)
                    found = .true.
-                end if 
- 460         continue 
-          elseif (s.eq.'@limits') then 
+                end if
+ 460         continue
+          elseif (s.eq.'@limits') then
              call ishow_simple( '&maxpts')
              call ishow_simple( '&max_scalars')
              call ishow_simple( '&max_arrays')
@@ -182,7 +182,7 @@ c          print*, 'show:: ', iw
              call ishow_simple( '&max_varys')
              call ishow_simple( '&max_data_sets')
              found = .true.
-          elseif (s.eq.'@memory') then 
+          elseif (s.eq.'@memory') then
              call ishow_simple( '&heap_free')
              call ishow_simple( '&n_scalars')
              call ishow_simple( '&n_arrays')
@@ -193,7 +193,7 @@ c          print*, 'show:: ', iw
              call ishow_simple( '&n_arrays_set')
              call ishow_simple( '&n_arrays_def')
              found = .true.
-          elseif (s.eq.'@args') then 
+          elseif (s.eq.'@args') then
              found = .true.
              do 470 i = 1, mmcarg
                 if (mcargs(nmacro,i).ne.blank) then
@@ -201,8 +201,8 @@ c          print*, 'show:: ', iw
      $                  mcargs(nmacro,i)
                    call echo(tmpstr)
                 endif
- 470         continue 
-          elseif (s.eq.'@feffpaths') then 
+ 470         continue
+          elseif (s.eq.'@feffpaths') then
              found = .true.
 cc             print*, ' feff files in use '
              do 530 i = 1, mfffil
@@ -214,13 +214,13 @@ cc             print*, ' feff files in use '
                    endif
                    call echo(tmpstr)
                 endif
- 530         continue 
-          elseif (s.eq.'@paths') then 
+ 530         continue
+          elseif (s.eq.'@paths') then
              found = .true.
              do 610 ip = 1, mpaths
                 call show_path(jdtusr(ip))
- 610         continue 
-          elseif (s.eq.'@path') then 
+ 610         continue
+          elseif (s.eq.'@path') then
              found = .false.
              s    = blank
              ilen = 1
@@ -229,14 +229,14 @@ cc             print*, ' feff files in use '
                 k  = istrln(keys(i))
                 s  = s(1:ilen)//keys(i)(1:k)//','
                 ilen = ilen + k + 1
- 660         continue 
+ 660         continue
              call str2il(s(1:ilen), mpaths,np,ipths,ier)
              do 680 ip = 1, np
                 call show_path(ipths(ip))
                 found = .true.
- 680         continue 
+ 680         continue
              iw = nkeys
-          elseif (s.eq.'@group') then 
+          elseif (s.eq.'@group') then
              found = .false.
              class  = 'group'
              iw    = iw+1
@@ -249,8 +249,8 @@ cc             print*, ' feff files in use '
                    if (iprint.ge.12)
      $                  call rpndmp(icdarr(1,i))
                    found = .true.
-                end if 
- 710         continue             
+                end if
+ 710         continue
           elseif (istext) then
              found = .false.
              do 760 i = 1, maxtxt
@@ -259,7 +259,7 @@ cc             print*, ' feff files in use '
                    found = .true.
                    go to 200
                 end if
- 760         continue 
+ 760         continue
           elseif (isarr) then
              found = .false.
              do 820 i = 1, maxarr-1
@@ -270,7 +270,7 @@ cc             print*, ' feff files in use '
                    found = .true.
                    go to 200
                 end if
- 820         continue 
+ 820         continue
           else
 c check (in this order): commands, macros, scalars
              found = .false.
@@ -279,15 +279,15 @@ c check (in this order): commands, macros, scalars
                    call ishcom(ckeys(i), chint(i))
                    found = .true.
                    go to 200
-                end if 
- 940         continue 
+                end if
+ 940         continue
              do 950 i = 1, macmax
-                if (s.eq.macnam(i)) then 
+                if (s.eq.macnam(i)) then
                    call ishmac(macnam(i),0)
                    found = .true.
                    go to 200
-                end if 
- 950         continue 
+                end if
+ 950         continue
              do 970 i = 1, maxsca
                 if (s.eq.scanam(i)) then
                    call ishsca(scanam(i),scafrm(i), scalar(i))
@@ -296,7 +296,7 @@ c check (in this order): commands, macros, scalars
      $                  call rpndmp(icdsca(1,i))
                    go to 200
                 end if
- 970         continue 
+ 970         continue
           end if
           if (.not.found) then
              call undels(s)
@@ -323,7 +323,7 @@ c
        include 'arrays.h'
        character*512 s, outm, tmp
        integer npts, k, kf, istrln, i
-       
+
        external istrln
        s  = arrnam(i)
        if (s.eq.blank) return
@@ -336,7 +336,7 @@ cc          print*, 'WEIRD:: array ', i, ' is erased, not reclaimed.'
 
        k   = max(14, istrln(s))
        write(tmp,10) s(1:k), ' =',  narray(i), ' pts  [',
-     $      arrmin(i), ':', arrmax(i), ']' 
+     $      arrmin(i), ':', arrmax(i), ']'
 
        kf  = istrln(arrfrm(i))
        if ((arrfrm(i).ne.'').and.(arrfrm(i).ne.undef)
@@ -371,10 +371,10 @@ c
 	 if (ltot.ge.230) kf = 230 - k
 	 messg  = ' '
        if ((x.eq.zero).or.
-     $      (abs(log(abs(x + small))).le.xmin)) then 
+     $      (abs(log(abs(x + small))).le.xmin)) then
           write(messg,11)  s(1:k), ' = ', x, f1(1:kf)
        else
-	    
+
           write(messg,12)  s(1:k), ' = ', x, f1(1:kf)
        end if
        call echo(messg)
@@ -423,7 +423,7 @@ c
           if (scanam(i).eq.s(1:ilen)) then
              call ishsca(scanam(i),scafrm(i), scalar(i))
           end if
- 10    continue 
+ 10    continue
        return
        end
 
@@ -431,8 +431,8 @@ c
        character*(*) s, t , messg*512
        integer k, j, istrln
        external istrln
-       k = min(max(13, istrln(s)),512)
-       j = min(max(2, istrln(t)), 508-k)
+       k = min(max(16, istrln(s)), len(messg)-15)
+       j = min(max(2, istrln(t)),  len(messg)-20-k)
        write(messg,11)  s(1:k), ' = ', t(1:j)
        call echo(messg)
  11    format('$',3a)
@@ -443,8 +443,8 @@ c
        character*(*) s, t , messg*512
        integer    k, j, istrln
        external istrln
-       k = min(max(14, istrln(s)), 512)
-       j = min(max(2, istrln(t)),  508-k)
+       k = min(max(16, istrln(s)), len(messg)-15)
+       j = min(max(2, istrln(t)),  len(messg)-20-k)
        write(messg,11)  s(1:k), ': ', t(1:j)
        call echo(messg)
  11    format (3a)
@@ -461,11 +461,11 @@ c
        include 'keywrd.h'
        save
 
-       character*(*) str 
+       character*(*) str
        integer i, k, kk, j, istrln, idonly
        external istrln
        i = 0
- 10    continue 
+ 10    continue
        i = i + 1
        if (i.gt.macmax) then
           tmpstr = str
@@ -481,14 +481,14 @@ c  know we know that it's macro "i" we want
        do 60 j = 1, mmcarg
           kk = istrln(mcargd(i,j))
           if (kk.ge.1) then
-             if (j.gt.1) then 
+             if (j.gt.1) then
                 tmpstr = tmpstr(1:k)//', "'// mcargd(i,j)(1:kk)// '"'
              else
                 tmpstr = tmpstr(1:k)//'  "'// mcargd(i,j)(1:kk)// '"'
              end if
           end if
           k = istrln(tmpstr)
- 60    continue 
+ 60    continue
        call triml(tmpstr)
        k = istrln(tmpstr)
        call echo( ' macro '// tmpstr(1:k) )
@@ -502,7 +502,7 @@ c
 c idonly = 1 if we only wanted name, arg list, description
        if (idonly.le.0) then
           imac = imacro(i)
- 150      continue 
+ 150      continue
           if ((imac.gt.0).and.(imac.le.mcline)) then
              k = istrln( macstr(imac) )
              call echo( '     '// macstr(imac)(1:k)  )
@@ -513,7 +513,7 @@ c idonly = 1 if we only wanted name, arg list, description
        endif
 cc
 cc  full dump
-cc       if (iprint.eq.20) then 
+cc       if (iprint.eq.20) then
 cc          print*, 'MACROS: '
 c          do i = 1, macmax
 c             if (macnam(i) .ne.blank) then
@@ -543,21 +543,21 @@ c
        do 80 i = 1, maxarr-1
           j = index(arrnam(i),'.')
           if (j.gt.0) s = arrnam(i)(1:j-1)
-          if (is.gt.0) then 
+          if (is.gt.0) then
              do 40 ii = 1, is
                 if (s.eq. sgrps(ii)) goto 65
- 40          continue 
+ 40          continue
           end if
           is = is + 1
           sgrps(is) = s
           k = max(1, istrln(s))
           write(messg,'(2x,a)') s(1:k)
           call echo(messg)
- 65       continue             
- 80    continue             
+ 65       continue
+ 80    continue
        return
        end
-c       
+c
        subroutine show_path(iup)
        implicit none
        include 'consts.h'
@@ -574,7 +574,7 @@ c
        character*2 at_symbol
        external    at_symbol
        external istrln, u2ipth, getsca, xafs_path
-       
+
        inpath = u2ipth(iup)
        if (inpath .le. 0) return
 
@@ -583,7 +583,7 @@ c read feff files if necessary
        if (.not. lffred(jfeff)) then
           call fefinp
           if (int(getsca('&sync_level',0)).ge.3)  call iff_sync
-       endif          
+       endif
 
        xtmp = iup * 1.d0
        call setsca('path_index', xtmp)
@@ -596,7 +596,7 @@ cc       print*, '::: iup , jfeff ' , iup, inpath, jfeff, refpth(jfeff)
 
 c
 c      path degeneracy
-       pdeg = param(jfpdeg)       
+       pdeg = param(jfpdeg)
        if (icdpar(1,jfpdeg,inpath).eq.0) pdeg = degpth(jfeff)
 
        write(messg,'(1x,a,i5)') ' PATH ', iup
@@ -624,16 +624,16 @@ c  evaluate the path parameters
           if (iprint.ge.12)
      $         call rpndmp(icdpar(1,i,inpath))
           if (icdpar(1, i, inpath).ne.0) then
-             call decod(icdpar(1, i, inpath), micode, 
-     $            consts, scalar, array, narray, nparr, 
+             call decod(icdpar(1, i, inpath), micode,
+     $            consts, scalar, array, narray, nparr,
      $            maxsize_array, maxarr,  ntmp, tmparr)
           end if
           param(i) = tmparr(1)
- 50    continue 
-c note for degeneracy: 
-c   the default is from feff.dat file, but it can be 
-c   overridden as a path parameter.        
-       xtmp = param(jfpdeg)       
+ 50    continue
+c note for degeneracy:
+c   the default is from feff.dat file, but it can be
+c   overridden as a path parameter.
+       xtmp = param(jfpdeg)
 cc       print*, ' xtmp ', xtmp
        if (icdpar(1,jfpdeg,inpath).eq.0) xtmp = degpth(jfeff)
        call write_double_param('r     ', 6, refpth(jfeff)+param(jfpdr))
@@ -662,8 +662,8 @@ cc       print*, ' xtmp ', xtmp
        integer  n
        include 'consts.h'
        include 'keywrd.h'
- 10    format(4x,a,' =',f12.6)       
-       write(messg,10) s(1:n), f 
+ 10    format(4x,a,' =',f12.6)
+       write(messg,10) s(1:n), f
        call echo(messg)
-       return 
+       return
        end
