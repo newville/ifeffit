@@ -1,7 +1,7 @@
        subroutine spline(energy, xmu, mxmu, xkstd, chistd, mstd,
      $      e0_in, rbkgin, r1stin, toler, nknots, 
      $      qmin, qmax, xkw, dk1, dk2, winnam, 
-     $      stfind, fnorm, enor1, enor2, pre1, pre2, estep,
+     $      stfind, fnorm, nnorm, enor1, enor2, pre1, pre2, estep,
      $      lclmp1, xclmp1, lclmp2, xclmp2, nclmp,
      $      cnorm, fixstd, usestd, varye0, spstep,
      $      dofit, bkg, mxk, xk, chi)
@@ -103,7 +103,7 @@ c
        external splfun, nofx, sumsqr
        save
 c
-       nnorm  = 3
+c       nnorm  = 3
        if (toler .le. zero) toler = toldef
        spstep = min(20.d0, max(1.d-6, spstep))
        loop   = 0

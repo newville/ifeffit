@@ -327,8 +327,8 @@ c k and chi arrays for standard --
 c  now the real call to spline
        call spline(arr_e, arr_x, npts_e, arr_ks, arr_cs, npts_ks,
      $      e0, rbkg, r1stx,toler, nknots, xkmin, xkmax,xkw,dk1,dk2,
-     $      winnam, find_step, fnorm, enor1, enor2, pre1,pre2, step,
-     $      lclmp1, xclmp1, lclmp2, xclmp2, nclmp,
+     $      winnam, find_step, fnorm, nnorm, enor1, enor2, 
+     $      pre1, pre2, step, lclmp1, xclmp1, lclmp2, xclmp2, nclmp,
      $      cnorm, fixstd, do_std, vary_e0, splstf, do_spl,
      $      a_bkg, npts_k, a_xk, a_chi)
 c
