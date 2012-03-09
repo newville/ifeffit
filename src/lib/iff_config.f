@@ -109,10 +109,6 @@ c which can overwrite location of data and startup files
        if (ilen.gt.1)  sysdir = envval
        call settxt('&install_dir', sysdir)
 
-       print*, 'IFF Config Got Env Vars: '
-       print*, ' IFEFFIT_DIR ' // envval(1:ilen)
-       print*, ' Install dir ' // sysdir(1:ilen)
-
        envvar = 'PGPLOT_DEV'
        ilen   = istrln(envvar)
        call getenv(envvar(1:ilen), envval)
@@ -121,8 +117,6 @@ c which can overwrite location of data and startup files
        ilen   = istrln(envval)
        if (ilen.gt.1)  pgdev = envval
        call settxt('plot_device', pgdev)
-
-       print*, ' PGPLOT DEV ' // pgdev(1:ilen)
 
 c
 c load system and personal startup files, if found
