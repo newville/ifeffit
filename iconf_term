@@ -6,7 +6,7 @@
 
 # where to look for termcap libs
 dirnames="/usr/local/ /usr/ /sw/ /opt/ /usr/local/gnu/ /usr/gnu/ /gnu/ /"
-libnames='lib64 lib'
+libnames='lib64 lib lib/i386-linux-gnu'
 termlibs='ncurses termcap curses'
 DIR=''
 LIB=''
