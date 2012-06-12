@@ -317,7 +317,7 @@ uninstall-LIBRARIES:
 
 libifeffit.so: $(OBJECTS)
 	-rm -f libifeffit.so
-	$(LINK) -shared -o libifeffit.so $(OBJECTS) $(MN_FLIBS) $(PGPLOT_LIBS)
+	$(F77LINK) -shared -o libifeffit.so $(OBJECTS) $(MN_FLIBS) $(PGPLOT_LIBS)
 
 libifeffit.a: $(OBJECTS)
 	-rm -f libifeffit.a
