@@ -1,4 +1,4 @@
-       subroutine decod(icode, micode, consts, scalar, array, 
+       subroutine decod(icode, micode, consts, scalar, array,
      $       narray, nparr, mvpts, maxarr, nvout, outval)
 c
 c//////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ c   push stack:
              do 140 j = 1, nx(i)
                 x(j,i)  = x(j,i-1)
  140         continue
- 150      continue 
+ 150      continue
 c   fill with constant
           if (ic.gt.jconst) then
              x(1,1)  = consts(ic - jconst)
@@ -115,7 +115,7 @@ c   fill with scalar
              x(1,1)  = scalar(ic - jscale)
              nx(1)   = 1
 c   fill with array
-          else 
+          else
              nx(1)   = max(1, min(maxpts, narray(ic)))
              iarx = ic
              if (iarx.eq.0) then
@@ -188,6 +188,10 @@ c  iop range: -8000 to -10000
        elseif (ic.eq.jrebin) then
           call rebin_interp(x(1,1),nx(1),x(1,2),nx(2),x(1,3),nx(3))
           call stack(x,maxpts,mstack,nx,istack,2)
+       elseif (ic.eq.jtait) then
+          call aitken_interp(x(1,1),nx(1),x(1,2),nx(2),x(1,3),nx(3))
+          call stack(x,maxpts,mstack,nx,istack,2)
+
        elseif (ic.eq.jlconv) then
 c                       gamma,       x        y   yout
 cc          print*, ' convolve: gamma = ', x(1,1), nx(2), nx(3)
@@ -263,7 +267,7 @@ c range:   start stop step
        elseif (ic.eq.jnofxa) then
 cc          print*, ' nofx !'
           j = nofxa(x(1,1),x(1,2),nx(2))
-          nx(1) = 1 
+          nx(1) = 1
           x(1,1) = j
           call stack(x,maxpts,mstack,nx,istack,1)
        elseif (ic.eq.jjoina) then
@@ -271,14 +275,14 @@ cc          print*, ' nofx !'
           itmp1 = min(nx(1)+nx(2), maxpts)-nx(2)
           do 515 i = 1,nx(2)
              xtmp(i) = x(i,2)
- 515      continue 
+ 515      continue
           do 516 i  = 1,itmp1
              xtmp(j+i) = x(i,1)
- 516      continue 
+ 516      continue
           nx(1) = max(1,itmp1+nx(2))
           do 517 i  = 1,nx(1)
-             x(i,1) = xtmp(i) 
- 517      continue 
+             x(i,1) = xtmp(i)
+ 517      continue
           call stack(x,maxpts,mstack,nx,istack,1)
        elseif (ic.eq.jslica) then
           itmp1 = min(int(x(1,1)),nx(3))
@@ -297,7 +301,7 @@ cc          print*, ' nofx !'
 c  done : if no errors, then update param and go to next object
        if (ierr.eq.0) go to 100
 c error handling
- 1000  continue 
+ 1000  continue
        if (ierr.eq.ilog) then
           call warn(2,mtherr//'-- log(x) needs  x > 0')
        elseif (ierr.eq.ilog10) then
@@ -449,7 +453,7 @@ c
           xtmp(nx) = x(nx)  - x(nx-1)
           do 305 i = 1, nx
              x(i) = xtmp(i)
- 305      continue 
+ 305      continue
        elseif (iop.eq.jsmoo) then
           xtmp(1) =3*x(1)*quartr + x(2)*quartr
           do 320 i = 2, nx-1
@@ -458,7 +462,7 @@ c
           xtmp(nx) = 3*x(nx)*quartr + x(nx-1)*quartr
           do 325 i = 1, nx
              x(i) = xtmp(i)
- 325      continue 
+ 325      continue
        elseif (iop.eq.jasign)  then
           do 360 i = 1, nx
              tmp = abs(x(i))
@@ -586,7 +590,7 @@ c             (n = 1 implies a scalar )
              end if
  100      continue
        elseif (iop.eq.jmin) then
-cc          print*, ' f2mth jmin ' 
+cc          print*, ' f2mth jmin '
           do 120 i = 1, nx
              ix = min(nx1, i)
              iy = min(ny1, i)
@@ -610,7 +614,7 @@ c end subroutine f2mth
        end
        subroutine v1mth(x, nx, iop, ierr)
 c
-c one component math on a vector.  if any tests are failed, x is 
+c one component math on a vector.  if any tests are failed, x is
 c returned.    iop indicates what operation to perform.
 c
 c copyright (c) 1998  matt newville

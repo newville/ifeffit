@@ -23,7 +23,7 @@ c//////////////////////////////////////////////////////////////////////
 c
 c   return index in array with value closest to scalar x.
 c   arguments
-c   x      value to find in array  
+c   x      value to find in array
 c   array  double precision array (not necessarily monotonically increasing)
 c   npts   number of points in array
 c
@@ -49,7 +49,7 @@ c end function nofxa
 c
 c   return index in array with value closest to scalar x.
 c   arguments
-c   x      value to find in array  
+c   x      value to find in array
 c   array  double precision array (monotonically increasing)
 c   npts   number of points in array
 c
@@ -88,7 +88,7 @@ c end function nofx
 c
 c   return index in array with value closest to scalar x.
 c   arguments
-c   x      value to find in array  
+c   x      value to find in array
 c   array  single precision array (monotonically increasing)
 c   npts   number of points in array
 c
@@ -125,7 +125,7 @@ c end function nofxsp
        subroutine hunt(xar, npts, xin, jlo)
 c
 c   return jlo=lower-bound index of a value xin in array xar(n)
-c   such that xar(jlo) <= xin < xar(jlo+1). 
+c   such that xar(jlo) <= xin < xar(jlo+1).
 c arguments:
 c   xar   monotonically increasing array     [in]
 c   npts  length of xar                      [in]
@@ -158,7 +158,7 @@ cc interval was not.
              jlo    = jlo + 1
              dohunt = .false.
           end if
-c      
+c
        end if
 c hunt the old-fashioned way:
        if (dohunt) then
@@ -174,7 +174,7 @@ c the input jlo is not useful -- do bisection
 c  look ever further away to bracket value
 c    hunting up from current guess
           if (xin.ge.xar(jlo)) then
- 10          continue 
+ 10          continue
              jhi=jlo+inc
              if (jhi.gt.npts) then
                 jhi=npts+1
@@ -186,7 +186,7 @@ c    hunting up from current guess
           else
 c    hunting down from current guess
              jhi=jlo
- 20          continue 
+ 20          continue
              jlo=jhi-inc
              if (jlo.lt.1) then
                 jlo=0
@@ -219,7 +219,7 @@ c  interpolate yold(xold) to ynew(xnew)  using interpolation
 c  scheme defined by iterp
 c  arguments
 c     xnew   xnew array on input         [in/out]
-c            ynew array on output 
+c            ynew array on output
 c     y      yold array                  [in]
 c     x      xold array                  [in]
 c     iterp  interpolation method
@@ -235,24 +235,24 @@ c  copyright (c) 1998  matt newville
 c
 ccc       print*, ' XTERP: ', iterp
        ny   = min(nx,ny)
-       if (iterp .eq. 0) then 
+       if (iterp .eq. 0) then
           do 20 i = 1, nxnew
              call lintrp(x, y, ny, xnew(i), ip, tmp(i))
- 20       continue 
+ 20       continue
        elseif (iterp .eq. 1) then
           do 30 i = 1, nxnew
              call qintrp(x, y, ny, xnew(i), ip, tmp(i))
- 30       continue 
+ 30       continue
        elseif (iterp .eq. 2) then
           call splcoefs(x, y, ny, coefs, tmp)
           do 80 i = 1, nxnew
              call splint(x, y, coefs, ny, xnew(i), ip, tmp(i))
- 80       continue 
+ 80       continue
        end if
 c
        do 100 i = 1, nxnew
           xnew(i) = tmp(i)
- 100   continue 
+ 100   continue
        return
 c end subroutine xterp
        end
@@ -271,7 +271,7 @@ c t:  temporary work array
        double precision  tiny, zero, xin, yout, one
        parameter (zero = 0.d0, one = 1.d0)
        double precision  s, p, dxp, dxm, dx2
-       
+
 cc       print*, '>> splcoefs '
        c(1)    = zero
        t(1)    = zero
@@ -283,12 +283,12 @@ cc       print*, '>> splcoefs '
           s    = dx2 * ( x(i)   - x(i-1) )
           p    = one / (2 + s * c(i-1))
           c(i) = (s - one) * p
-          t(i) = p * 
+          t(i) = p *
      $     (6*dx2*((y(i+1)-y(i))*dxp - (y(i)-y(i-1))*dxm) - s*t(i-1))
- 20    continue 
+ 20    continue
        do 30 i = npts-1,1, -1
           c(i) = c(i)*c(i+1) + t(i)
- 30    continue 
+ 30    continue
        return
        end
 
@@ -310,15 +310,15 @@ c  find ip such that   x(ip) <= xin <= x(ip+1)
        dxi = 1.d0 / dx
        a   = (x(ip+1) - xin  ) * dxi
        b   = (xin     - x(ip)) * dxi
-       yout= a*y(ip) + b*y(ip+1)  +  dx*dx* sixth * 
-     $      (a*(a*a-1)*c(ip) + b*(b*b-1)*c(ip+1)) 
-       
+       yout= a*y(ip) + b*y(ip+1)  +  dx*dx* sixth *
+     $      (a*(a*a-1)*c(ip) + b*(b*b-1)*c(ip+1))
+
        return
        end
        subroutine lintrp(x, y, npts, xin, ip, yout)
 c
-c    linear interpolation for use in loops where xin increases 
-c    steadily through the monotonically increasing array x. 
+c    linear interpolation for use in loops where xin increases
+c    steadily through the monotonically increasing array x.
 c  arguments:
 c     x      array of ordinate values                   [in]
 c     y      array of abscissa values                   [in]
@@ -326,7 +326,7 @@ c     npts   length of arrays x and y                   [in]
 c     xin    value of x at which to interpolate         [in]
 c     ip     index such that x(ip) <= xin <= x(ip+1)    [in/out]
 c     y      interpolated abscissa at xin               [out]
-c  note: this routine is called extremely often 
+c  note: this routine is called extremely often
 c        -- anything to improve efficiency should be done
        implicit none
        integer    npts, ip
@@ -334,7 +334,7 @@ c        -- anything to improve efficiency should be done
        parameter  (tiny = 1.d-9)
 c  find ip such that   x(ip) <= xin < x(ip+1)
        call hunt(x, npts, xin, ip)
-       yout = y(ip) 
+       yout = y(ip)
        if ((x(ip+1)-x(ip)) .gt. tiny)  yout = yout +
      $     (y(ip+1)-y(ip)) * (xin-x(ip)) / (x(ip+1)-x(ip))
        return
@@ -342,15 +342,15 @@ c  end subroutine lintrp
        end
        subroutine qintrp(x, y, npts, xin, ip, yout)
 c
-c     this does a crude quadratic interpolation for repeated loops 
-c     where xin is increasing steadily through the values in x. 
+c     this does a crude quadratic interpolation for repeated loops
+c     where xin is increasing steadily through the values in x.
 c   inputs:
 c     x      array of ordinate values
 c     y      array of abscissa values
 c     npts   length of arrays x and y
-c     xin    value of x at which to interpolate 
-c     ip     guess of index in x array to use 
-c  outputs: 
+c     xin    value of x at which to interpolate
+c     ip     guess of index in x array to use
+c  outputs:
 c     ip     index in x array used in interpolation
 c     yout    interpolated abscissa at xin
 c----------------------------------------------------------------
@@ -422,17 +422,17 @@ c  end subroutine qintrp
 c
 c  calculate determinate of a square matrix
 c
-c  arguments  (all strictly input): 
+c  arguments  (all strictly input):
 c     array   matrix to be analyzed
 c     nord    order of matrix
 c     nrows   first dimension of matrix in calling routine
-c 
+c
 c  copyright (c) 1998  matt newville
 c
 c  base on bevington "data reduction and error analysis
 c  for the physical sciences" pg 294
 c
-       implicit double precision (a-h,o-z) 
+       implicit double precision (a-h,o-z)
        integer nord, nrows,  i, j, k
        double precision array(nrows,nrows)
        logical      iszero
@@ -442,17 +442,17 @@ c
           if (array(k,k).eq.0) then
              iszero = .true.
              do 120 j=k,nord
-                if (array(k,j).ne.0) then 
+                if (array(k,j).ne.0) then
                    iszero =.false.
                    do 100 i=k,nord
                       saved = array(i,j)
                       array(i,j) = array(i,k)
                       array(i,k) = saved
- 100               continue 
+ 100               continue
                    determ = -determ
                 end if
  120         continue
-             if (iszero) then 
+             if (iszero) then
                 determ = 0
                 return
              end if
@@ -465,16 +465,16 @@ c
                 do 130 j=k1,nord
                    array(i,j) = array(i,j)-
      $                  array(i,k)*array(k,j)/array(k,k)
- 130            continue 
- 140         continue 
+ 130            continue
+ 140         continue
           end if
  150   continue
-c end double precision function determ 
+c end double precision function determ
        end
        double precision function bessi0(x)
 c
 c zero-ordered modified Bessel function I_0(x) for real x
-c from abramowitz and stegun p 378 
+c from abramowitz and stegun p 378
        double precision x, v, y, c
        double precision a1,a2,a3,a4,a5,a6
        double precision b1,b2,b3,b4,b5,b6,b7,b8,b9
@@ -529,18 +529,18 @@ c     old = previous value of phase
        jump   = int( (abs(xph(1))+ pi) / twopi)
        xph(2) = xph(1) - jump*twopi
        xph(3) = xph(1) + jump*twopi
-       
+
        xphmin = min (abs(xph(1)), abs(xph(2)), abs(xph(3)))
        do 10  i = 1, 3
           if (abs (xphmin - abs(xph(i))) .le. 1.d-2)  isave = i
  10    continue
 
        ph = old + xph(isave)
-       
+
        return
 c end subroutine pijump
        end
-       
+
        subroutine polyft(xfit1,xfit2,xdata,ydata,ndata,nterms,aout)
 c
 c  get coefficients for polynomial fit :
@@ -557,9 +557,9 @@ c   nterms  number of terms in polynomial                         (in)
 c   aout    coefficients of fitted polynomial  (single precision) (out)
 c
 c  requires functions nofx and determ.
-c  note that double and single precision are mixed here. 
+c  note that double and single precision are mixed here.
 c  most internal, working arrays use dp (as does routine determ)
-c  
+c
 c
 c  copyright (c) 1998  matt newville
 c
@@ -584,10 +584,10 @@ c     initialize internal arrays
           ain(i) = zero
           sumy(i) = zero
           do 110 j = 1,  nterms
-             array(i,j) = zero       
+             array(i,j) = zero
  110      continue
  120   continue
-c     
+c
 c     find points closest to endpoints of fitting range
        nfit1 = nofx(xfit1,xdata,ndata)
        nfit2 = nofx(xfit2,xdata,ndata)
@@ -597,9 +597,9 @@ c     find points closest to endpoints of fitting range
           nfit2 = ntemp
        end if
        if(nfit1.eq.nfit2) go to 300
-c     
+c
 c     collect sums of data, sum of squares of data, etc.
-       do 200 i = nfit1, nfit2 
+       do 200 i = nfit1, nfit2
           xi = xdata(i)
           yi = ydata(i)
           xterm = one
@@ -611,17 +611,17 @@ c     collect sums of data, sum of squares of data, etc.
           do 190 n=1,nterms
              sumy(n) = sumy(n) + yterm
              yterm   = yterm * xi
- 190      continue 
+ 190      continue
  200   continue
-c     
+c
 c     construct matrices and evaluate coefficients
        do 220 j=1,nterms
           do 210 k=1,nterms
              array(j,k) = sumx(j + k - 1)
- 210      continue 
- 220   continue 
+ 210      continue
+ 220   continue
 c
-c     take determinant, get coefficients  
+c     take determinant, get coefficients
        delta = determ(array,nterms,max)
        if (delta.ne.zero) then
           do 260 l=1,nterms
@@ -650,9 +650,9 @@ c gauss-jordan elimination to invert a matrix.
 c arguments:
 c   a        matrix to invert / solution on output     [in/out]
 c   n        number of elements in a to use            [in]
-c               (i.e. that aren't zero) 
+c               (i.e. that aren't zero)
 c   ma       dimension of a                            [in]
-c   ierr     0 on success / 1  on error 
+c   ierr     0 on success / 1  on error
 c notes:
 c    if matrix cannot be inverted, a  contains garbage
 c
@@ -720,7 +720,7 @@ c reduce non-pviot rows
  300   continue
 c
 c   unravel the solution: interchange column pairs
-c   in the reverse order of the permutation 
+c   in the reverse order of the permutation
        ierr = 0
        do 400 i = n, 1, -1
           if (indrow(i) .ne. indcol(i)) then
@@ -759,7 +759,7 @@ c initialize
        rfact  = 0
 c  construct sums of squares
        do 100 i = 1, ndata
-          ampl  = ampl  +  xdata(i)**2 
+          ampl  = ampl  +  xdata(i)**2
           rfact = rfact + (xdata(i)  - theory(i))**2
  100   continue
        rfact =  rfact  / max(small, ampl)
@@ -793,20 +793,20 @@ c SOFTWARE OR THE USE OR OTHER DEALINGS IN THIS SOFTWARE.
 c//////////////////////////////////////////////////////////////////////
 
 c
-c  test and (if needed) convert an energy array in KeV to eV 
+c  test and (if needed) convert an energy array in KeV to eV
        implicit none
        integer ne, i
        double precision e(ne), de
-       
+
        if ((e(1).le.50).and.(e(ne).le.50)) then
           de = e(2) - e(1)
           do 300 i = 2, ne
              de = min(de, (e(i) - e(i-1)))
- 300      continue 
-          if (de .le. 0.01) then 
+ 300      continue
+          if (de .le. 0.01) then
              do 310 i = 1, ne
                 e(i) = e(i) * 1000
- 310         continue 
+ 310         continue
           endif
        endif
        return
@@ -816,7 +816,7 @@ c
 c
 c  convert x,y data on a non-uniform grid to be
 c  on a uniform (defined by tmin, nt, and dt)
-c 
+c
 c  at each t=tmin + (i-1)*dt (i: 1 to nout)
 c    if 1 or more x value lies in the range (t-dt/2,t+dt/2)
 c       all the available y points are averaged (constant weight)
@@ -830,7 +830,7 @@ c     nx     length of arrays x and y
 c     tmin   first x value of output y array
 c     dt     grid spacing for gridded x values
 c     nout   number of points to calculate, length of yout
-c  outputs: 
+c  outputs:
 c     yout   interpolated abscissa on supplied x grid
 c  notes:
 c     using lorenztian weighting with gamma=dt would seem
@@ -856,55 +856,55 @@ c   otherwise use routine hunt to find ip
           x0  = tmin + dt*(i-1)
           xlo = x0   - dt*half
           xhi = xlo  + dt*onem
-c first point, or if for some other reason, 
+c first point, or if for some other reason,
 c we haven't found a low endpoint, find it now
           ilo = ihi + 1
           if (ilo.le.0)  call hunt(x, nx, xlo, ilo)
 c find high end of grid range
           call hunt(x, nx, xhi, ihi)
 c
-c if we have more than 1 point in this region, do a 
+c if we have more than 1 point in this region, do a
 c weighted average of the points in the region
           if ((ihi-ilo).ge.1)  then
              sum     = zero
              yout(i) = zero
              weight  = one
-             do 50 j = ilo, ihi 
+             do 50 j = ilo, ihi
 cc                this would provide a lorenztian weighting....
 cc                weight = one /(((x(j)-x0)*(x(j)-x0)) + gam2)
                 sum    = sum     +      weight
                 yout(i)= yout(i) + y(j)*weight
- 50          continue 
+ 50          continue
              yout(i)   = yout(i) / max(tiny,sum)
-          else 
-c if we have no input data points in this region, 
+          else
+c if we have no input data points in this region,
 c use quadratic interpolation of available data
              iqt = ilo
              call qintrp(x,y,nx,x0,iqt,yout(i))
-             if (yout(i).ne.yout(i)) then 
+             if (yout(i).ne.yout(i)) then
                 call warn(3,' bad data point in interpolation!')
 cc                print*, ' Grid ', i, '  bad qintrp '
 cc                print*, ' iqt = ', iqt
-cc                do jjj  = -2,2 
+cc                do jjj  = -2,2
 cc                   print*, jjj+iqt, x(jjj+iqt), y(jjj+iqt)
 cc                end do
              endif
           endif
- 100   continue 
+ 100   continue
        return
 c  end subroutine grid_interp
        end
 c
-       subroutine rebin_interp(xout, nxout, yin, nyin, xin, nxin)
+       subroutine aitken_interp(xout, nxout, yin, nyin, xin, nxin)
 c
-c  similar to grid_interp above: converts input x,y data to 
+c  similar to grid_interp above: converts input x,y data to
 c  provided output x array, using boxcar average:
-c 
+c
 c  at each x=xout (i: 1 to nxout)
-c    if 1 or more xin value lies in the range 
+c    if 1 or more xin value lies in the range
 c          [(xout(i)+xout(i-1))/2:(x(i+1)+x(i))/2]
 c       all the available y points are averaged (constant weight)
-c    if 0 xin values lie in the range 
+c    if 0 xin values lie in the range
 c          [(xout(i)+xout(i-1))/2:(x(i+1)+x(i))/2]
 c       a linear interpolation of the closest upper and lower
 c       (x,y) points is used.
@@ -914,12 +914,56 @@ c     yin     array of input abscissa values
 c     nxin    length of arrays xin and yin
 c     xout    array of output ordinates
 c     nxout   length of xout
-c  outputs: 
+c  outputs:
 c     xout    interpolated abscissa on supplied xout
 c  notes:
 c    - using lorenztian weighting with gamma=dt would seem
 c      reasonable....
-c    - weird call structure due to decod (see xterp above) 
+c    - weird call structure due to decod (see xterp above)
+c----------------------------------------------------------------
+       implicit none
+       include 'maxpts.h'
+       integer    nxin, nxout, i, j, ilo, ihi, iqt,  npts, nyin
+       double precision  xin(*), yin(*), xout(*), yout(maxpts), x0
+       double precision aknint
+       external aknint
+       nxin = min(nxin,nyin)
+       do 100 i = 1, nxout
+          x0  = xout(i)
+          yout(i) = aknint(x0, nxin, xin, yin)
+ 100   continue
+       do 200 i = 1, nxout
+          xout(i) = yout(i)
+ 200   continue
+       return
+c  end subroutine aitken_interp
+       end
+c
+       subroutine rebin_interp(xout, nxout, yin, nyin, xin, nxin)
+c
+c  similar to grid_interp above: converts input x,y data to
+c  provided output x array, using boxcar average:
+c
+c  at each x=xout (i: 1 to nxout)
+c    if 1 or more xin value lies in the range
+c          [(xout(i)+xout(i-1))/2:(x(i+1)+x(i))/2]
+c       all the available y points are averaged (constant weight)
+c    if 0 xin values lie in the range
+c          [(xout(i)+xout(i-1))/2:(x(i+1)+x(i))/2]
+c       a linear interpolation of the closest upper and lower
+c       (x,y) points is used.
+c   inputs:
+c     xin     array of input ordinate values
+c     yin     array of input abscissa values
+c     nxin    length of arrays xin and yin
+c     xout    array of output ordinates
+c     nxout   length of xout
+c  outputs:
+c     xout    interpolated abscissa on supplied xout
+c  notes:
+c    - using lorenztian weighting with gamma=dt would seem
+c      reasonable....
+c    - weird call structure due to decod (see xterp above)
 c----------------------------------------------------------------
        implicit none
        include 'maxpts.h'
@@ -944,37 +988,37 @@ c   otherwise use routine hunt to find ip
           if (i.gt.1)     xlo = (x0 + xout(i-1))*half
           if (i.lt.nxout) xhi = (x0 + xout(i+1)-tiny)*half
 
-c first point, or if for some other reason, 
+c first point, or if for some other reason,
 c we haven't found a low endpoint, find it now
           ilo = ihi + 1
           if (ilo.le.0)  call hunt(xin, nxin, xlo, ilo)
 c find high end of grid range
           call hunt(xin, nxin, xhi, ihi)
 c
-c if we have more than 1 point in this region, do a 
+c if we have more than 1 point in this region, do a
 c weighted average of the points in the region
 cc          print*, ' ' , i, x0, xlo, xhi, ilo, ihi, xin(ilo), xin(ihi)
           if ((ihi-ilo).ge.1)  then
              sum     = zero
              yout(i) = zero
              weight  = one
-             do 50 j = ilo, ihi 
+             do 50 j = ilo, ihi
 cc                this would provide a lorenztian weighting....
 cc                weight = one /(((x(j)-x0)*(x(j)-x0)) + gam2)
                 sum    = sum     +        weight
                 yout(i)= yout(i) + yin(j)*weight
- 50          continue 
+ 50          continue
              yout(i)   = yout(i) / max(tiny,sum)
-          else 
-c if we have no input data points in this region, 
+          else
+c if we have no input data points in this region,
 c use quadratic interpolation of available data
              iqt = ilo
              call qintrp(xin,yin,nxin,x0,iqt,yout(i))
           endif
- 100   continue 
+ 100   continue
        do 200 i = 1, nxout
           xout(i) = yout(i)
- 200   continue 
+ 200   continue
        return
 c  end subroutine boxcar_interp
        end
@@ -988,7 +1032,7 @@ c  end subroutine boxcar_interp
 
        xlo = x1(1)
        xhi = x0(1)
-       
+
 cc       print*, 'bound  xlo, xhi = [ ', xlo, ' : ', xhi, ' ]'
 cc       print*, 'bound  x = ', x2(1)
 
@@ -1004,4 +1048,4 @@ cc     print*, 'bound  penalty = ', x0(1)
        return
        end
 
-     
+

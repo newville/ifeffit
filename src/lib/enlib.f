@@ -122,7 +122,7 @@ c  a certain number of commas (usually 1 or 2)
                 if ((jsstak.eq.1).and.(jt.eq.icomma))
      $               jcomma = jcomma + 1
  4200        continue
- 4210        continue 
+ 4210        continue
              if (jsstak.ne.0)   jcomma = -jsstak
              emsg = ''
              if ((it.eq.jdebye).and.(jcomma.ne.1)) then
@@ -196,9 +196,9 @@ c  works well when part of encod, but has not been well-tested.
 c
 c strategy:
 c    first assign class of operation to each argument in icode.
-c    then convert unary minus signs to a one-component operator. 
-c    next, two component function are put after their two arguments. 
-c    one component operators are then put after their argument.   
+c    then convert unary minus signs to a one-component operator.
+c    next, two component function are put after their two arguments.
+c    one component operators are then put after their argument.
 c    finally,  parentheses and  commas are dropped.
 c
 c  copyright (c) 1998  matt newville
@@ -212,12 +212,12 @@ c
        integer   idebug
        logical   opera
 c-- initialize itemp, and assign class to objects and operators
-       
+
 c
        idebug = 0
        do 70 j = 1, maxlen
           icode(j) = input(j)
- 70    continue 
+ 70    continue
        do 90 j = 1, maxlen
            i = icode(j)
            if (i.eq.0)                        iclass(j) = 0
@@ -511,7 +511,7 @@ cc             print*, 'opera =', opera
                    icn   =  icltmp(k)
                    opera = (icn.eq.iclo(1)).or.(icn.eq.iclo(2)).or.
      $                  (icn.eq.iclo(3)).or.(icn.eq.iclo(4)).or.
-     $                  (icn.eq.iclo(5)).or.(icn.eq.iclo(6)) 
+     $                  (icn.eq.iclo(5)).or.(icn.eq.iclo(6))
 cc                   print*, k, icn, ichi, opera
                    if ((istack.ne.0) .or. .not.opera) then
                       if (icn.eq.7) istack = istack + 1
@@ -853,9 +853,9 @@ cc            word = 'debye'
 cc         elseif (ic.eq.jeins) then
 cc            word = 'eins'
 cc         elseif (ic.eq.jgamma) then
-cc            word = 'gamma' 
+cc            word = 'gamma'
 cc         elseif (ic.eq.jlgamm) then
-cc            word = 'loggamma' 
+cc            word = 'loggamma'
 cc         elseif (ic.eq.jerf) then
 cc            word = 'erf'
 cc         elseif (ic.eq.jerfc) then
@@ -904,10 +904,10 @@ cc         elseif (ic.eq.jnofxa) then
 cc            word = 'nofx'
 cc         elseif (ic.eq.-1) then
 cc            word = '*variable*'
-cc         else 
+cc         else
 cc            word = ' '
 cc         end if
-cc 
+cc
 cc       fword  = word
        if (ic.ne.0) then
           iw =  istrln(word)
@@ -924,7 +924,7 @@ cc          write(fword, '(1x,a,i7,a)')  '(', ic, ') '//word(1:iw)
           if (i.ge.micode)  call warn(3, ' [ ran out of memory ]')
        endif
        if ((i.lt.micode).and.(ic.ne.0)) go to 10
-       
+
        return
        end
        integer function ienfcn(str)
@@ -1043,6 +1043,7 @@ c convert function name into encod token
           ienfcn = jasign
        elseif (str.eq.'linterp')  then
           ienfcn = jterpl
+
        elseif (str.eq.'qinterp')  then
           ienfcn = jterpq
        elseif (str.eq.'ainterp')  then
@@ -1051,6 +1052,8 @@ c convert function name into encod token
           ienfcn = jterps
        elseif (str.eq.'rebin')  then
           ienfcn = jrebin
+       elseif (str.eq.'aitken')  then
+          ienfcn = jtait
        elseif (str.eq.'join')  then
           ienfcn = jjoina
        elseif (str.eq.'slice')  then
