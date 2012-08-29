@@ -88,6 +88,9 @@ def set_environ():
     path_sep = ':'
     os_path  = os.environ['PATH']
     dllname  = 'ifeffit'
+    os.environ['PGPLOT_DIR'] = conf['PGPLOT_DIR']
+    os.environ['PGPLOT_FONT'] = os.path.join(conf['PGPLOT_DIR'], 'grfont.dat')
+
     if os.name == 'nt':
         load_dll = ctypes.windll.LoadLibrary
         dllname  = 'ifeffit_12.dll'
@@ -96,6 +99,11 @@ def set_environ():
         os.environ['PGPLOT_FONT'] = '"%s"' % (conf['IFEFFIT_DIR'] + '//bin//grfont.dat')
 
     os.environ['PATH'] = "%s%s%s" % (conf['IFEFFIT_BIN'], path_sep, os_path)
+    
+    if os.name == "posix" and sys.platform == "darwin":
+        dllname  = 'libifeffit.so'
+        dyld_path = os.environ.get('DYLD_LIBRARY_PATH')
+        os.environ['DYLD_LIBRARY_PATH'] = "%s%s%s" % (conf['IFEFFIT_BIN'], path_sep, dyld_path)
 
     dllfile = ctypes.util.find_library(dllname)
     print 'Find DLL ', dllname, dllfile
