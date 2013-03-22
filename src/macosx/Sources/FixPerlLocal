@@ -1,0 +1,10 @@
+filelist='athena artemis hephaestus atoms ifeffit_shell.pl libpng-config libpng12-config c2ph chartex config_data corelist cpan cpan2dist cpanp cpanp-run-perl crc32 dbilogstrip dbiprof dbiproxy dprofpp enc2xs find2perl gedi h2ph h2xs instmodsh libnetcfg lsprj lwp-download lwp-dump lwp-mirror lwp-request lwp-rget perlbug perldoc perlivp perlthanks piconv pl2pm pod2html pod2latex pod2man pod2text pod2usage podchecker podselect prove psed pstruct ptar ptardiff ptked ptksh rdaj s2p shasum splain tkjpeg tkmore tkpod xsubpp'
+
+
+for fl in $filelist ; do
+   echo $fl
+   sed 's|/Users/Newville/Codes/ifeffit/local//bin/perl|/usr/bin/env perl|g' $fl > _T1_
+   sed 's|/Users/Newville/Codes/ifeffit/local/bin/perl|/usr/bin/env perl|g' _T1_ > _Tmp_
+   chmod 755 _Tmp_ 
+   mv -f _Tmp_ $fl
+done
