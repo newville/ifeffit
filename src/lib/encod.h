@@ -15,7 +15,7 @@ c
        integer jadd, jsub, jmin, jmax, jdebye, jeins
        integer jpenl1, jpenl2, jpenl3
        integer jceil, jfloor, jvsum, jvprod, jnpts, jderiv, jsmoo
-       integer jterpl, jterpq, jterps, jterpa, jrebin
+       integer jterpl, jterpq, jterps, jterpa, jrebin, jtait
        integer jndarr, j1sarr, j0sarr, jrngar, jasign
        integer jgamma, jlgamm, jerf, jerfc, jerfcx
        integer jlconv, jgconv, jkktf, jkktr, jfftf, jfftr
@@ -46,7 +46,7 @@ c iop range: -9000 to -10000
      $      jndarr=-9031,  j0sarr=-9032,  j1sarr=-9033,
      $      jjoina=-9041,  jslica=-9042,  jnofxa=-9043,
      $      jterpl=-9120,  jterpq=-9121,  jterps=-9122,
-     $      jterpa=-9123,  jrebin=-9125)
+     $      jterpa=-9123,  jrebin=-9125,  jtait=-9127)
        parameter(jlconv=-9201,  jgconv=-9202,
      $      jkktf =-9210,  jkktr =-9211, 
      $      jfftf =-9213,  jfftr =-9214)
