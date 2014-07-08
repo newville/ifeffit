@@ -1,6 +1,6 @@
       program feff
 c
-c  EXAFS only version of FEFF6
+c  EXAFS only version of FEFF6 
 c  Modified by Matt Newville from original code by John Rehr
 c  see LICENSE for copying details
 c
@@ -23,27 +23,29 @@ c
 c     Following passed to pathfinder, which is single precision.
 c     Be careful to always declare these!
        integer necrit, nbeta
-       parameter (necrit=9, nbeta=40)
-       real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
-       real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
-       real rmax, critpw, pcritk, pcrith
-       character*6  potlbl(0:npotx)
-       character*128 inpfil, lfile
-       character*10 shole(0:9)
-       character*8 sout(0:6)
-       integer istat, il, iox, istrln
-       external istrln
+      parameter (necrit=9, nbeta=40)
+      real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
+      real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
+      real rmax, critpw, pcritk, pcrith
+      character*6  potlbl(0:npotx)
+      character*128 inpfil, lfile
+
+      character*10 shole(0:9)
+      character*8 sout(0:6)
+
+      integer istat, il, iox, istrln
+      external istrln
 
    10 format (1x, a)
+ccc      vfeff = 'Feff 6L.02'
 
-c                   123456789012
 
        call sca_init
        call echo_init
        call open_echofile('feff.run')
        call fstop_init('feff.err')
        call echo(vfeff)
-
+       
 
        shole(0) = 'no hole'
        shole(1) = 'K shell'
@@ -69,13 +71,12 @@ c                   123456789012
        call rdinp (inpfil,
      $      mphase, mpath, mfeff, mchi, ms,
      1      ntitle, title, ltit,
-     2      critcw,
+     2      critcw, 
      1      ipr2, ipr3, ipr4,
      1      s02, tk, thetad, sig2g,
      1      nlegxx,
      1      rmax, critpw, pcritk, pcrith, nncrit,
-     2      icsig, iorder, vrcorr, vicorr, isporb,
-     $      potlbl)
+     2      icsig, iorder, vrcorr, vicorr, isporb)
 
       do 20  i = 1, ntitle
          call echo(title(i)(1:ltit(i)))
@@ -90,12 +91,13 @@ c                   123456789012
       endif
 
       if (ms.eq.1  .and.  mpath.eq.1)  then
+
+
          call echo('Preparing plane wave scattering amplitudes...')
-         ne = 0
-         ik0 = 0
-         print*, 'FEFF ne, ik0 = ', ne, ik0
-         call prcrit (ne, nncrit, ik0, cksp, fbeta, ckspc,
-     1                fbetac)
+cc         print*, 'feff-> prcrit  ne, nncrit = ' , ne, nncrit
+         call prcrit (ne, nncrit, ik0, cksp, fbeta, ckspc, 
+     1                fbetac, potlbl)
+cc         print*, 'after prcrit  ne, nncrit = ' , ne, nncrit
 
 c        Dump out fbetac for central atom and first pot
          if (ipr2 .ge. 3 .and. ipr2.ne.5)  then
@@ -112,7 +114,7 @@ c        Dump out fbetac for central atom and first pot
                      if (cosb .gt.  1)  cosb =  1
                      if (cosb .lt. -1)  cosb = -1
                      angle = acos (cosb)
-                     write(1,230)  angle*raddeg,
+                     write(1,230)  angle*raddeg, 
      1                  fbetac(ibeta,ipot,ie)/ckspc(ie),
      2                  fbetac(ibeta,ipot,ie)
   230                format (f10.4, 1p, 2e15.6)
@@ -128,11 +130,11 @@ c        Dump out fbetac for central atom and first pot
 
          call echo('Eliminating path degeneracies...')
          call pathsd (ckspc, fbetac, ne, ik0, cksp, fbeta,
-     1                critpw, ipotnn, ipr2,
+     1                critpw, ipotnn, ipr2, 
      1                pcritk, pcrith, nncrit, potlbl)
 
          if (ipr2 .lt. 2)  then
-            open (unit=1, file='geom.dat', status='old', iostat=ios)
+            open (unit=1, file='geom.dat', status='old')
             call chopen (ios, 'geom.dat', 'feff')
             close (unit=1, status='delete')
          endif
@@ -140,7 +142,7 @@ c        Dump out fbetac for central atom and first pot
 
       if (mfeff .eq. 1)  then
          call echo('Calculating EXAFS parameters...')
-         call genfmt (ipr3, critcw, sig2g)
+         call genfmt (ipr3, critcw, sig2g, iorder)
       endif
 
 c      if (mchi .eq. 1)  then

@@ -14,67 +14,15 @@ c                   xxx.dat      various diagnostics
       include 'const.h'
       include 'dim.h'
 
-c     Notes:
-c        nat	number of atoms in problem
-c        nph	number of unique potentials
-c        nfr	number of unique free atoms
-c        ihole	hole code of absorbing atom
-c        iph=0 for central atom
-c        ifr=0 for central atom
-
-c     Specific atom input data
-      dimension iphat(natx)	!given specific atom, which unique pot?
-      dimension rat(3,natx)	!cartesian coords of specific atom
-
-c     Unique potential input data
-      dimension iatph(0:nphx)	!given unique pot, which atom is model?
-				!(0 if none specified for this unique pot)
-      dimension ifrph(0:nphx)	!given unique pot, which free atom?
-      dimension xnatph(0:nphx)	!given unique pot, how many atoms are there
-				!of this type? (used for interstitial calc)
-      character*6 potlbl(0:nphx)	!label for user convienence
-
-      dimension folp(0:nphx)	!overlap factor for rmt calculation
-      dimension novr(0:nphx)	!number of overlap shells for unique pot
-      dimension iphovr(novrx,0:nphx)	!unique pot for this overlap shell
-      dimension nnovr(novrx,0:nphx)	!number of atoms in overlap shell
-      dimension rovr(novrx,0:nphx)	!r for overlap shell
-
-c     Free atom data
-      dimension ion(0:nfrx)	!ionicity, input
-      dimension iz(0:nfrx)	!atomic number, input
-
-c     ATOM output
-c     Note that ATOM output is dimensioned 251, all other r grid
-c     data is set to nrptx, currently 250
-      dimension rho(251,0:nfrx)		!density*4*pi
-      dimension vcoul(251,0:nfrx)	!coulomb potential
-
-c     Overlap calculation results
-      dimension edens(nrptx,0:nphx)	!overlapped density*4*pi
-      dimension vclap(nrptx,0:nphx) 	!overlapped coul pot
-      dimension vtot (nrptx,0:nphx)	!overlapped total potential
-
-c     Muffin tin calculation results
-      dimension imt(0:nphx)	!r mesh index just inside rmt
-      dimension inrm(0:nphx)	!r mesh index just inside rnorman
-      dimension rmt(0:nphx)	!muffin tin radius
-      dimension rnrm(0:nphx)	!norman radius
-
-c     PHASE output
-      complex*16 eref(nex)		!interstitial energy ref
-      complex*16 ph(nex,ltot+1,0:nphx)	!phase shifts
-      dimension lmax(0:nphx)		!number of ang mom levels
-
+      include 'arrays.h'
       common /print/ iprint
 
       parameter (nheadx = 30)
       character*80 head(nheadx), messag*128
+      dimension lhead(nheadx)
 
       character*10 shole(0:9)
       character*8 sout(0:6)
-
-      dimension lhead(nheadx)
 
 c     head0 is header from potph.dat, include carriage control
       character*80 head0(nheadx)
@@ -99,9 +47,9 @@ c     Read input from file potph.inp
       nhead0 = nheadx
       call rpotph (1, nhead0, head0, lhead0, nat, nph,
      1             nfr, ihole, gamach, iafolp, intclc,
-     1             ixc, vr0, vi0, rs0, iphat, rat, iatph, ifrph,
+     1             ixc, vr0, vi0, rs0, iphat, rat, iatph, ifrph, 
      1             xnatph, novr,
-     2             iphovr, nnovr, rovr, folp, ion, iz, iprint,
+     2             iphovr, nnovr, rovr, folp, ion, iz, iprint, 
      2             ixanes, nemax, xkmin, xkmax, potlbl)
       close (unit=1)
 
@@ -146,7 +94,7 @@ c        K hole
 
 c     Overlap potentials and densitites
       do 40  iph = 0, nph
-         write(messag,10)
+         write(messag,10) 
      1    'overlapped potential and density for unique potential', iph
          call echo(messag)
          call ovrlp (iph, iphat, rat, iatph, ifrph, novr,
@@ -202,12 +150,14 @@ c     Make energy mesh and position grid
       dx = .05d0
       x0 = 8.8d0
       edge = xmu - vr0
+cc      print*,  'potph -> phmesh ', ne
 
       call phmesh (nr, dx, x0, nemax, iprint,
      1             ixanes, edge, xmu, vint, vr0,
      1             imt, edens, nph,
      2             ri, ne, em, ik0)
 
+cc      print*,  'potph after phmesh ', ne
 c     Cross section calculation, use phase mesh for now
 c     remove xanes calculation in feff6l
 
@@ -219,11 +169,12 @@ c        fix up variable for phase
      1                vint, rhoint, nr, dx, x0, ri,
      2                vtotph, rhoph)
 
+cc         print*,  'potph -> phase ', ne
          call phase (iph, nr, dx, x0, ri, ne, em, edge,
      1               ixc, rmt(iph), xmu, vi0, rs0, gamach,
      2               vtotph, rhoph,
      3               eref, ph(1,1,iph), lmax(iph))
-
+cc         print*,  'potph after phase ', ne
    60 continue
 
       if (iprint .ge. 2)  then
@@ -253,7 +204,9 @@ c     May need stuff for use with headers only
       close (unit=1)
 
 cc
-cc optionally, write phase.pad
+cc optionally, write phase.pad 
+cc
+
       if (do_pad_io) then
          lun  = 9
          npack = 10
@@ -263,10 +216,6 @@ cc optionally, write phase.pad
             return
          end if
          write(lun,'(a,i3)') '#:FEFF6X POT File: npad = ', npack
-         write(lun, '(a, i9)') '#:nhead= ', nhead
-         do 402  i = 1, nhead
-            write(lun, '(a, a)' ) '#= ', head(i)
- 402     continue
          write(lun,'(a,i9,i9,i9,i9)') '#:ne,nph,ihole,ik0 =  ',
      $        ne, nph, ihole, ik0
          write(lun, '(a,g22.15)') '#% rnrmav = ', rnrmav
@@ -280,8 +229,11 @@ cc optionally, write phase.pad
             do 410  l = 1, lmax(iph)+1
                call wrpadx(lun,npack,ph(1,l,iph),ne)
  410        continue
- 420     continue
+ 420     continue 
          close(lun)
       endif
+
+
+
       return
       end
