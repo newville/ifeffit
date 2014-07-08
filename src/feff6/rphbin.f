@@ -1,6 +1,5 @@
-      subroutine rphbin(fname, ntext, ntitle, text, title, npot, potlbl,
-     $     nsc, ne, ik0, ihole, l0, il0, lmaxp1, ltext, ltitle, iz,
-     $     lmax, rnrmav, xmu, edge, em, eref, ph)
+      subroutine rphbin (in)
+      implicit double precision (a-h, o-z)
 
 c     Reads input from unit in.  Returns (via /pdata/)
 c       energy mesh (ne, em and eref),
@@ -8,20 +7,11 @@ c       ph (npot, lmax, lmaxp1, ph),
 c       final state (l0, il0)
 c
 c     phmin is min value to use for |phase shift|
-cc      implicit none
-      implicit double precision (a-h, o-z)
+
       include 'dim.h'
       include 'pdata.h'
-      character*(*) fname
-      double precision phmin
-      parameter (phmin = 1.0e-8)
-      integer ios
-      integer in, i, il, linit, lfinal, ll, iph, ie, lmax0
 
-      in = 1
-      open (unit=in, file=fname, status='old',
-     $     access='sequential', form='unformatted', iostat=ios)
-      call chopen (ios, 'phase.bin', 'read phase.bin')
+      parameter (phmin = 1.0e-8)
 
 c     These header lines do not include carriage control
       read(in) ntext
@@ -73,6 +63,5 @@ c        some m hole, n=3, could go to d state
       l0 = lfinal
       il0 = l0 + 1
 
-      close(in)
       return
       end

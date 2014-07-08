@@ -1,4 +1,4 @@
-      subroutine sclmz (rho, lmaxp1, mmaxp1, ileg, clmi)
+      subroutine sclmz (rho, lmaxp1, mmaxp1, ileg)
       implicit double precision (a-h, o-z)
 
 c     Set CLM(Z) for current leg.
@@ -15,10 +15,10 @@ c     To test pw approx, set z = 0
 
       include 'const.h'
       include 'dim.h'
+      include 'clmz.h'
 
       complex*16 rho(legtot)
       complex*16 z, cmm
-      complex*16 clmi(ltot+1, mtot+ntot+1, legtot)
 
       cmm = 1
       z = -coni / rho(ileg)

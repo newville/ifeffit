@@ -25,7 +25,7 @@ c     Normalize polarization vector
       if (elpty .eq. 0.0) then
 c        run linear polarization code
          do 291 i = 1, 3
-            ivec(i) = 0.d0
+            ivec(i) = 0.0
   291    continue
       endif
       x = sqrt (ivec(1)**2 + ivec(2)**2 + ivec(3)**2)
@@ -57,32 +57,32 @@ c          plane based on two vectors
   295      continue
          endif
       else
-         elpty = 0.d0
-      endif
-
+         elpty = 0.0
+      endif 
+     
       e2(1) = ivec(2)*evec(3)-ivec(3)*evec(2)
       e2(2) = ivec(3)*evec(1)-ivec(1)*evec(3)
       e2(3) = ivec(1)*evec(2)-ivec(2)*evec(1)
       do 296  i = 1,3
         e(i) = (evec(i)+elpty*e2(i)*coni)
-  296 continue
-      eps(-1) =  (e(1)-coni*e(2))/sqrt(2.d0)
+  296 continue 
+      eps(-1) =  (e(1)-coni*e(2))/sqrt(2.0)
       eps(0)  =   e(3)
-      eps(1)  = -(e(1)+coni*e(2))/sqrt(2.d0)
+      eps(1)  = -(e(1)+coni*e(2))/sqrt(2.0)
       do 297  i = 1,3
         e(i) = (evec(i)-elpty*e2(i)*coni)
-  297 continue
-      epc(-1) =  (e(1)-coni*e(2))/sqrt(2.d0)
+  297 continue 
+      epc(-1) =  (e(1)-coni*e(2))/sqrt(2.0)
       epc(0)  =   e(3)
-      epc(1)  = -(e(1)+coni*e(2))/sqrt(2.d0)
+      epc(1)  = -(e(1)+coni*e(2))/sqrt(2.0)
       do 298 i = -1,1
       do 298 j = -1,1
 c        ptz(i,j) = ((-1.0)**i)*epc(-i)*eps(j)/(1+elpty**2)
-c       above - true polarization tensor for given ellipticity,
+c       above - true polarization tensor for given ellipticity, 
 c       below - average over left and right in order to have
 c       path reversal simmetry
         ptz(i,j) = ((-1.0)**i)*(epc(-i)*eps(j)+eps(-i)*epc(j))
-     1               /(1+elpty**2)/2.d0
+     1               /(1+elpty**2)/2.0
   298 continue
 c     end of making polarization tensor
 

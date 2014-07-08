@@ -1,27 +1,28 @@
-      subroutine genfmt (ipr3, critcw, sig2g)
+      subroutine genfmt (ipr3, critcw, sig2g, iorder)
       implicit double precision (a-h, o-z)
 
       include 'const.h'
       include 'dim.h'
+      include 'clmz.h'
+      include 'fmatrx.h'
+      include 'lambda.h'
       include 'pdata.h'
+      include 'nlm.h'
+      include 'rotmat.h'
+
       include 'vers.h'
       include 'pola.h'
 
-      double precision xnlm(ltot+1, mtot+1)
-      double precision dri(ltot+1, 2*mtot+1, 2*mtot+1, legtot+1)
-      complex*16 clmi(ltot+1, mtot+ntot+1, legtot)
-      complex*16 fmati(lamtot, lamtot, legtot)
+      complex*16  rho(legtot), pmati(lamtot,lamtot,2)
+      complex*16  pllp, ptrac, srho, prho, cdel1, cfac
+      complex*16  cchi(nex), cfms, mmati
+      dimension   mmati(-mtot:mtot,-mtot:mtot)
+      dimension   t3j(-mtot-1:mtot+1,-1:1)
+      dimension   xk(nex), ckmag(nex)
+      complex*16  ck(nex)
+      dimension   ffmag(nex)
 
-      complex*16 rho(legtot), pmati(lamtot,lamtot,2)
-      complex*16 pllp, ptrac, srho, prho, cdel1, cfac
-      complex*16 cchi(nex), cfms, mmati
-      complex*16 ck(nex)
-      integer mlam(lamtot), nlam(lamtot)
-
-      dimension  mmati(-mtot:mtot,-mtot:mtot)
-      dimension  t3j(-mtot-1:mtot+1,-1:1)
-      double precision  xk(nex)
-      character*128 fname, messag
+      character*12 fname, messag*128
 
       logical done
 
@@ -32,29 +33,12 @@ c             (normal use, 2.  Do ss exactly regardless of iorder)
 c     used for divide-by-zero and trig tests
       parameter (eps = 1.0e-16)
 
-c  Read phase calculation
-      fname = 'phase.bin'
-      call rphbin(fname, ntext, ntitle, text, title, npot, potlbl,
-     $     nsc, ne, ik0, ihole, l0, il0, lmaxp1, ltext, ltitle, iz,
-     $     lmax, rnrmav, xmu, edge, em, eref, ph)
-c
-c  Set nlm factors for use later
-      call snlm(ltot, mtot, xnlm)
-      if (pola) then
-c  Make 3j factors in t3j  (multiplied by sqrt(3*(2l0+1)) for
-c  further convinience - the same expression for chi)
-c  l0 - final momentum, initial momentum = l0-1.
-         do 140  m0 = -l0+1,l0-1
-            t3j(m0, 1) = (-1)**(l0+1+m0)*sqrt(3.0d0*(l0+m0)*(l0+m0+1)
-     1                /(2*l0)/(2*l0-1))
-            t3j(m0, 0) = (-1)**(l0+m0)*sqrt(3.0d0*(l0*l0-m0*m0)/
-     1                l0/(2*l0-1))
-  140    continue
-         do 145  m0 = -l0+1,l0-1
-            t3j(m0,-1) = t3j(-m0,1)
-  145    continue
-      endif
-
+c     Read phase calculation input, data returned via commons
+      open (unit=1, file='phase.bin', status='old',
+     1      access='sequential', form='unformatted', iostat=ios)
+      call chopen (ios, 'phase.bin', 'genfmt')
+      call rphbin (1)
+      close (unit=1)
 
 c     Open path input file (unit in) and read title.  Use unit 1.
       ntitle = 5
@@ -107,26 +91,45 @@ c     Make a header for the running messages.
        call echo(messag)
   132 format ('    path  cw ratio     deg    nleg  reff')
 
+c     Set nlm factors in common /nlm/ for use later
+      call snlm (ltot+1, mtot+1)
+
+      if (pola) then
+c        Make 3j factors in t3j  (multiplied by sqrt(3*(2l0+1)) for
+c        further convinience - the same expression for chi)
+c        l0 - final momentum, initial momentum = l0-1.
+         do 140  m0 = -l0+1,l0-1
+            t3j(m0, 1) = (-1)**(l0+1+m0)*sqrt(3.0d0*(l0+m0)*(l0+m0+1)
+     1                /(2*l0)/(2*l0-1))
+            t3j(m0, 0) = (-1)**(l0+m0)*sqrt(3.0d0*(l0*l0-m0*m0)/
+     1                l0/(2*l0-1))
+  140    continue
+         do 145  m0 = -l0+1,l0-1
+            t3j(m0,-1) = t3j(-m0,1)
+  145    continue
+      endif
 
 c     While not done, read path, find feff.
+      open (unit=4,file='nstar.dat', status='unknown', iostat=ios)
+      write(4,198, iostat=ios) evec
+  198 format('polarization  ',3f8.4)
+      write(4,199, iostat=ios)
+  199 format('npath  nstar')
       npath = 0
       ntotal = 0
       nused = 0
       xportx = -1
-c
-c start of "for each path" loop
   200 continue
-c     Read current path
-          in = 1
-          call read_pathgeom(in, ipath, nleg, npot, deg,
-     $         rat, ipot, potlbl, done)
 
-          if (done) goto 1000
-          nsc = nleg - 1
-          call calc_pathgeom(nleg, rat, ipot, ri, beta, eta)
-
+c        Read current path
+         call rdpath (1, pola, done,xstar)
+         icalc = iorder
+         if (done)  goto  1000
          npath = npath + 1
          ntotal = ntotal + 1
+
+         write (4,201,iostat=ios) npath, xstar
+  201    format (i5, f8.4)
 
 c        Need reff
          reff = 0
@@ -136,29 +139,31 @@ c        Need reff
          reff = reff/2
 
 c        Set lambda for low k
-         call setlam(nsc, il0, mmaxp1, lamx, laml0x, nmax, mlam, nlam)
+         call setlam (icalc, 1)
 
 c        Calculate and store rotation matrix elements
 c        Only need to go to (il0, il0, ...) for isc=nleg and
 c        nleg+1 (these are the paths that involve the 'z' atom
-         call rot3i (il0, il0, nleg, beta(nleg), dri)
+         call rot3i (il0, il0, nleg)
          do 400  isc = 1, nsc
-            call rot3i (lmaxp1, mmaxp1, isc, beta(isc), dri)
+            call rot3i (lmaxp1, mmaxp1, isc)
   400    continue
          if (pola) then
 c           one more rotation in polarization case
-            call rot3i (il0, il0, nleg+1, beta(nleg+1), dri)
-            call mmtr(t3j, mmati, nsc, nleg, l0, il0, dri, eta)
-         endif
+            call rot3i (il0, il0, nleg+1)
+            call mmtr(t3j,mmati)
+         endif 
+
 
 c        Big energy loop
          do 800  ie = 1, ne
 
 c           real momentum (k)
-            xk(ie) = getxk(em(ie) - edge)
+            xk(ie) = getxk (em(ie) - edge)
 
 c           complex momentum (p)
             ck(ie) = sqrt (em(ie) - eref(ie))
+            ckmag(ie) = abs(ck(ie))
 c           complex rho
             do 420  ileg = 1, nleg
                rho(ileg) = ck(ie) * ri(ileg)
@@ -186,51 +191,45 @@ c           zero clmi arrays
 
             lxp1 = max (lmax(ie,ipot(1))+1, l0+1)
             mnp1 = min (lxp1, mnmxp1)
-            call sclmz (rho, lxp1, mnp1, 1, clmi)
+            call sclmz (rho, lxp1, mnp1, 1)
 
             lxp1 = max (lmax(ie,ipot(nsc))+1, l0+1)
             mnp1 = min (lxp1, mnmxp1)
-            call sclmz (rho, lxp1, mnp1, nleg, clmi)
+            call sclmz (rho, lxp1, mnp1, nleg)
 
             do 460  ileg = 2, nleg-1
                isc0 = ileg-1
                isc1 = ileg
                lxp1 = max (lmax(ie,ipot(isc0))+1, lmax(ie,ipot(isc1))+1)
                mnp1 = min (lxp1, mnmxp1)
-               call sclmz (rho, lxp1, mnp1, ileg, clmi)
+               call sclmz (rho, lxp1, mnp1, ileg)
   460       continue
 
 c           Calculate and store scattering matrices fmati.
+
             if (pola) then
 c              Polarization version, make new m matrix
 c              this will fill fmati(...,nleg) in common /fmtrxi/
-               call mmtrxi (laml0x, mmati, ie, 1, nleg,
-     $              mlam, nlam, il0, xnlm, clmi, fmati)
-            else
+               call mmtrxi (laml0x, mmati, ie, 1, nleg)
+            else 
 c              Termination matrix, fmati(...,nleg)
                iterm = 1
-               call fmtrxi(laml0x, laml0x, ie, iterm, 1, nleg,
-     $              mlam, nlam, dri, xnlm, clmi, fmati,
-     $              ph, eta, lmax, ipot, il0)
+               call fmtrxi (laml0x, laml0x, ie, iterm, 1, nleg)
             endif
+
             iterm = -1
 c           First matrix
-            call fmtrxi (lamx, laml0x, ie, iterm, 2, 1,
-     $           mlam, nlam, dri, xnlm, clmi, fmati,
-     $           ph, eta, lmax, ipot, il0)
+            call fmtrxi (lamx, laml0x, ie, iterm, 2, 1)
 c           Last matrix if needed
-           if (nleg .gt. 2)  then
-               call fmtrxi(laml0x, lamx, ie, iterm, nleg, nleg-1,
-     $             mlam, nlam, dri, xnlm, clmi, fmati,
-     $             ph, eta, lmax, ipot, il0)
+            if (nleg .gt. 2)  then
+               call fmtrxi (laml0x, lamx, ie, iterm, nleg, nleg-1)
             endif
 c           Intermediate scattering matrices
             do 480  ilegp = 2, nsc-1
                ileg = ilegp + 1
-               call fmtrxi(lamx, lamx, ie, iterm, ileg, ilegp,
-     $              mlam, nlam, dri, xnlm, clmi, fmati,
-     $              ph, eta, lmax, ipot, il0)
+               call fmtrxi (lamx, lamx, ie, iterm, ileg, ilegp)
   480       continue
+
 c           Big matrix multiplication loops.
 c           Calculates trace of matrix product
 c           M(1,N) * f(N,N-1) * ... * f(3,2) * f(2,1), as in reference.
@@ -295,27 +294,107 @@ c           Jump to here from ck(ie)=0 test above.
 c        end of energy loop
   800    continue
 
-         call calc_zabinsky(ne, ik0, deg, ck, cchi, xportx, crit)
+c        Make importance factor, deg*(integral (|chi|*d|p|))
+c        make ffmag (|chi|)
+c        xport   importance factor
+         do 810  ie = 1, ne
+               ffmag(ie) = abs(cchi(ie))
+  810    continue
 
-c        Write output if path is important enough (ie, path has
-c               crit>=crit0)
+c        integrate from edge (ik0) to ne
+         nemax = ne - ik0 + 1
+         call trap (ckmag(ik0), ffmag(ik0), nemax, xport)
+         xport = abs(deg*xport)
+         if (xport .gt. xportx)  xportx = xport
+         crit = 100 * xport / xportx
+
+c        Write output if path is important enough (ie, path is
+
+c        Write feff.dat if we need it.
          if (ipr3 .ge. 1  .or.  crit .ge. crit0)  then
-            call genfmt_writefeffdat(ipath, ntext, text,
-     $           nleg, deg, reff, rnrmav, edge,
-     $           rat, iz, ipot, potlbl,
-     $           l0, il0, ne, xk, ck, ph, cchi)
+c           Prepare output file feffnnnn.dat (unit 3)
+            write(fname,241)  ipath
+  241       format ('feff', i4.4, '.dat')
+            open (unit=3, file=fname, status='unknown', iostat=ios)
+            call chopen (ios, fname, 'genfmt')
+c           put header on feff.dat
+            do 245  itext = 1, ntext
+               write(3,60)  text(itext)(1:ltext(itext))
+  245       continue
+            write(3,250) ipath, icalc, vfeff, vgenfm
+  250       format (' Path', i5, '      icalc ', i7, t57, 2a12)
+            write(3,70)
+            write(3,290)  nleg, deg, reff*bohr, rnrmav, edge*ryd
+  290       format (1x, i3, f8.3, f9.4, f10.4, f11.5, 
+     1              ' nleg, deg, reff, rnrmav(bohr), edge')
+            write(3,300)
+  300       format ('        x         y         z   pot at#')
+            write(3,310)  (rat(j,nleg)*bohr,j=1,3), ipot(nleg),
+     1                    iz(ipot(nleg)), potlbl(ipot(nleg))
+  310       format (1x, 3f10.4, i3, i4, 1x, a6, '   absorbing atom')
+            do 330  ileg = 1, nleg-1
+               write(3,320)  (rat(j,ileg)*bohr,j=1,3), ipot(ileg),
+     1                       iz(ipot(ileg)), potlbl(ipot(ileg))
+  320          format (1x, 3f10.4, i3, i4, 1x, a6)
+  330       continue
+
+            write(3,340)
+  340       format    ('    k   real[2*phc]   mag[feff]  phase[feff]',
+     1                 ' red factor   lambda      real[p]@#')
+
+c           Make the feff.dat stuff and write it to feff.dat
+            do 900  ie = 1, ne
+c              Consider chi in the standard XAFS form.  Use R = rtot/2.
+               xlam = 1.0e10
+               if (abs(dimag(ck(ie))) .gt. eps) xlam = 1/dimag(ck(ie))
+               redfac = exp (-2 * dimag (ph(ie,il0,ipot(nleg))))
+               cdelt = 2*dble(ph(ie,il0,ipot(nleg)))
+               cfms = cchi(ie) * xk(ie) * reff**2 *
+     1              exp(2*reff/xlam) / redfac
+               if (abs(cchi(ie)) .lt. eps)  then
+                  phff = 0
+               else
+                  phff = atan2 (dimag(cchi(ie)), dble(cchi(ie)))
+               endif
+c              remove 2 pi jumps in phases
+               if (ie .gt. 1)  then
+                  call pijump (phff, phffo)
+                  call pijump (cdelt, cdelto)
+               endif
+               phffo = phff
+               cdelto = cdelt
+
+c              write 1 k, momentum wrt fermi level k=sqrt(p**2-kf**2)
+c                    2 central atom phase shift (real part),
+c                    3 magnitude of feff,
+c                    4 phase of feff,
+c                    5 absorbing atom reduction factor,
+c                    6 mean free path = 1/(Im (p))
+c                    7 real part of local momentum p
+
+               write(3,640)
+     1            xk(ie)/bohr,
+     2            cdelt + l0*pi,
+     3            abs(cfms) * bohr,
+     4            phff - cdelt - l0*pi,
+     5            redfac,
+     6            xlam * bohr,
+     7            dble(ck(ie))/bohr
+  640          format (1x, f6.3, 1x, 3(1pe11.4,1x),0pe11.4,1x,
+     1                               2(1pe11.4,1x))
+  900       continue
+
+c           Done with feff.dat
+            close (unit=3)
 
 c           Put feff.dat and stuff into files.dat
-            write(fname, 241)  ipath
- 241        format ('feff', i4.4, '.dat')
-            il = istrln(fname)
-            write(2,820) fname(1:il), sig2g, crit, deg,
+            write(2,820) fname, sig2g, crit, deg,
      1                   nleg, reff*bohr
   820       format(1x, a, f8.5, 2f10.3, i6, f9.4)
 
 c           Tell user about the path we just did
             write(messag, 210) ipath, crit, deg, nleg, reff*bohr
-            call echo(messag)
+            call echo(messag)            
   210       format (3x, i4, 2f10.3, i6, f9.4)
             nused = nused+1
 

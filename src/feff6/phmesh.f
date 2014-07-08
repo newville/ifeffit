@@ -13,16 +13,14 @@ c     set nemax = nex (from dim.h) for max number of points
       implicit double precision (a-h, o-z)
       include 'const.h'
       include 'dim.h'
-      double precision rr
-      double precision ri(nr), em(nex)
-      external rr
+      dimension ri(nr), em(nex)
 
 c     edens       overlapped density*4*pi
 c     imt         r mesh index just inside rmt
 c     see arrays.h
       dimension edens(nrptx,0:nphx)
       dimension imt(0:nphx)
-      integer i, iscale
+
 c     r mesh
       do 100  i = 1, nr
          ri(i) = rr(i)
@@ -42,6 +40,9 @@ c        min rho
 
          xkmin2 = xf2min - vr0
          if (xkmin2 .lt. 0)  then
+c            print*, ' xf2min, vr0, xkmin2'
+c            print*, xf2min, vr0, xkmin2
+c            print*, 'bad vr0 in phmesh'
             call fstop(' at PHMESH: bad vr0')
          endif
 
@@ -59,42 +60,41 @@ c     30 pts (0 le k le 5.8, delk=0.2 ang(-1) )
 c      9 pts (6 le k le 10., delk=0.5 ang(-1) )
 c     10 pts (11 le k le 20.0, delk=1.0 ang(-1) )
       ne = 0
-      iscale = 1
-      delk1 = bohr/(5*iscale)
-      delk2 = bohr/(2*iscale)
-      delk3 = bohr/iscale
-
-      npts1 = iscale*30
-      npts2 = iscale*9
-      npts3 = iscale*10
-
+      delk = bohr/5
       if (ixanes .gt. 0)  then
-         xkmin = n*delk1
+         xkmin = n*delk
          do 110 i=1,n
+            tempk=-xkmin+(i-1)*delk
             ne = ne+1
-            em(ne) = edge - (-xkmin+(i-1)*delk1)**2
+            em(ne)=-tempk**2+edge
   110    continue
       endif
-c
-      do 112 i=1, npts1
+      delk = bohr/5
+      do 112 i=1,30
+         tempk=(i-1)*delk
          ne = ne+1
-         em(ne) = edge + ((i-1)*delk1)**2
+         em(ne)=tempk**2+edge
          if (i.eq.1)  ik0 = ne
   112 continue
-      do 113 i=1, npts2
+      delk = bohr/2
+      do 113 i=1,9
+         tempk=6.*bohr + (i-1)*delk
          ne = ne+1
-         em(ne) = edge + (6.d0*bohr + (i-1)*delk2)**2
+         em(ne)=tempk**2+edge
   113 continue
-      do 114 i=1, npts3
+      delk=bohr
+      do 114 i=1,10
+         tempk=11.*bohr + (i-1)*delk
          ne = ne+1
-         em(ne) = edge + (11.d0*bohr + (i-1)*delk3)**2
+         em(ne)=tempk**2+edge
   114 continue
 
 c     print*, 'phmesh: ne, nex, nemax before setting ne ',
 c    1                 ne, nex, nemax
       ne = min (ne, nemax)
-cc      print*, 'phmesh: ne, nex, nemax after  setting ne ',
-cc     1                 ne, nex, nemax
+c     print*, 'phmesh: ne, nex, nemax after  setting ne ',
+c    1                 ne, nex, nemax
+
 
       if (iprint .ge. 3)  then
          open (unit=44, file='emesh.dat')
